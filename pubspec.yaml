@@ -2,7 +2,7 @@ name: hexagon
 description: When you want to have hexagon.
 version: 0.0.1
 author: rSquared
-homepage:
+homepage: https://github.com/rSquared-software/flutter-hexagon
 
 environment:
   sdk: ">=2.7.0 <3.0.0"

@@ -41,8 +41,7 @@ class MyHomePage extends StatelessWidget {
                 print('tapped earth');
               },
               child: HexagonWidget(
-                height: 200,
-                // width: 20,
+                width: 200,
                 child: Image.asset('assets/planet.jpg'),
               ),
             ),
