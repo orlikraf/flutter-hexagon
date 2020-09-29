@@ -1,7 +1,6 @@
 name: hexagon
 description: When you want to have hexagon.
 version: 0.0.1
-author: rSquared
 homepage: https://github.com/rSquared-software/flutter-hexagon
 
 environment:
