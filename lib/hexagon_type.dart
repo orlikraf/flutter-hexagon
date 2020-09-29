@@ -1,0 +1,1 @@
+enum HexagonType { FLAT, POINTY }
