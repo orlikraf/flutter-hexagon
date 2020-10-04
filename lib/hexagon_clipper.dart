@@ -1,18 +1,19 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:hexagon/utils.dart';
 
 import 'hexagon_type.dart';
+import 'utils.dart';
 
 class HexagonClipper extends CustomClipper<Path> {
-  final HexagonType type;
+  HexagonClipper(this.type, {this.inBounds});
 
-  HexagonClipper(this.type);
+  final HexagonType type;
+  final bool inBounds;
 
   @override
   Path getClip(Size size) {
-    return HexagonUtils.hexagonPath(size, type);
+    return HexagonUtils.hexagonPath(size, type, inBounds: inBounds);
   }
 
   @override

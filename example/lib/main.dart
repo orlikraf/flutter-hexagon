@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hexagon/hexagon_type.dart';
 import 'package:hexagon/hexagon_widget.dart';
 
 void main() {
@@ -29,37 +28,75 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GestureDetector(
-              onTap: () {
-                print('tapped earth');
-              },
-              child: HexagonWidget(
-                width: 200,
+      appBar: AppBar(title: Text(title)),
+      body: buildBody(),
+    );
+  }
+
+  Widget buildBody() {
+    var h = 300.0;
+    var w = 300.0;
+
+    var pad = 20.0;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              margin: EdgeInsets.all(pad),
+              child: HexagonWidget.pointy(
+                width: w,
+                // height: h,
+                elevation: 4,
+                color: Colors.blueGrey,
                 child: Image.asset('assets/planet.jpg'),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: HexagonWidget(
-                width: 150,
-                elevation: 4,
-                type: HexagonType.POINTY,
-                child: Center(child: Text('GON')),
+            Container(
+              child: HexagonWidget.pointy(
+                // width: w,
+                height: h,
+                color: Colors.orangeAccent,
+                elevation: 0,
+                child: Container(
+                  width: 1500,
+                ),
               ),
             ),
-            // HexagonWidget(
-            //   child: Image.asset('assets/planet.jpg'),
-            // ),
           ],
         ),
-      ),
+        Row(
+          children: [
+            Container(
+              color: Colors.green,
+              child: HexagonWidget.flat(
+                width: w,
+                // height: h,
+                color: Colors.red,
+                inBounds: false,
+                elevation: 8,
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            Container(
+              color: Colors.blue,
+              margin: EdgeInsets.all(pad),
+              child: HexagonWidget.flat(
+                width: w,
+                // height: h,
+                elevation: 4, inBounds: false,
+                child: Image.asset('assets/planet.jpg'),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

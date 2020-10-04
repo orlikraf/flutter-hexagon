@@ -1,3 +1,11 @@
+## [0.0.2] - 04.10.2020
+
+* Changed HexagonShadowPainter to HexagonPainter.
+* Added extensions for HexagonType.
+* Added named constructors for flat and pointy HexagonWidgets.
+* Added color parameter for HexagonWidget.
+* Added inBounds parameter as a preparation for upcoming HexagonGrids.
+
 ## [0.0.1] - 29.09.2020
 
 * First release.
