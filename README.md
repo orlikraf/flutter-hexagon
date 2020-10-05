@@ -6,6 +6,8 @@ A widget in a shape of hexagon.
 ## Installation
 Add this to your package's pubspec.yaml file:
 
+[![pub package](https://img.shields.io/pub/v/hexagon.svg)](https://pub.dev/packages/hexagon)
+
 ```yaml
 dependencies:
   hexagon: ^0.0.1
@@ -13,4 +15,4 @@ dependencies:
 
 ## Usage
 
-This widget sticks to it's width/height ratio based on selected hexagon type.
+Check example for now. I'll write readme later. 
