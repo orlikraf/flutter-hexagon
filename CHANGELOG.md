@@ -1,3 +1,8 @@
+## [0.0.3] - 06.10.2020
+
+* Updated example and readme
+* Some code refactoring
+
 ## [0.0.2] - 04.10.2020
 
 * Changed HexagonShadowPainter to HexagonPainter.

@@ -21,7 +21,8 @@ class HexagonPainter extends CustomPainter {
     _paint.isAntiAlias = true;
 
     _path = HexagonUtils.hexagonPath(size, type, inBounds: inBounds);
-    canvas.drawShadow(_path, Colors.black, elevation ?? 0, false);
+    if ((elevation ?? 0) > 0)
+      canvas.drawShadow(_path, Colors.black, elevation ?? 0, false);
     canvas.drawPath(_path, _paint);
   }
 

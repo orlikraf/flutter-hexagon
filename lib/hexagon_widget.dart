@@ -8,6 +8,17 @@ import 'hexagon_painter.dart';
 import 'hexagon_type.dart';
 
 class HexagonWidget extends StatelessWidget {
+  /// Preferably provide one dimension ([width] or [height]) and the other will be counted accordingly to hexagon aspect ratio
+  ///
+  /// [elevation] - Must be zero or positive int. Default = 2
+  ///
+  /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
+  ///
+  /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
+  ///
+  /// [child] - You content. Keep in mind that it will be clipped.
+  ///
+  /// [type] - A type of hexagon has to be either [HexagonType.FLAT] or [HexagonType.POINTY]
   const HexagonWidget({
     Key key,
     this.width,
@@ -22,6 +33,15 @@ class HexagonWidget extends StatelessWidget {
         assert(type != null),
         super(key: key);
 
+  /// Preferably provide one dimension ([width] or [height]) and the other will be counted accordingly to hexagon aspect ratio
+  ///
+  /// [elevation] - Must be zero or positive int. Default = 2
+  ///
+  /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
+  ///
+  /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
+  ///
+  /// [child] - You content. Keep in mind that it will be clipped.
   HexagonWidget.flat(
       {this.width,
       this.height,
@@ -33,6 +53,15 @@ class HexagonWidget extends StatelessWidget {
         assert((elevation ?? 0) >= 0),
         this.type = HexagonType.FLAT;
 
+  /// Preferably provide one dimension ([width] or [height]) and the other will be counted accordingly to hexagon aspect ratio
+  ///
+  /// [elevation] - Must be zero or positive int. Default = 2
+  ///
+  /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
+  ///
+  /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
+  ///
+  /// [child] - You content. Keep in mind that it will be clipped.
   HexagonWidget.pointy(
       {this.width,
       this.height,
@@ -58,9 +87,9 @@ class HexagonWidget extends StatelessWidget {
 
     if (height != null && width != null) return Size(width, height);
     if (height != null)
-      return Size((height / type.ratio) * flatFactor / pointyFactor, height);
+      return Size((height * type.ratio) * flatFactor / pointyFactor, height);
     if (width != null)
-      return Size(width, (width * type.ratio) / flatFactor * pointyFactor);
+      return Size(width, (width / type.ratio) / flatFactor * pointyFactor);
     return null;
   }
 
@@ -70,9 +99,9 @@ class HexagonWidget extends StatelessWidget {
 
     if (height != null && width != null) return Size(width, height);
     if (height != null)
-      return Size((height / type.ratio) / pointyFactor, height / pointyFactor);
+      return Size((height * type.ratio) / pointyFactor, height / pointyFactor);
     if (width != null)
-      return Size(width / flatFactor, (width * type.ratio) / flatFactor);
+      return Size(width / flatFactor, (width / type.ratio) / flatFactor);
     return null;
   }
 
