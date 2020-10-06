@@ -2,6 +2,7 @@
 
 A widget in a shape of hexagon.
 
+<img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_2.png" width="200">
 
 ## Installation
 Add this to your package's pubspec.yaml file:
