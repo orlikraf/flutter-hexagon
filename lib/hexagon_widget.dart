@@ -8,9 +8,9 @@ import 'hexagon_painter.dart';
 import 'hexagon_type.dart';
 
 class HexagonWidget extends StatelessWidget {
-  /// Preferably provide one dimension ([width] or [height]) and the other will be counted accordingly to hexagon aspect ratio
+  /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
-  /// [elevation] - Must be zero or positive int. Default = 2
+  /// [elevation] - Must be zero or positive int. Default = 0
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
@@ -25,17 +25,18 @@ class HexagonWidget extends StatelessWidget {
     this.height,
     this.color,
     this.child,
-    this.elevation = 2,
+    this.elevation = 0,
     this.inBounds = true,
     @required this.type,
   })  : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
         assert(type != null),
+        this._template = false,
         super(key: key);
 
-  /// Preferably provide one dimension ([width] or [height]) and the other will be counted accordingly to hexagon aspect ratio
+  /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
-  /// [elevation] - Must be zero or positive int. Default = 2
+  /// [elevation] - Must be zero or positive int. Default = 0
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
@@ -47,15 +48,16 @@ class HexagonWidget extends StatelessWidget {
       this.height,
       this.color,
       this.child,
-      this.elevation = 2,
+      this.elevation = 0,
       this.inBounds = true})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
+        this._template = false,
         this.type = HexagonType.FLAT;
 
-  /// Preferably provide one dimension ([width] or [height]) and the other will be counted accordingly to hexagon aspect ratio
+  /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
-  /// [elevation] - Must be zero or positive int. Default = 2
+  /// [elevation] - Must be zero or positive int. Default = 0
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
@@ -67,12 +69,22 @@ class HexagonWidget extends StatelessWidget {
       this.height,
       this.color,
       this.child,
-      this.elevation = 2,
+      this.elevation = 0,
       this.inBounds = true})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
+        this._template = false,
         this.type = HexagonType.POINTY;
 
+  ///Used in grids. Not for regular use.
+  HexagonWidget.template({this.color, this.elevation, this.child})
+      : this.height = 1.0,
+        this.width = 1.0,
+        this._template = true,
+        this.inBounds = null,
+        this.type = null;
+
+  final bool _template;
   final HexagonType type;
   final double width;
   final double height;
@@ -80,6 +92,8 @@ class HexagonWidget extends StatelessWidget {
   final bool inBounds;
   final Widget child;
   final Color color;
+
+  bool get isTemplate => _template == true;
 
   Size _innerSize() {
     var flatFactor = type.flatFactor(inBounds);
@@ -109,6 +123,7 @@ class HexagonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var innerSize = _innerSize();
     var contentSize = _contentSize();
+    assert(!isTemplate);
 
     return Align(
       child: Container(
@@ -135,6 +150,26 @@ class HexagonWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  HexagonWidget copyWith({
+    HexagonType type,
+    double width,
+    double height,
+    double elevation,
+    Color color,
+    Widget child,
+    bool inBounds,
+  }) {
+    return HexagonWidget(
+      type: type ?? this.type,
+      inBounds: inBounds ?? this.inBounds,
+      width: isTemplate ? width : width ?? this.width,
+      height: isTemplate ? height : height ?? this.height,
+      child: isTemplate ? child : child ?? this.child,
+      elevation: elevation ?? this.elevation,
+      color: color ?? this.color,
     );
   }
 }

@@ -1,7 +1,13 @@
+## [0.0.4] - 08.11.2020
+
+* Added HexagonOffsetGrid.
+* Changed default elevation to 0 in HexagonWidget.
+* Updated example and readme.
+
 ## [0.0.3] - 06.10.2020
 
-* Updated example and readme
-* Some code refactoring
+* Updated example and readme.
+* Some code refactoring.
 
 ## [0.0.2] - 04.10.2020
 

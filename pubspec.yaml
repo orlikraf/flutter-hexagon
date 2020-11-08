@@ -1,6 +1,6 @@
 name: hexagon
-description: Library that should help you achive fancy hexagon shape in your project. You can create pointy or flat hexagons in any color you like.
-version: 0.0.3
+description: Library about hexagon shape. You can create pointy or flat hexagons in any color you like.
+version: 0.0.4
 homepage: https://github.com/rSquared-software/flutter-hexagon
 
 environment:

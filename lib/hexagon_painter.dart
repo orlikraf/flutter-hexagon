@@ -19,11 +19,17 @@ class HexagonPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     _paint.color = color ?? Colors.white;
     _paint.isAntiAlias = true;
+    _paint.style = PaintingStyle.fill;
 
     _path = HexagonUtils.hexagonPath(size, type, inBounds: inBounds);
     if ((elevation ?? 0) > 0)
       canvas.drawShadow(_path, Colors.black, elevation ?? 0, false);
     canvas.drawPath(_path, _paint);
+
+    // _paint.color = Colors.purple;
+    // _paint.strokeWidth = 0;
+    // _paint.style = PaintingStyle.stroke;
+    // canvas.drawPath(_path, _paint);
   }
 
   @override
