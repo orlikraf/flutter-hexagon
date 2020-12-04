@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hexagon/src/hexagon_type.dart';
-import 'package:hexagon/src/hexagon_widget.dart';
+
+import '../hexagon_type.dart';
+import '../hexagon_widget.dart';
 
 enum GridType { EVEN, ODD }
 

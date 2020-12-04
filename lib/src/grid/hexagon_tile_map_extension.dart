@@ -1,4 +1,4 @@
-import 'package:hexagon/grid/coordinates.dart';
+import 'coordinates.dart';
 
 extension HexagonTileMapExtension<T> on Map<Coordinates, T> {
   int get minX {

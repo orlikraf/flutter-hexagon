@@ -1,3 +1,7 @@
+## [0.1.0] - ??.??.????
+
+* Added HexagonGrid
+
 ## [0.0.7] - 22.01.2021
 
 * BREAKING CHANGE - Introducing HexagonWidgetBuilder in replacement of HexagonWidget.template() constructor.

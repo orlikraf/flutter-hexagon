@@ -30,14 +30,15 @@ class MyHomePage extends StatelessWidget {
     var size = MediaQuery.of(context).size;
 
     return DefaultTabController(
-      length: 3,
+      length: 4,
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
             tabs: [
-              Tab(text: 'V-Grid'),
-              Tab(text: 'H-Grid'),
+              Tab(text: 'Grid'),
+              Tab(text: 'V-Offset-Grid'),
+              Tab(text: 'H-Offset-Grid'),
               Tab(text: 'Other'),
             ],
           ),
@@ -45,8 +46,9 @@ class MyHomePage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            _buildVerticalGrid(size),
-            _buildHorizontalGrid(size),
+            _buildGrid(),
+            _buildVerticalGrid(),
+            _buildHorizontalGrid(),
             _buildMore(size),
           ],
         ),
@@ -54,7 +56,25 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalGrid(Size size) {
+  Widget _buildGrid() {
+    return InteractiveViewer(
+      // minScale: 0.1,
+      // maxScale: 4.0,
+      // constrained: true,
+      child: HexagonGrid.pointy(
+        color: Colors.pink,
+        depth: 1,
+        // width: 900,
+        // height: 800,
+        buildHexagon: (coordinates) => HexagonWidget.template(
+          width: 300,
+        ),
+        // buildChild: (coordinates) => Text('${coordinates.q}, ${coordinates.r}'),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalGrid() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: HexagonOffsetGrid.oddPointy(
@@ -74,7 +94,7 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildVerticalGrid(Size size) {
+  Widget _buildVerticalGrid() {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
