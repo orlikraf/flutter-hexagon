@@ -30,7 +30,7 @@ class HexagonOffsetGrid extends StatelessWidget {
   final int columns;
   final int rows;
   final Color color;
-  final double padding = 2.0;
+  final EdgeInsetsGeometry hexagonPadding;
   final Widget Function(int col, int row) buildChild;
   final HexagonWidget Function(int col, int row) buildHexagon;
 
@@ -42,6 +42,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [hexagonPadding] - Used for padding around all Hexagon tiles.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -51,6 +53,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.color,
     this.buildChild,
     this.buildHexagon,
+    this.hexagonPadding: const EdgeInsets.all(0.0),
   })  : assert(columns > 0),
         assert(rows > 0),
         this.hexType = HexagonType.FLAT,
@@ -64,6 +67,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [hexagonPadding] - Used for padding around all Hexagon tiles.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -73,6 +78,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.color,
     this.buildChild,
     this.buildHexagon,
+    this.hexagonPadding: const EdgeInsets.all(0.0),
   })  : this.hexType = HexagonType.FLAT,
         this.gridType = GridType.EVEN;
 
@@ -84,6 +90,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [hexagonPadding] - Used for padding around all Hexagon tiles.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -93,6 +101,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.color,
     this.buildChild,
     this.buildHexagon,
+    this.hexagonPadding: const EdgeInsets.all(0.0),
   })  : this.hexType = HexagonType.POINTY,
         this.gridType = GridType.ODD;
 
@@ -104,6 +113,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [hexagonPadding] - Used for padding around all Hexagon tiles.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -113,6 +124,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.color,
     this.buildChild,
     this.buildHexagon,
+    this.hexagonPadding: const EdgeInsets.all(0.0),
   })  : this.hexType = HexagonType.POINTY,
         this.gridType = GridType.EVEN;
 
@@ -159,14 +171,17 @@ class HexagonOffsetGrid extends StatelessWidget {
                   } else if (hexagonTemplate?.isTemplate != true)
                     hexagonTemplate = HexagonWidget.template();
 
-                  return hexagonTemplate?.copyWith(
-                    type: hexType,
-                    inBounds: false,
-                    width: hexType.isPointy ? size.width : null,
-                    height: hexType.isFlat ? size.height : null,
-                    child: buildChild != null
-                        ? buildChild.call(col, row)
-                        : hexagonTemplate.child,
+                  return Padding(
+                    padding: hexagonPadding,
+                    child: hexagonTemplate?.copyWith(
+                      type: hexType,
+                      inBounds: false,
+                      width: hexType.isPointy ? size.width : null,
+                      height: hexType.isFlat ? size.height : null,
+                      child: buildChild != null
+                          ? buildChild.call(col, row)
+                          : hexagonTemplate.child,
+                    ),
                   );
                 }),
               ),
@@ -198,19 +213,23 @@ class HexagonOffsetGrid extends StatelessWidget {
   Size _hexSize(double maxWidth, double maxHeight) {
     if (maxWidth.isFinite) {
       if (hexType.isFlat) {
-        var quarters = maxWidth / (1 + (0.75 * (columns - 1)));
+        var quarters = (maxWidth - columns * hexagonPadding.horizontal) /
+            (1 + (0.75 * (columns - 1)));
         var size = Size(quarters, quarters * hexType.ratio);
         return size * hexType.flatFactor(false);
       }
-      var half = maxWidth / (columns * 2 + _displaceColumns);
+      var half = (maxWidth - columns * hexagonPadding.horizontal) /
+          (columns * 2 + _displaceColumns);
       return Size(half * 2, half * 2 * hexType.ratio);
     } else if (maxHeight.isFinite) {
       if (hexType.isPointy) {
-        var quarters = maxHeight / (1 + (0.75 * (rows - 1)));
+        var quarters = (maxHeight - rows * hexagonPadding.vertical) /
+            (1 + (0.75 * (rows - 1)));
         var size = Size(quarters / hexType.ratio, quarters);
         return size * hexType.pointyFactor(false);
       }
-      var half = (maxHeight - 0) / (rows * 2 + _displaceRows);
+      var half = (maxHeight - rows * hexagonPadding.vertical) /
+          (rows * 2 + _displaceRows);
       return Size(half * 2 / hexType.ratio, half * 2);
     } else {
       throw Exception('Error: Infinite constraints in both dimensions!');
