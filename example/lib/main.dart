@@ -67,7 +67,7 @@ class MyHomePage extends StatelessWidget {
         // width: 900,
         // height: 800,
         buildHexagon: (coordinates) => HexagonWidget.template(
-          width: 300,
+          // width: 300,
         ),
         // buildChild: (coordinates) => Text('${coordinates.q}, ${coordinates.r}'),
       ),
