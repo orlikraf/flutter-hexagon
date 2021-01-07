@@ -10,7 +10,9 @@ import 'hexagon_type.dart';
 class HexagonWidget extends StatelessWidget {
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
-  /// [elevation] - Must be zero or positive int. Default = 0
+  /// [elevation] - Mustn't be negative. Default = 0
+  ///
+  /// [padding] - Mustn't be negative.
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
@@ -25,6 +27,7 @@ class HexagonWidget extends StatelessWidget {
     this.height,
     this.color,
     this.child,
+    this.padding,
     this.elevation = 0,
     this.inBounds = true,
     @required this.type,
@@ -36,7 +39,9 @@ class HexagonWidget extends StatelessWidget {
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
-  /// [elevation] - Must be zero or positive int. Default = 0
+  /// [elevation] - Mustn't be negative. Default = 0
+  ///
+  /// [padding] - Mustn't be negative.
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
@@ -48,6 +53,7 @@ class HexagonWidget extends StatelessWidget {
       this.height,
       this.color,
       this.child,
+      this.padding,
       this.elevation = 0,
       this.inBounds = true})
       : assert(width != null || height != null),
@@ -57,7 +63,9 @@ class HexagonWidget extends StatelessWidget {
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
-  /// [elevation] - Must be zero or positive int. Default = 0
+  /// [elevation] - Mustn't be negative. Default = 0
+  ///
+  /// [padding] - Mustn't be negative.
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
@@ -69,6 +77,7 @@ class HexagonWidget extends StatelessWidget {
       this.height,
       this.color,
       this.child,
+      this.padding,
       this.elevation = 0,
       this.inBounds = true})
       : assert(width != null || height != null),
@@ -77,7 +86,7 @@ class HexagonWidget extends StatelessWidget {
         this.type = HexagonType.POINTY;
 
   ///Used in grids. Not for regular use.
-  HexagonWidget.template({this.color, this.elevation, this.child})
+  HexagonWidget.template({this.color, this.elevation, this.padding, this.child})
       : this.height = 1.0,
         this.width = 1.0,
         this._template = true,
@@ -92,6 +101,7 @@ class HexagonWidget extends StatelessWidget {
   final bool inBounds;
   final Widget child;
   final Color color;
+  final double padding;
 
   bool get isTemplate => _template == true;
 
@@ -127,6 +137,7 @@ class HexagonWidget extends StatelessWidget {
 
     return Align(
       child: Container(
+        padding: EdgeInsets.all(padding ?? 0.0),
         width: innerSize.width,
         height: innerSize.height,
         child: CustomPaint(
@@ -153,11 +164,13 @@ class HexagonWidget extends StatelessWidget {
     );
   }
 
+  //TODO create HexagonWidgetBuilder class instead of complicated template and copy function
   HexagonWidget copyWith({
     HexagonType type,
     double width,
     double height,
     double elevation,
+    double padding,
     Color color,
     Widget child,
     bool inBounds,
@@ -168,6 +181,7 @@ class HexagonWidget extends StatelessWidget {
       width: isTemplate ? width : width ?? this.width,
       height: isTemplate ? height : height ?? this.height,
       child: isTemplate ? child : child ?? this.child,
+      padding: isTemplate ? this.padding ?? padding : padding ?? this.padding,
       elevation: elevation ?? this.elevation,
       color: color ?? this.color,
     );

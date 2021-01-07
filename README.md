@@ -12,7 +12,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  hexagon: ^0.0.4
+  hexagon: ^0.0.5
 ```
 
 ## Usage
@@ -81,7 +81,7 @@ If you provide a `buildChild` function it will override any child provided in te
 
 ## Road map
 
-* Margins between tiles in HexagonOffsetGrid
+* ~~Margins between tiles in HexagonOffsetGrid~~ (Added padding since `0.0.5`)
 * Hexagonal shaped grid (using cube/axial coordinates system)
 * Solve content spacing in hexagon widget
 * Check performance

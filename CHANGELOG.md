@@ -1,3 +1,8 @@
+## [0.0.5] - 07.01.2020
+
+* Added _`padding`_ attribute to HexagonWidget
+* Added _`hexagonPadding`_ to HexagonOffsetGrid
+
 ## [0.0.4] - 08.11.2020
 
 * Added HexagonOffsetGrid.
