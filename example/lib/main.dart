@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hexagon/grid/hexagon_offset_grid.dart';
-import 'package:hexagon/hexagon_type.dart';
-import 'package:hexagon/hexagon_widget.dart';
+import 'package:hexagon/hexagon.dart';
 
 void main() {
   runApp(MyApp());

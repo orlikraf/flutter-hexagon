@@ -1,4 +1,9 @@
-## [0.0.5] - 07.01.2020
+## [0.0.6] - 13.01.2021
+
+* BREAKING CHANGE - updated whole library imports to single line `import 'package:hexagon/hexagon.dart';`
+* Fixed exception on `HexagonPainter.hitTest`
+
+## [0.0.5] - 07.01.2021
 
 * Added _`padding`_ attribute to HexagonWidget
 * Added _`hexagonPadding`_ to HexagonOffsetGrid

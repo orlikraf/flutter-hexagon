@@ -12,10 +12,16 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  hexagon: ^0.0.5
+  hexagon: ^0.0.6
 ```
 
 ## Usage
+
+```dart
+import 'package:hexagon/hexagon.dart';
+
+//...
+```
 
 ### Single widget
 Width or height must be set when defining a HexagonWidget. The other dimension is calculated based on selected HexagonType.
@@ -25,12 +31,13 @@ Use named constructors for flat or pointy for simple shaped hexagon. Elevation c
 HexagonWidget.flat(
   width: w,
   color: Colors.limeAccent,
+  padding: 4.0,
   child: Text('A flat tile'),
 ),
 HexagonWidget.pointy(
   width: w,
   color: Colors.red,
-  elevation: 0,
+  elevation: 8,
   child: Text('A pointy tile'),
 ),
 ```
@@ -77,6 +84,7 @@ If you provide a `buildChild` function it will override any child provided in te
 
 #### Hexagon Grid
 
+* WIP
 * _Soon_
 
 ## Road map

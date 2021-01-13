@@ -19,24 +19,21 @@ class HexagonUtils {
         center.dx + size * cos(angleRad), center.dy + size * sin(angleRad));
   }
 
-  /// Calculates hexagon corners for given size and with given center.
-  static List<Point> flatHexagonCornerList(Offset center, double size) {
-    List<Point> corners = List(6);
-    for (int i = 0; i < 6; i++) {
-      corners[i] = flatHexagonCorner(center, size, i);
-    }
+  /// Calculates hexagon corners for given size and center.
+  static List<Point> flatHexagonCornerList(Offset center, double size) =>
+      List<Point>.generate(
+        6,
+        (index) => flatHexagonCorner(center, size, index),
+        growable: false,
+      );
 
-    return corners;
-  }
-
-  /// Calculates hexagon corners for given size and with given center.
-  static List<Point> pointyHexagonCornerList(Offset center, double size) {
-    List<Point> corners = List(6);
-    for (int i = 0; i < 6; i++) {
-      corners[i] = pointyHexagonCorner(center, size, i);
-    }
-    return corners;
-  }
+  /// Calculates hexagon corners for given size and center.
+  static List<Point> pointyHexagonCornerList(Offset center, double size) =>
+      List<Point>.generate(
+        6,
+        (index) => pointyHexagonCorner(center, size, index),
+        growable: false,
+      );
 
   /// Returns path in shape of hexagon.
   static Path hexagonPath(Size size, HexagonType type, {bool inBounds}) {

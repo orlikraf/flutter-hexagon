@@ -25,19 +25,11 @@ class HexagonPainter extends CustomPainter {
     if ((elevation ?? 0) > 0)
       canvas.drawShadow(_path, Colors.black, elevation ?? 0, false);
     canvas.drawPath(_path, _paint);
-
-    // _paint.color = Colors.purple;
-    // _paint.strokeWidth = 0;
-    // _paint.style = PaintingStyle.stroke;
-    // canvas.drawPath(_path, _paint);
   }
 
   @override
   bool hitTest(Offset position) {
-    if (_path == null) {
-      return false;
-    }
-    return _path.contains(position);
+    return _path?.contains(position) ?? false;
   }
 
   @override
