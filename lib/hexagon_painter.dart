@@ -34,6 +34,9 @@ class HexagonPainter extends CustomPainter {
 
   @override
   bool hitTest(Offset position) {
+    if (_path == null) {
+      return false;
+    }
     return _path.contains(position);
   }
 
