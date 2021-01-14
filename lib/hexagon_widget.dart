@@ -21,6 +21,8 @@ class HexagonWidget extends StatelessWidget {
   /// [child] - You content. Keep in mind that it will be clipped.
   ///
   /// [type] - A type of hexagon has to be either [HexagonType.FLAT] or [HexagonType.POINTY]
+  ///
+  /// [borderRadius] - Negative values ignored. Default = 0
   const HexagonWidget({
     Key key,
     this.width,
@@ -31,6 +33,7 @@ class HexagonWidget extends StatelessWidget {
     this.elevation = 0,
     this.inBounds = true,
     @required this.type,
+    this.borderRadius: 0,
   })  : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
         assert(type != null),
@@ -48,6 +51,8 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
+  ///
+  /// [borderRadius] - Negative values ignored. Default = 0
   HexagonWidget.flat(
       {this.width,
       this.height,
@@ -55,7 +60,8 @@ class HexagonWidget extends StatelessWidget {
       this.child,
       this.padding,
       this.elevation = 0,
-      this.inBounds = true})
+      this.inBounds = true,
+      this.borderRadius: 0,})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
         this._template = false,
@@ -72,6 +78,8 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
+  ///
+  /// [borderRadius] - Negative values ignored. Default = 0
   HexagonWidget.pointy(
       {this.width,
       this.height,
@@ -79,14 +87,21 @@ class HexagonWidget extends StatelessWidget {
       this.child,
       this.padding,
       this.elevation = 0,
-      this.inBounds = true})
+      this.inBounds = true,
+      this.borderRadius: 0,})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
         this._template = false,
         this.type = HexagonType.POINTY;
 
   ///Used in grids. Not for regular use.
-  HexagonWidget.template({this.color, this.elevation, this.padding, this.child})
+  HexagonWidget.template({
+    this.color,
+    this.elevation,
+    this.padding,
+    this.child,
+    this.borderRadius,
+  })
       : this.height = 1.0,
         this.width = 1.0,
         this._template = true,
@@ -102,6 +117,7 @@ class HexagonWidget extends StatelessWidget {
   final Widget child;
   final Color color;
   final double padding;
+  final double borderRadius;
 
   bool get isTemplate => _template == true;
 
@@ -146,9 +162,14 @@ class HexagonWidget extends StatelessWidget {
             color: color,
             elevation: elevation,
             inBounds: inBounds,
+            borderRadius: borderRadius,
           ),
           child: ClipPath(
-            clipper: HexagonClipper(type, inBounds: inBounds),
+            clipper: HexagonClipper(
+              type,
+              inBounds: inBounds,
+              borderRadius: borderRadius
+            ),
             child: OverflowBox(
               alignment: Alignment.center,
               maxHeight: contentSize.height,
@@ -174,6 +195,7 @@ class HexagonWidget extends StatelessWidget {
     Color color,
     Widget child,
     bool inBounds,
+    double borderRadius,
   }) {
     return HexagonWidget(
       type: type ?? this.type,
@@ -184,6 +206,7 @@ class HexagonWidget extends StatelessWidget {
       padding: isTemplate ? this.padding ?? padding : padding ?? this.padding,
       elevation: elevation ?? this.elevation,
       color: color ?? this.color,
+      borderRadius: borderRadius ?? this.borderRadius,
     );
   }
 }
