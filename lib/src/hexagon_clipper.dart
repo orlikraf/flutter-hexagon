@@ -6,14 +6,16 @@ import 'hexagon_type.dart';
 import 'utils.dart';
 
 class HexagonClipper extends CustomClipper<Path> {
-  HexagonClipper(this.type, {this.inBounds});
+  HexagonClipper(this.type, {this.inBounds, this.borderRadius});
 
   final HexagonType type;
   final bool inBounds;
+  final double borderRadius;
 
   @override
   Path getClip(Size size) {
-    return HexagonUtils.hexagonPath(size, type, inBounds: inBounds);
+    return HexagonUtils.hexagonPath(size, type,
+        inBounds: inBounds, borderRadius: borderRadius);
   }
 
   @override

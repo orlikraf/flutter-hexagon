@@ -31,6 +31,7 @@ class HexagonOffsetGrid extends StatelessWidget {
   final int rows;
   final Color color;
   final double hexagonPadding;
+  final double hexagonBorderRadius;
   final Widget Function(int col, int row) buildChild;
   final HexagonWidget Function(int col, int row) buildHexagon;
 
@@ -44,6 +45,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [hexagonPadding] - Used for padding around all hexagon tiles. Will be overridden by template padding.
   ///
+  /// [hexagonBorderRadius] - Sets border radius for each hexagon tile. Will be overridden by template borderRadius.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -54,6 +57,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildChild,
     this.buildHexagon,
     this.hexagonPadding,
+    this.hexagonBorderRadius,
   })  : assert(columns > 0),
         assert(rows > 0),
         this.hexType = HexagonType.FLAT,
@@ -69,6 +73,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [hexagonPadding] - Used for padding around all hexagon tiles. Will be overridden by template padding.
   ///
+  /// [hexagonBorderRadius] - Sets border radius for each hexagon tile. Will be overridden by template borderRadius.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -79,6 +85,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildChild,
     this.buildHexagon,
     this.hexagonPadding,
+    this.hexagonBorderRadius,
   })  : this.hexType = HexagonType.FLAT,
         this.gridType = GridType.EVEN;
 
@@ -92,6 +99,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [hexagonPadding] - Used for padding around all hexagon tiles. Will be overridden by template padding.
   ///
+  /// [hexagonBorderRadius] - Sets border radius for each hexagon tile. Will be overridden by template borderRadius.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -102,6 +111,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildChild,
     this.buildHexagon,
     this.hexagonPadding,
+    this.hexagonBorderRadius,
   })  : this.hexType = HexagonType.POINTY,
         this.gridType = GridType.ODD;
 
@@ -115,6 +125,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [hexagonPadding] - Used for padding around all hexagon tiles. Will be overridden by template padding.
   ///
+  /// [hexagonBorderRadius] - Sets border radius for each hexagon tile. Will be overridden by template borderRadius.
+  ///
   /// [buildHexagon] - Provide a HexagonWidget.template() to be used for given tile (col,row). Returning null value will be represented as translucent tile.
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildHexagon] function.
@@ -125,6 +137,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildChild,
     this.buildHexagon,
     this.hexagonPadding,
+    this.hexagonBorderRadius,
   })  : this.hexType = HexagonType.POINTY,
         this.gridType = GridType.EVEN;
 
@@ -180,6 +193,7 @@ class HexagonOffsetGrid extends StatelessWidget {
                     type: hexType,
                     inBounds: false,
                     padding: hexagonPadding,
+                    borderRadius: hexagonBorderRadius,
                     width: hexType.isPointy ? size.width : null,
                     height: hexType.isFlat ? size.height : null,
                     child: buildChild != null

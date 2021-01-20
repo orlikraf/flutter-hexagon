@@ -16,6 +16,8 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
+  /// [borderRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
@@ -30,6 +32,7 @@ class HexagonWidget extends StatelessWidget {
     this.padding,
     this.elevation = 0,
     this.inBounds = true,
+    this.borderRadius,
     @required this.type,
   })  : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
@@ -45,6 +48,8 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
+  /// [borderRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
@@ -55,6 +60,7 @@ class HexagonWidget extends StatelessWidget {
       this.child,
       this.padding,
       this.elevation = 0,
+      this.borderRadius,
       this.inBounds = true})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
@@ -69,6 +75,8 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
+  /// [borderRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
@@ -79,6 +87,7 @@ class HexagonWidget extends StatelessWidget {
       this.child,
       this.padding,
       this.elevation = 0,
+      this.borderRadius,
       this.inBounds = true})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
@@ -86,7 +95,8 @@ class HexagonWidget extends StatelessWidget {
         this.type = HexagonType.POINTY;
 
   ///Used in grids. Not for regular use.
-  HexagonWidget.template({this.color, this.elevation, this.padding, this.child})
+  HexagonWidget.template({this.color, this.elevation, this.padding,
+    this.child, this.borderRadius})
       : this.height = 1.0,
         this.width = 1.0,
         this._template = true,
@@ -102,6 +112,7 @@ class HexagonWidget extends StatelessWidget {
   final Widget child;
   final Color color;
   final double padding;
+  final double borderRadius;
 
   bool get isTemplate => _template == true;
 
@@ -146,9 +157,14 @@ class HexagonWidget extends StatelessWidget {
             color: color,
             elevation: elevation,
             inBounds: inBounds,
+            borderRadius: borderRadius,
           ),
           child: ClipPath(
-            clipper: HexagonClipper(type, inBounds: inBounds),
+            clipper: HexagonClipper(
+              type,
+              inBounds: inBounds,
+              borderRadius: borderRadius,
+            ),
             child: OverflowBox(
               alignment: Alignment.center,
               maxHeight: contentSize.height,
@@ -174,6 +190,7 @@ class HexagonWidget extends StatelessWidget {
     Color color,
     Widget child,
     bool inBounds,
+    double borderRadius,
   }) {
     return HexagonWidget(
       type: type ?? this.type,
@@ -182,6 +199,7 @@ class HexagonWidget extends StatelessWidget {
       height: isTemplate ? height : height ?? this.height,
       child: isTemplate ? child : child ?? this.child,
       padding: isTemplate ? this.padding ?? padding : padding ?? this.padding,
+      borderRadius: isTemplate ? this.borderRadius ?? borderRadius : borderRadius ?? this.borderRadius,
       elevation: elevation ?? this.elevation,
       color: color ?? this.color,
     );
