@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 
 import 'hexagon_clipper.dart';
 import 'hexagon_painter.dart';
+import 'hexagon_path_builder.dart';
 import 'hexagon_type.dart';
 
 class HexagonWidget extends StatelessWidget {
@@ -16,7 +17,7 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
-  /// [borderRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  /// [cornerRadius] - Radius of hexagon corners. Values <= 0 have no effect.
   ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
@@ -30,14 +31,13 @@ class HexagonWidget extends StatelessWidget {
     this.color,
     this.child,
     this.padding,
+    this.cornerRadius,
     this.elevation = 0,
     this.inBounds = true,
-    this.borderRadius,
     @required this.type,
   })  : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
         assert(type != null),
-        this._template = false,
         super(key: key);
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
@@ -48,7 +48,7 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
-  /// [borderRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  /// [cornerRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
   ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
@@ -60,11 +60,10 @@ class HexagonWidget extends StatelessWidget {
       this.child,
       this.padding,
       this.elevation = 0,
-      this.borderRadius,
+      this.cornerRadius,
       this.inBounds = true})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
-        this._template = false,
         this.type = HexagonType.FLAT;
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
@@ -75,7 +74,7 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
-  /// [borderRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  /// [cornerRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
   ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
@@ -87,23 +86,12 @@ class HexagonWidget extends StatelessWidget {
       this.child,
       this.padding,
       this.elevation = 0,
-      this.borderRadius,
+      this.cornerRadius,
       this.inBounds = true})
       : assert(width != null || height != null),
         assert((elevation ?? 0) >= 0),
-        this._template = false,
         this.type = HexagonType.POINTY;
 
-  ///Used in grids. Not for regular use.
-  HexagonWidget.template({this.color, this.elevation, this.padding,
-    this.child, this.borderRadius})
-      : this.height = 1.0,
-        this.width = 1.0,
-        this._template = true,
-        this.inBounds = null,
-        this.type = null;
-
-  final bool _template;
   final HexagonType type;
   final double width;
   final double height;
@@ -112,9 +100,7 @@ class HexagonWidget extends StatelessWidget {
   final Widget child;
   final Color color;
   final double padding;
-  final double borderRadius;
-
-  bool get isTemplate => _template == true;
+  final double cornerRadius;
 
   Size _innerSize() {
     var flatFactor = type.flatFactor(inBounds);
@@ -144,7 +130,9 @@ class HexagonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var innerSize = _innerSize();
     var contentSize = _contentSize();
-    assert(!isTemplate);
+
+    HexagonPathBuilder pathBuilder = HexagonPathBuilder(type,
+        inBounds: inBounds, borderRadius: cornerRadius);
 
     return Align(
       child: Container(
@@ -153,18 +141,12 @@ class HexagonWidget extends StatelessWidget {
         height: innerSize.height,
         child: CustomPaint(
           painter: HexagonPainter(
-            type,
+            pathBuilder,
             color: color,
             elevation: elevation,
-            inBounds: inBounds,
-            borderRadius: borderRadius,
           ),
           child: ClipPath(
-            clipper: HexagonClipper(
-              type,
-              inBounds: inBounds,
-              borderRadius: borderRadius,
-            ),
+            clipper: HexagonClipper(pathBuilder),
             child: OverflowBox(
               alignment: Alignment.center,
               maxHeight: contentSize.height,
@@ -179,29 +161,52 @@ class HexagonWidget extends StatelessWidget {
       ),
     );
   }
+}
 
-  //TODO create HexagonWidgetBuilder class instead of complicated template and copy function
-  HexagonWidget copyWith({
-    HexagonType type,
+class HexagonWidgetBuilder {
+  final Key key;
+  final double elevation;
+  final Color color;
+  final double padding;
+  final double cornerRadius;
+  final Widget child;
+
+  HexagonWidgetBuilder({
+    this.key,
+    this.elevation,
+    this.color,
+    this.padding,
+    this.cornerRadius,
+    this.child,
+  });
+
+  HexagonWidgetBuilder.transparent({
+    this.key,
+    this.padding,
+    this.cornerRadius,
+    this.child,
+  })  : this.elevation = 0,
+        this.color = Colors.transparent;
+
+  HexagonWidget build(
+    HexagonType type, {
     double width,
     double height,
-    double elevation,
-    double padding,
-    Color color,
-    Widget child,
     bool inBounds,
-    double borderRadius,
+    Widget child,
+    bool replaceChild,
   }) {
     return HexagonWidget(
-      type: type ?? this.type,
-      inBounds: inBounds ?? this.inBounds,
-      width: isTemplate ? width : width ?? this.width,
-      height: isTemplate ? height : height ?? this.height,
-      child: isTemplate ? child : child ?? this.child,
-      padding: isTemplate ? this.padding ?? padding : padding ?? this.padding,
-      borderRadius: isTemplate ? this.borderRadius ?? borderRadius : borderRadius ?? this.borderRadius,
-      elevation: elevation ?? this.elevation,
-      color: color ?? this.color,
+      key: key,
+      type: type,
+      inBounds: inBounds,
+      width: width,
+      height: height,
+      child: replaceChild ? child : this.child,
+      color: color,
+      padding: padding,
+      cornerRadius: cornerRadius,
+      elevation: elevation,
     );
   }
 }

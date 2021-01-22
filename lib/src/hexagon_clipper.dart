@@ -1,27 +1,22 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-
-import 'hexagon_type.dart';
-import 'utils.dart';
+import 'package:hexagon/src/hexagon_path_builder.dart';
 
 class HexagonClipper extends CustomClipper<Path> {
-  HexagonClipper(this.type, {this.inBounds, this.borderRadius});
+  HexagonClipper(this.pathBuilder);
 
-  final HexagonType type;
-  final bool inBounds;
-  final double borderRadius;
+  final HexagonPathBuilder pathBuilder;
 
   @override
   Path getClip(Size size) {
-    return HexagonUtils.hexagonPath(size, type,
-        inBounds: inBounds, borderRadius: borderRadius);
+    return pathBuilder.build(size);
   }
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) {
     if (oldClipper is HexagonClipper) {
-      return oldClipper.type != type;
+      return oldClipper.pathBuilder != pathBuilder;
     }
     return true;
   }

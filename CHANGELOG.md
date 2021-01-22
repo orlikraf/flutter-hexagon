@@ -1,3 +1,10 @@
+## [0.0.7] - 22.01.2021
+
+* BREAKING CHANGE - Introducing HexagonWidgetBuilder in replacement of HexagonWidget.template() constructor.
+* BREAKING CHANGE - HexagonOffsetGrid renamed attribute _buildHexagon_ to _buildTile_. Please adjust HexagonOffsetGrid usage;
+* Added _`cornerRadius'_ attribute to HexagonWidget
+* Other inner changes
+
 ## [0.0.6] - 13.01.2021
 
 * BREAKING CHANGE - updated whole library imports to single line `import 'package:hexagon/hexagon.dart';`

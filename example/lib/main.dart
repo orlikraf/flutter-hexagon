@@ -61,11 +61,12 @@ class MyHomePage extends StatelessWidget {
         color: Colors.black54,
         columns: 9,
         rows: 4,
-        buildHexagon: (col, row) => row.isOdd && col.isOdd
+        buildTile: (col, row) => row.isOdd && col.isOdd
             ? null
-            : HexagonWidget.template(
+            : HexagonWidgetBuilder(
                 elevation: col.toDouble(),
-                padding: row.isOdd ? 4.0 : null,
+                padding: row.isOdd ? 4.0 : 1.0,
+                cornerRadius: row.isOdd ? 24.0 : null,
                 color: col == 1 || row == 1 ? Colors.lightBlue.shade200 : null,
                 child: Text('$col, $row'),
               ),
@@ -82,10 +83,10 @@ class MyHomePage extends StatelessWidget {
             color: Colors.yellow.shade100,
             columns: 5,
             rows: 10,
-            hexagonPadding: 4.0,
-            buildHexagon: (col, row) => HexagonWidget.template(
+            buildTile: (col, row) => HexagonWidgetBuilder(
               color: row.isEven ? Colors.yellow : Colors.orangeAccent,
-              elevation: 2,
+              elevation: 2.0,
+              padding: 2.0,
             ),
             buildChild: (col, row) => Text('$col, $row'),
           ),

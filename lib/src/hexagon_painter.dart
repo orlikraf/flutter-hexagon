@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'hexagon_type.dart';
-import 'utils.dart';
+import 'hexagon_path_builder.dart';
 
 /// This class is responsible for painting HexagonWidget color and shadow in proper shape.
 class HexagonPainter extends CustomPainter {
-  HexagonPainter(this.type,
-      {this.color, this.inBounds, this.elevation, this.borderRadius});
+  HexagonPainter(this.pathBuilder, {this.color, this.elevation});
 
-  final HexagonType type;
-  final bool inBounds;
+  final HexagonPathBuilder pathBuilder;
   final double elevation;
   final Color color;
-  final double borderRadius;
 
   final Paint _paint = Paint();
   Path _path;
@@ -23,8 +19,8 @@ class HexagonPainter extends CustomPainter {
     _paint.isAntiAlias = true;
     _paint.style = PaintingStyle.fill;
 
-    _path = HexagonUtils.hexagonPath(size, type,
-        inBounds: inBounds, borderRadius: borderRadius);
+    _path = pathBuilder.build(size);
+
     if ((elevation ?? 0) > 0)
       canvas.drawShadow(_path, Colors.black, elevation ?? 0, false);
     canvas.drawPath(_path, _paint);
@@ -37,6 +33,19 @@ class HexagonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+    return oldDelegate != this;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HexagonPainter &&
+          runtimeType == other.runtimeType &&
+          pathBuilder == other.pathBuilder &&
+          elevation == other.elevation &&
+          color == other.color;
+
+  @override
+  int get hashCode =>
+      pathBuilder.hashCode ^ elevation.hashCode ^ color.hashCode;
 }

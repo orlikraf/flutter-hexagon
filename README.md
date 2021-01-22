@@ -66,10 +66,9 @@ Column(
     HexagonOffsetGrid.oddPointy(
       columns: 5,
       rows: 10,
-      buildHexagon: (col, row) => HexagonWidget.template(
+      buildHexagon: (col, row) => HexagonWidgetBuilder(
         color: row.isEven ? Colors.yellow : Colors.orangeAccent,
         elevation: 2,
-        child: Text('${col+1}, ${row+1}'),
       ),
       buildChild: (col, row) {
         return Text('$col, $row');
@@ -79,8 +78,8 @@ Column(
 ),
 ```
 
-To customize `HexagonWidget` in grid use buildHexagon function and return a `HexagonWidget.template(color, elevation, child)`.
-If you provide a `buildChild` function it will override any child provided in template.
+To customize any `HexagonWidget` in grid use buildHexagon function and return a `HexagonWidgetBuilder` for tile of your choosing.
+If you provide a `buildChild` function it will override any child provided in builder.
 
 #### Hexagon Grid
 
