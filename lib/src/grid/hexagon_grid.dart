@@ -5,22 +5,14 @@ import '../hexagon_type.dart';
 import '../hexagon_widget.dart';
 
 class HexagonGrid extends StatelessWidget {
-  final HexagonType hexType;
-
-  final double width;
-  final double height;
-  final int depth;
-  final Color color;
-  final Widget Function(Coordinates coordinates) buildChild;
-  final HexagonWidget Function(Coordinates coordinates) buildHexagon;
-
   HexagonGrid.pointy({
     this.width,
     this.height,
     this.depth = 0,
     this.color,
+    this.buildTile,
     this.buildChild,
-    this.buildHexagon,
+    this.hexagonBuilder,
   })  : assert(depth >= 0),
         this.hexType = HexagonType.POINTY;
 
@@ -29,10 +21,23 @@ class HexagonGrid extends StatelessWidget {
     this.height,
     this.depth = 0,
     this.color,
+    this.buildTile,
     this.buildChild,
-    this.buildHexagon,
+    this.hexagonBuilder,
   })  : assert(depth >= 0),
         this.hexType = HexagonType.FLAT;
+
+  final HexagonType hexType;
+
+  final double width;
+  final double height;
+  final int depth;
+  final Color color;
+  final HexagonWidgetBuilder hexagonBuilder;
+  final Widget Function(Coordinates coordinates) buildChild;
+  final HexagonWidgetBuilder Function(Coordinates coordinates) buildTile;
+
+  int get _maxHexCount => 1 + (depth * 2);
 
   Widget _mainAxis(List<Widget> Function(int count) children) {
     if (hexType.isPointy) {
@@ -46,8 +51,6 @@ class HexagonGrid extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: children.call(_maxHexCount));
   }
-
-  int get _maxHexCount => 1 + (depth * 2);
 
   Widget _crossAxis(
     int currentDepth,
@@ -82,21 +85,35 @@ class HexagonGrid extends StatelessWidget {
       //   horizontal:
       //   _displaceRows * (size.width / (8 * hexType.flatFactor(false))),
       // );
-      var template = buildHexagon?.call(Coordinates.zero);
+      // var builder = buildHexagon?.call(Coordinates.zero);
 
       print('------------------');
-      print('template: $template');
+      // print('template: $builder');
       print('depth: $depth');
       print('------------------');
 
-      Size size = _hexSize(constraints, template);
+      Size size = _hexSize(constraints);
       print('size: $size');
+
+      HexagonWidget buildHex(Coordinates coordinates) {
+        HexagonWidgetBuilder builder = buildTile?.call(coordinates) ??
+            hexagonBuilder ??
+            HexagonWidgetBuilder();
+
+        return builder.build(
+          hexType,
+          inBounds: false,
+          width: size.width,
+          height: size.height,
+          child: buildChild?.call(coordinates),
+          replaceChild: buildChild != null,
+        );
+      }
 
       if (depth == 0) {
         return Container(
           color: color,
-          child: (template ?? HexagonWidget.template())
-              .copyWith(type: hexType, height: size.height, width: size.width),
+          child: buildHex(Coordinates.zero),
         );
       }
 
@@ -121,23 +138,8 @@ class HexagonGrid extends StatelessWidget {
                     final coordinates =
                         Coordinates.axial(crossIndex, currentDepth);
                     print('coordinates: $coordinates');
-                    var hexagonTemplate = buildHexagon?.call(coordinates);
 
-                    if (buildHexagon != null && hexagonTemplate == null) {
-                      hexagonTemplate =
-                          HexagonWidget.template(color: Colors.transparent);
-                    } else if (hexagonTemplate?.isTemplate != true)
-                      hexagonTemplate = HexagonWidget.template();
-
-                    return hexagonTemplate?.copyWith(
-                      type: hexType,
-                      inBounds: false,
-                      width: hexType.isPointy ? size.width : null,
-                      height: hexType.isFlat ? size.height : null,
-                      child: buildChild != null
-                          ? buildChild.call(coordinates)
-                          : hexagonTemplate.child,
-                    );
+                    return buildHex.call(coordinates);
                   }),
                 ),
               );
@@ -148,11 +150,11 @@ class HexagonGrid extends StatelessWidget {
     });
   }
 
-  Size _hexSize(BoxConstraints constraints, HexagonWidget template) {
-    if (template != null &&
-        (template.width != null || template.height != null)) {
-      return Size(template.width, template.height);
-    }
+  Size _hexSize(BoxConstraints constraints, {HexagonWidget template}) {
+    // if (template != null &&
+    //     (template.width != null || template.height != null)) {
+    //   return Size(template.width, template.height);
+    // }
     print('constraints: $constraints');
     double maxWidth = constraints.maxWidth;
     double maxHeight = constraints.maxHeight;
