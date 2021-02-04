@@ -64,7 +64,7 @@ Column(
     HexagonOffsetGrid.oddPointy(
       columns: 5,
       rows: 10,
-      buildHexagon: (col, row) => HexagonWidgetBuilder(
+      buildTile: (col, row) => HexagonWidgetBuilder(
         color: row.isEven ? Colors.yellow : Colors.orangeAccent,
         elevation: 2,
       ),
