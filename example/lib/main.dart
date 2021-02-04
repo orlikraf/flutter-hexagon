@@ -20,10 +20,19 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int depth = 1;
+  List<int> depths = [0, 1, 2, 3, 4];
+  HexagonType type = HexagonType.FLAT;
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +51,68 @@ class MyHomePage extends StatelessWidget {
               Tab(text: 'Other'),
             ],
           ),
-          title: Text(title),
+          title: Text(widget.title),
         ),
         body: TabBarView(
+          physics: NeverScrollableScrollPhysics(),
           children: [
-            _buildGrid(),
+            Stack(
+              children: [
+                Positioned.fill(child: _buildGrid(type)),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Card(
+                    margin: EdgeInsets.all(8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DropdownButton<HexagonType>(
+                            onChanged: (value) => this.setState(() {
+                              type = value;
+                            }),
+                            value: type,
+                            items: [
+                              DropdownMenuItem<HexagonType>(
+                                value: HexagonType.FLAT,
+                                child: Text('Flat'),
+                              ),
+                              DropdownMenuItem<HexagonType>(
+                                value: HexagonType.POINTY,
+                                child: Text('Pointy'),
+                              )
+                            ],
+                            selectedItemBuilder: (context) => [
+                              Center(child: Text('Flat')),
+                              Center(child: Text('Pointy')),
+                            ],
+                          ),
+                          DropdownButton<int>(
+                            onChanged: (value) => this.setState(() {
+                              depth = value;
+                            }),
+                            value: depth,
+                            items: depths
+                                .map((e) => DropdownMenuItem<int>(
+                                      value: e,
+                                      child: Text('Depth: $e'),
+                                    ))
+                                .toList(),
+                            selectedItemBuilder: (context) {
+                              return depths
+                                  .map((e) => Center(child: Text('Depth: $e')))
+                                  .toList();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             _buildVerticalGrid(),
             _buildHorizontalGrid(),
             _buildMore(size),
@@ -56,24 +122,21 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid(HexagonType type) {
     return InteractiveViewer(
-      // minScale: 0.1,
-      // maxScale: 4.0,
-      // constrained: true,
-      child: HexagonGrid.pointy(
-        color: Colors.pink,
-        depth: 1,
-        // width: 900,
-        // height: 800,
-        buildTile: (coordinates) => HexagonWidgetBuilder(
-          // width: 300,
-          padding: 4.0,
-          cornerRadius: 8.0,
-        ),
-        // buildChild: (coordinates) => Text('${coordinates.q}, ${coordinates.r}'),
-      ),
-    );
+        minScale: 0.1,
+        maxScale: 8.0,
+        child: HexagonGrid(
+          hexType: type,
+          color: Colors.pink,
+          depth: depth,
+          buildTile: (coordinates) => HexagonWidgetBuilder(
+            padding: 2.0,
+            cornerRadius: 8.0,
+            child: Text(
+                '${coordinates.x}, ${coordinates.y}, ${coordinates.z}\n  ${coordinates.q}, ${coordinates.r}'),
+          ),
+        ));
   }
 
   Widget _buildHorizontalGrid() {

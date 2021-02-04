@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Coordinates {
   Coordinates.cube(this.x, this.y, this.z)
       : assert(x != null),
@@ -8,7 +10,7 @@ class Coordinates {
       : assert(q != null),
         assert(r != null),
         this.x = q,
-        this.y = -q - r,
+        this.y = (-q - r).toInt(),
         this.z = r;
 
   final int x, y, z;
@@ -25,6 +27,11 @@ class Coordinates {
     return Coordinates.cube(x - other.x, y - other.y, z - other.z);
   }
 
+  int distance(Coordinates other) {
+    return max(
+        (x - other.x).abs(), max((y - other.y).abs(), (z - other.z).abs()));
+  }
+
   @override
   bool operator ==(Object other) =>
       other is Coordinates && other.x == x && other.y == y && other.z == z;
@@ -35,7 +42,7 @@ class Coordinates {
   static Coordinates zero = Coordinates.cube(0, 0, 0);
 
   @override
-  String toString() => 'Coordinates[cube: ($x, ${y.toInt()  }, $z), axial: ($q, $r)]';
+  String toString() => 'Coordinates[cube: ($x, $y, $z), axial: ($q, $r)]';
 }
 
 class HexDirections {

@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:hexagon/src/grid/coordinates.dart';
 
 import '../hexagon_type.dart';
 import '../hexagon_widget.dart';
+import 'coordinates.dart';
 
 class HexagonGrid extends StatelessWidget {
+  HexagonGrid({
+    this.width,
+    this.height,
+    this.depth = 0,
+    @required this.hexType,
+    this.color,
+    this.buildTile,
+    this.buildChild,
+    this.hexagonBuilder,
+  })  : assert(depth >= 0),
+        assert(hexType != null);
+
   HexagonGrid.pointy({
     this.width,
     this.height,
@@ -42,172 +54,176 @@ class HexagonGrid extends StatelessWidget {
   Widget _mainAxis(List<Widget> Function(int count) children) {
     if (hexType.isPointy) {
       return Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: children.call(_maxHexCount));
-    }
-    return Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: children.call(_maxHexCount));
+        children: children.call(_maxHexCount),
+      );
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: children.call(_maxHexCount),
+    );
   }
 
   Widget _crossAxis(
-    int currentDepth,
-    List<Widget> Function(int count) children,
-  ) {
+      int currentDepth, List<Widget> Function(int count) children) {
     if (hexType.isPointy) {
       return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: children.call(_maxHexCount - currentDepth));
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: children.call(_maxHexCount - currentDepth),
+      );
     }
     return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: children.call(_maxHexCount - currentDepth));
-  }
-
-  Widget _padding(int depth, Size size, Widget child) {
-    double h = hexType.isPointy ? (size.width / 2) * depth : 0.0;
-    double v = hexType.isFlat ? (size.height / 2) * depth : 0.0;
-    print('padding: depth: $depth, h: $h, v: $v');
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-      child: child,
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: children.call(_maxHexCount - currentDepth),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      // var edgeInsets = EdgeInsets.symmetric(
-      //   vertical: _displaceColumns *
-      //       (size.height / (8 * hexType.pointyFactor(false))),
-      //   horizontal:
-      //   _displaceRows * (size.width / (8 * hexType.flatFactor(false))),
-      // );
-      // var builder = buildHexagon?.call(Coordinates.zero);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        Size size = _hexSize(constraints);
 
-      print('------------------');
-      // print('template: $builder');
-      print('depth: $depth');
-      print('------------------');
+        HexagonWidget buildHex(Coordinates coordinates) {
+          HexagonWidgetBuilder builder = buildTile?.call(coordinates) ??
+              hexagonBuilder ??
+              HexagonWidgetBuilder();
 
-      Size size = _hexSize(constraints);
-      print('size: $size');
+          return builder.build(
+            hexType,
+            inBounds: false,
+            width: size.width,
+            height: size.height,
+            child: buildChild?.call(coordinates),
+            replaceChild: buildChild != null,
+          );
+        }
 
-      HexagonWidget buildHex(Coordinates coordinates) {
-        HexagonWidgetBuilder builder = buildTile?.call(coordinates) ??
-            hexagonBuilder ??
-            HexagonWidgetBuilder();
-
-        return builder.build(
-          hexType,
-          inBounds: false,
-          width: size.width,
-          height: size.height,
-          child: buildChild?.call(coordinates),
-          replaceChild: buildChild != null,
+        var edgeInsets = EdgeInsets.symmetric(
+          vertical: ((hexType.isPointy ? 1 : 0) *
+              (size.height / (8 * hexType.pointyFactor(false)))),
+          horizontal: ((hexType.isFlat ? 1 : 0) *
+              (size.width / (8 * hexType.flatFactor(false)))),
         );
-      }
 
-      if (depth == 0) {
+        if (depth == 0) {
+          return Container(
+            color: color,
+            width: width,
+            height: height,
+            padding: edgeInsets,
+            child: buildHex(Coordinates.zero),
+          );
+        }
+
         return Container(
           color: color,
-          child: buildHex(Coordinates.zero),
-        );
-      }
+          width: width,
+          height: height,
+          padding: edgeInsets,
+          child: _mainAxis(
+            (mainCount) {
+              return List.generate(
+                mainCount,
+                (mainIndex) {
+                  int currentDepth = mainIndex - depth;
+                  return _crossAxis(
+                    currentDepth.abs(),
+                    (crossCount) {
+                      return List.generate(crossCount, (crossIndex) {
+                        if (currentDepth <= 0)
+                          crossIndex = -depth - currentDepth + crossIndex;
+                        else
+                          crossIndex = -depth + crossIndex;
 
-      return Container(
-        color: color,
-        child: _mainAxis(
-          (mainCount) {
-            return List.generate(mainCount, (mainIndex) {
-              int currentDepth = mainIndex - depth;
-              print('currentDepth: $currentDepth');
-              return _padding(
-                currentDepth.abs(),
-                size,
-                _crossAxis(
-                  currentDepth.abs(),
-                  (crossCount) => List.generate(crossCount, (crossIndex) {
-                    if (currentDepth <= 0)
-                      crossIndex = -depth - currentDepth + crossIndex;
-                    else
-                      crossIndex = -depth + crossIndex;
-
-                    final coordinates =
-                        Coordinates.axial(crossIndex, currentDepth);
-                    print('coordinates: $coordinates');
-
-                    return buildHex.call(coordinates);
-                  }),
-                ),
+                        final coordinates = Coordinates.axial(
+                          crossIndex,
+                          currentDepth,
+                        );
+                        return buildHex.call(coordinates);
+                      });
+                    },
+                  );
+                },
               );
-            });
-          },
-        ),
-      );
-    });
+            },
+          ),
+        );
+      },
+    );
   }
 
-  Size _hexSize(BoxConstraints constraints, {HexagonWidget template}) {
-    // if (template != null &&
-    //     (template.width != null || template.height != null)) {
-    //   return Size(template.width, template.height);
-    // }
-    print('constraints: $constraints');
+  Size _hexSize(BoxConstraints constraints) {
     double maxWidth = constraints.maxWidth;
     double maxHeight = constraints.maxHeight;
+
+    if (width != null || height != null) {
+      maxWidth = width ?? double.infinity;
+      maxHeight = height ?? double.infinity;
+    }
     if (maxWidth.isFinite && maxHeight.isFinite) {
-      var ratio = maxWidth / maxHeight;
-      print('ratio: $ratio');
-      print('hex ratio: ${hexType.ratio}');
+      var sizeFromHeight = _fromHeight(maxHeight);
+      var sizeFromWidth = _fromWidth(maxWidth);
 
-      if (ratio > hexType.ratio) {
-        maxWidth = double.infinity;
-      } else if (ratio < hexType.ratio) {
-        maxHeight = double.infinity;
-      }
-    } else if (maxWidth.isInfinite && maxHeight.isInfinite) {
-      maxWidth = width ?? maxWidth;
-      maxHeight = height ?? maxHeight;
-    }
-
-    if (maxWidth.isFinite) {
-      print('maxWidth isFinite');
       if (hexType.isFlat) {
-        print('isFlat');
-        //todo check
-        var quarters = maxWidth / (1 + (0.75 * (2 * depth)));
-        var size = Size(quarters, quarters * hexType.ratio);
-        return size * hexType.flatFactor(false);
+        var hh = (maxHeight - (sizeFromHeight.height * _maxHexCount));
+        var hw = (maxHeight - (sizeFromWidth.height * _maxHexCount));
+        if (hh == 0 && hw < 0) {
+          return sizeFromHeight;
+        } else
+          return sizeFromWidth;
+      } else {
+        var wh = (maxWidth - (sizeFromHeight.width * _maxHexCount));
+        var ww = (maxWidth - (sizeFromWidth.width * _maxHexCount));
+        if (ww == 0 && wh < 0) {
+          return sizeFromWidth;
+        } else
+          return sizeFromHeight;
       }
-      //is Pointy
-      print('isPointy');
-      var width = maxWidth / (depth == 0 ? 1 : (_maxHexCount));
-      print('maxW: $maxWidth');
-      print('width: $width');
-
-      return Size(width, width * hexType.ratio);
+    } else if (maxWidth.isFinite) {
+      return _fromWidth(maxWidth);
     } else if (maxHeight.isFinite) {
-      print('maxHeight isFinite');
-      if (hexType.isPointy) {
-        var quarters =
-            maxHeight / (depth == 0 ? 1.0 : (1 + (0.75 * (2 * depth))));
-        var size = Size(quarters / hexType.ratio, quarters) *
-            hexType.pointyFactor(false);
-
-        // if (size.width * depth > maxWidth) {
-        //   return size * (maxWidth / size.width);
-        // }
-        return size;
-      }
-      //is Flat
-      var height = maxHeight / (depth == 0 ? 1.0 : (_maxHexCount));
-      return Size(height / hexType.ratio, height);
+      return _fromHeight(maxHeight);
     } else {
-      throw Exception(
-          'Error: Infinite constraints in both grid dimensions and no size in hexagon template!');
+      throw Exception('Error: Infinite constraints in both grid dimensions!');
     }
+  }
+
+  Size _fromWidth(double maxWidth) {
+    if (hexType.isFlat) {
+      var quarters =
+          maxWidth / (depth == 0 ? 1.0 : (1.0 + (0.75 * (2 * depth))));
+      return Size(quarters, quarters * hexType.ratio) *
+          hexType.flatFactor(false);
+    }
+    //is Pointy
+    var width = maxWidth / (depth == 0 ? 1 : (_maxHexCount));
+    return Size(
+      width,
+      (width / hexType.ratio) /
+          hexType.flatFactor(false) *
+          hexType.pointyFactor(false),
+    );
+  }
+
+  Size _fromHeight(double maxHeight) {
+    if (hexType.isPointy) {
+      var quarters =
+          maxHeight / (depth == 0 ? 1.0 : (1.0 + (0.75 * (2 * depth))));
+      return Size(quarters / hexType.ratio, quarters) *
+          hexType.pointyFactor(false);
+    }
+    //is Flat
+    var height = maxHeight / (depth == 0 ? 1.0 : (_maxHexCount));
+    return Size(
+      (height * hexType.ratio) *
+          hexType.flatFactor(false) /
+          hexType.pointyFactor(false),
+      height,
+    );
   }
 }
