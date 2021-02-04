@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hexagon/src/hexagon_type.dart';
-import 'package:hexagon/src/hexagon_widget.dart';
+
+import '../hexagon_type.dart';
+import '../hexagon_widget.dart';
 
 enum GridType { EVEN, ODD }
 
@@ -32,6 +33,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [padding] - Grid padding.
+  ///
   /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
   ///
   /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
@@ -41,10 +44,12 @@ class HexagonOffsetGrid extends StatelessWidget {
     @required this.columns,
     @required this.rows,
     this.color,
+    this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : assert(columns > 0),
+  })
+      : assert(columns > 0),
         assert(rows > 0),
         this.hexType = HexagonType.FLAT,
         this.gridType = GridType.ODD;
@@ -57,6 +62,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [padding] - Grid padding.
+  ///
   /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
   ///
   /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
@@ -66,10 +73,12 @@ class HexagonOffsetGrid extends StatelessWidget {
     @required this.columns,
     @required this.rows,
     this.color,
+    this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.FLAT,
+  })
+      : this.hexType = HexagonType.FLAT,
         this.gridType = GridType.EVEN;
 
   ///Grid of pointy hexagons with odd rows starting with tile and even with a space.
@@ -80,6 +89,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [padding] - Grid padding.
+  ///
   /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
   ///
   /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
@@ -89,10 +100,12 @@ class HexagonOffsetGrid extends StatelessWidget {
     @required this.columns,
     @required this.rows,
     this.color,
+    this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
+  })
+      : this.hexType = HexagonType.POINTY,
         this.gridType = GridType.ODD;
 
   ///Grid of pointy hexagons with even rows starting with tile and odd with a space.
@@ -103,6 +116,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [color] - Background color of this grid.
   ///
+  /// [padding] - Grid padding.
+  ///
   /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
   ///
   /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
@@ -112,18 +127,20 @@ class HexagonOffsetGrid extends StatelessWidget {
     @required this.columns,
     @required this.rows,
     this.color,
+    this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
+  })
+      : this.hexType = HexagonType.POINTY,
         this.gridType = GridType.EVEN;
 
   final HexagonType hexType;
   final GridType gridType;
-
   final int columns;
   final int rows;
   final Color color;
+  final EdgeInsetsGeometry padding;
   final HexagonWidgetBuilder hexagonBuilder;
   final Widget Function(int col, int row) buildChild;
   final HexagonWidgetBuilder Function(int col, int row) buildTile;
@@ -133,21 +150,20 @@ class HexagonOffsetGrid extends StatelessWidget {
   int get _displaceRows => hexType.isFlat ? 1 : 0;
 
   Widget _mainAxis(List<Widget> Function(int count) children) {
-    if (hexType.isPointy) {
-      return Column(children: children.call(rows + _displaceRows));
-    }
-    return Row(children: children.call(columns + _displaceColumns));
+    return hexType.isPointy
+        ? Column(children: children.call(rows + _displaceRows))
+        : Row(children: children.call(columns + _displaceColumns));
   }
 
   Widget _crossAxis(List<Widget> Function(int count) children) {
-    if (hexType.isPointy) {
-      return Row(children: children.call(columns + _displaceColumns));
-    }
-    return Column(children: children.call(rows + _displaceRows));
+    return hexType.isPointy
+        ? Row(children: children.call(columns + _displaceColumns))
+        : Column(children: children.call(rows + _displaceRows));
   }
 
   Size _hexSize(double maxWidth, double maxHeight) {
     if (maxWidth.isFinite) {
+      maxWidth -= (padding?.horizontal ?? 0);
       if (hexType.isFlat) {
         var quarters = maxWidth / (1 + (0.75 * (columns - 1)));
         var size = Size(quarters, quarters * hexType.ratio);
@@ -156,6 +172,7 @@ class HexagonOffsetGrid extends StatelessWidget {
       var half = maxWidth / (columns * 2 + _displaceColumns);
       return Size(half * 2, half * 2 * hexType.ratio);
     } else if (maxHeight.isFinite) {
+      maxHeight -= (padding?.vertical ?? 0);
       if (hexType.isPointy) {
         var quarters = maxHeight / (1 + (0.75 * (rows - 1)));
         var size = Size(quarters / hexType.ratio, quarters);
@@ -177,50 +194,60 @@ class HexagonOffsetGrid extends StatelessWidget {
           vertical: (_displaceColumns *
               (size.height / (8 * hexType.pointyFactor(false)))),
           horizontal:
-              (_displaceRows * (size.width / (8 * hexType.flatFactor(false)))),
+          (_displaceRows * (size.width / (8 * hexType.flatFactor(false)))),
         );
+        edgeInsets += padding ?? EdgeInsets.zero;
         return Container(
           color: color,
           padding: edgeInsets,
           child: _mainAxis(
-            (mainCount) => List.generate(
-              mainCount,
-              (mainIndex) => _crossAxis(
-                (crossCount) => List.generate(crossCount, (crossIndex) {
-                  if ((crossIndex == 0 || crossIndex >= crossCount - 1) &&
-                      gridType.displace(mainIndex, crossIndex)) {
-                    //return container with half the size of the hexagon for displaced row/column
-                    return Container(
-                      width: hexType.isPointy ? size.width / 2 : null,
-                      height: hexType.isFlat ? size.height / 2 : null,
-                    );
-                  }
-                  //calculate human readable column & row
-                  final col = (hexType.isPointy
-                      ? (crossIndex -
-                          (gridType.displaceFront(mainIndex) ? 1 : 0))
-                      : mainIndex);
-                  final row = hexType.isPointy
-                      ? mainIndex
-                      : (crossIndex -
-                          (gridType.displaceFront(mainIndex) ? 1 : 0));
+                (mainCount) =>
+                List.generate(
+                  mainCount,
+                      (mainIndex) =>
+                      _crossAxis(
+                            (crossCount) =>
+                            List.generate(crossCount, (crossIndex) {
+                              if ((crossIndex == 0 ||
+                                  crossIndex >= crossCount - 1) &&
+                                  gridType.displace(mainIndex, crossIndex)) {
+                                //return container with half the size of the hexagon for displaced row/column
+                                return Container(
+                                  width: hexType.isPointy
+                                      ? size.width / 2
+                                      : null,
+                                  height: hexType.isFlat
+                                      ? size.height / 2
+                                      : null,
+                                );
+                              }
+                              //calculate human readable column & row
+                              final col = (hexType.isPointy
+                                  ? (crossIndex -
+                                  (gridType.displaceFront(mainIndex) ? 1 : 0))
+                                  : mainIndex);
+                              final row = hexType.isPointy
+                                  ? mainIndex
+                                  : (crossIndex -
+                                  (gridType.displaceFront(mainIndex) ? 1 : 0));
 
-                  HexagonWidgetBuilder builder = buildTile?.call(col, row) ??
-                      hexagonBuilder ??
-                      HexagonWidgetBuilder();
+                              HexagonWidgetBuilder builder = buildTile?.call(
+                                  col, row) ??
+                                  hexagonBuilder ??
+                                  HexagonWidgetBuilder();
 
-                  //use template values
-                  return builder.build(
-                    hexType,
-                    inBounds: false,
-                    width: hexType.isPointy ? size.width : null,
-                    height: hexType.isFlat ? size.height : null,
-                    child: buildChild?.call(col, row),
-                    replaceChild: buildChild != null,
-                  );
-                }),
-              ),
-            ),
+                              //use template values
+                              return builder.build(
+                                hexType,
+                                inBounds: false,
+                                width: hexType.isPointy ? size.width : null,
+                                height: hexType.isFlat ? size.height : null,
+                                child: buildChild?.call(col, row),
+                                replaceChild: buildChild != null,
+                              );
+                            }),
+                      ),
+                ),
           ),
         );
       },
