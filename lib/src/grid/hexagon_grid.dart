@@ -5,34 +5,90 @@ import '../hexagon_widget.dart';
 import 'coordinates.dart';
 
 class HexagonGrid extends StatelessWidget {
+  ///Hexagon shaped grid of hexagons.
+  ///
+  /// [hexType] - Required. Defines hexagon shape used for this grid.
+  ///
+  /// [depth] - Controls how many hexagons from the center there are form grid edge. Default is 0. Must be 0 or positite int.
+  ///
+  /// [width] - Optional with of the grid.
+  ///
+  /// [height] - Optional height of the grid.
+  ///
+  /// [color] - Background color of this grid.
+  ///
+  /// [padding] - Grid padding.
+  ///
+  /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
+  ///
+  /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
+  ///
+  /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonGrid({
     this.width,
     this.height,
     this.depth = 0,
     @required this.hexType,
     this.color,
+    this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
   })  : assert(depth >= 0),
         assert(hexType != null);
 
+  ///Hexagon shaped grid of pointy hexagons.
+  ///
+  /// [depth] - Controls how many hexagons from the center there are form grid edge. Default is 0. Must be 0 or positite int.
+  ///
+  /// [width] - Optional with of the grid.
+  ///
+  /// [height] - Optional height of the grid.
+  ///
+  /// [color] - Background color of this grid.
+  ///
+  /// [padding] - Grid padding.
+  ///
+  /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
+  ///
+  /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
+  ///
+  /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonGrid.pointy({
     this.width,
     this.height,
     this.depth = 0,
     this.color,
+    this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
   })  : assert(depth >= 0),
         this.hexType = HexagonType.POINTY;
 
+  ///Hexagon shaped grid of flat hexagons.
+  ///
+  /// [depth] - Controls how many hexagons from the center there are form grid edge. Default is 0. Must be 0 or positite int.
+  ///
+  /// [width] - Optional with of the grid.
+  ///
+  /// [height] - Optional height of the grid.
+  ///
+  /// [color] - Background color of this grid.
+  ///
+  /// [padding] - Grid padding.
+  ///
+  /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
+  ///
+  /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
+  ///
+  /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonGrid.flat({
     this.width,
     this.height,
     this.depth = 0,
     this.color,
+    this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
@@ -40,11 +96,11 @@ class HexagonGrid extends StatelessWidget {
         this.hexType = HexagonType.FLAT;
 
   final HexagonType hexType;
-
   final double width;
   final double height;
   final int depth;
   final Color color;
+  final EdgeInsetsGeometry padding;
   final HexagonWidgetBuilder hexagonBuilder;
   final Widget Function(Coordinates coordinates) buildChild;
   final HexagonWidgetBuilder Function(Coordinates coordinates) buildTile;
@@ -110,6 +166,8 @@ class HexagonGrid extends StatelessWidget {
               (size.width / (8 * hexType.flatFactor(false)))),
         );
 
+        edgeInsets += padding ?? EdgeInsets.zero;
+
         if (depth == 0) {
           return Container(
             color: color,
@@ -141,8 +199,8 @@ class HexagonGrid extends StatelessWidget {
                           crossIndex = -depth + crossIndex;
 
                         final coordinates = Coordinates.axial(
-                          crossIndex,
-                          currentDepth,
+                          hexType.isPointy ? crossIndex : currentDepth,
+                          hexType.isPointy ? currentDepth : crossIndex,
                         );
                         return buildHex.call(coordinates);
                       });
@@ -158,8 +216,8 @@ class HexagonGrid extends StatelessWidget {
   }
 
   Size _hexSize(BoxConstraints constraints) {
-    double maxWidth = constraints.maxWidth;
-    double maxHeight = constraints.maxHeight;
+    double maxWidth = constraints.maxWidth - (padding?.horizontal ?? 0);
+    double maxHeight = constraints.maxHeight - (padding?.vertical ?? 0);
 
     if (width != null || height != null) {
       maxWidth = width ?? double.infinity;

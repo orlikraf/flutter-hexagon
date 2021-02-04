@@ -1,5 +1,7 @@
 import 'dart:math';
 
+///Unified representation of cube and axial coordinates systems.
+///
 class Coordinates {
   Coordinates.cube(this.x, this.y, this.z)
       : assert(x != null),

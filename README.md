@@ -3,7 +3,7 @@
 A widget in a shape of hexagon.
 Inspired by fantastic hexagons analysis available on [redblobgames](https://www.redblobgames.com/grids/hexagons/).
 
-<img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_3.png" width="200">
+<img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_3.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_4.png" width="200">
 
 ## Installation
 Add this to your package's pubspec.yaml file:
@@ -12,7 +12,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  hexagon: ^0.0.6
+  hexagon: ^0.1.0
 ```
 
 ## Usage
@@ -41,8 +41,6 @@ HexagonWidget.pointy(
   child: Text('A pointy tile'),
 ),
 ```
-
-The `template` constructor is used in grids and will throw an error while rendering.
 
 ### Grids
 #### Offset Grid
@@ -82,13 +80,42 @@ To customize any `HexagonWidget` in grid use buildHexagon function and return a 
 If you provide a `buildChild` function it will override any child provided in builder.
 
 #### Hexagon Grid
+As it is expected this grid is in a shape of hexagon.
+Since offset coordinates wouldn't be intuitive in this case HexagonGrid uses cube and axial coordinates systems. You can read about them here: [Cube coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-cube), [Axial coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-axial).
+`Coordinates` class combines both of them as they are easily convertible between each other.
 
-* WIP
-* _Soon_
+```dart
+Coordinates tileQR = Coordinates.axial(q, r);
+
+Coordinates tileXYZ = Coordinates.cube(x, y, z);
+```
+
+`HexagonGrid` requires to be constrained by its parent or else you have to provide at lest one size dimension (width or height). Currently this widget will fit itself to fill given space or best match to given size.
+Everything related customize hexagon tiles is similar as in offset grid above.
+
+Below example of using `HexagonGrid` with `InteractiveViewer`.
+
+```dart
+InteractiveViewer(
+  minScale: 0.2,
+  maxScale: 4.0,
+  constrained: false,
+  child: HexagonGrid.pointy(
+    color: Colors.pink,
+    depth: depth,
+    width: 1920,
+    buildTile: (coordinates) => HexagonWidgetBuilder(
+      padding: 2.0,
+      cornerRadius: 8.0,
+      child: Text('${coordinates.q}, ${coordinates.r}'),
+    ),
+  ),
+)
+```
 
 ## Road map
 
 * ~~Margins between tiles in HexagonOffsetGrid~~ (Added padding since `0.0.5`)
-* Hexagonal shaped grid (using cube/axial coordinates system)
+* ~~Hexagonal shaped grid (using cube/axial coordinates system)~~ (since 0.1.0)
 * Solve content spacing in hexagon widget
-* Check performance
+* Check performance - any ideas how?

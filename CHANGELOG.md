@@ -1,6 +1,9 @@
-## [0.1.0] - ??.??.????
+## [0.1.0] - 04.02.2021
 
 * Added HexagonGrid
+* Added Coordinates
+* Added _`padding`_ attribute to HexagonOffsetGrid
+* Updated example
 
 ## [0.0.7] - 22.01.2021
 
