@@ -1,3 +1,7 @@
+## [0.1.1] - 12.03.2021
+
+* Single row/column offset grids won't have displaces tiles.
+
 ## [0.1.0] - 04.02.2021
 
 * Added HexagonGrid

@@ -3,11 +3,13 @@ import 'dart:math';
 ///Unified representation of cube and axial coordinates systems.
 ///
 class Coordinates {
-  Coordinates.cube(this.x, this.y, this.z)
+  ///Cube constructor
+  const Coordinates.cube(this.x, this.y, this.z)
       : assert(x != null),
         assert(y != null),
         assert(z != null);
 
+  ///Axial constructor
   Coordinates.axial(int q, int r)
       : assert(q != null),
         assert(r != null),
@@ -21,17 +23,18 @@ class Coordinates {
 
   int get r => z;
 
+  ///Distance measured in steps between tiles. A single step is only going over edge of neighbouring tiles.
+  int distance(Coordinates other) {
+    return max(
+        (x - other.x).abs(), max((y - other.y).abs(), (z - other.z).abs()));
+  }
+
   Coordinates operator +(Coordinates other) {
     return Coordinates.cube(x + other.x, y + other.y, z + other.z);
   }
 
   Coordinates operator -(Coordinates other) {
     return Coordinates.cube(x - other.x, y - other.y, z - other.z);
-  }
-
-  int distance(Coordinates other) {
-    return max(
-        (x - other.x).abs(), max((y - other.y).abs(), (z - other.z).abs()));
   }
 
   @override
@@ -41,7 +44,8 @@ class Coordinates {
   @override
   int get hashCode => x ^ y ^ z;
 
-  static Coordinates zero = Coordinates.cube(0, 0, 0);
+  ///Constant value of space center
+  static const Coordinates zero = Coordinates.cube(0, 0, 0);
 
   @override
   String toString() => 'Coordinates[cube: ($x, $y, $z), axial: ($q, $r)]';
@@ -61,11 +65,4 @@ class HexDirections {
   static Coordinates flatRightDown = Coordinates.axial(1, 0);
   static Coordinates flatLeftTop = Coordinates.axial(-1, 0);
   static Coordinates flatLeftDown = Coordinates.axial(-1, 1);
-}
-
-class Tile<T> {
-  final Coordinates coordinates;
-  final T item;
-
-  Tile(this.coordinates, this.item);
 }

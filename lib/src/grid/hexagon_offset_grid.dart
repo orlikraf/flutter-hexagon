@@ -141,9 +141,9 @@ class HexagonOffsetGrid extends StatelessWidget {
   final Widget Function(int col, int row) buildChild;
   final HexagonWidgetBuilder Function(int col, int row) buildTile;
 
-  int get _displaceColumns => rows > 1 && hexType.isPointy ? 1 : 0;
+  int get _displaceColumns => hexType.isPointy ? 1 : 0;
 
-  int get _displaceRows => columns > 1 && hexType.isFlat ? 1 : 0;
+  int get _displaceRows => hexType.isFlat ? 1 : 0;
 
   Widget _mainAxis(List<Widget> Function(int count) children) {
     return hexType.isPointy
@@ -227,91 +227,52 @@ class HexagonOffsetGrid extends StatelessWidget {
         return Container(
           color: color,
           padding: edgeInsets,
-          child: _generateLayout(size),
+          child: _mainAxis(
+            (mainCount) => List.generate(
+              mainCount,
+              (mainIndex) => _crossAxis(
+                (crossCount) => List.generate(crossCount, (crossIndex) {
+                  if ((crossIndex == 0 || crossIndex >= crossCount - 1) &&
+                      gridType.displace(mainIndex, crossIndex)) {
+                    //return container with half the size of the hexagon for displaced row/column
+                    return Container(
+                      width: (hexType.isPointy && rows > 1)
+                          ? size.width / 2
+                          : null,
+                      height: (hexType.isFlat && columns > 1)
+                          ? size.height / 2
+                          : null,
+                    );
+                  }
+                  //calculate human readable column & row
+                  final col = (hexType.isPointy
+                      ? (crossIndex -
+                          (gridType.displaceFront(mainIndex) ? 1 : 0))
+                      : mainIndex);
+                  final row = hexType.isPointy
+                      ? mainIndex
+                      : (crossIndex -
+                          (gridType.displaceFront(mainIndex) ? 1 : 0));
+
+                  HexagonWidgetBuilder builder = buildTile?.call(col, row) ??
+                      hexagonBuilder ??
+                      HexagonWidgetBuilder();
+
+                  //use template values
+                  return builder.build(
+                    hexType,
+                    inBounds: false,
+                    width: hexType.isPointy ? size.width : null,
+                    height: hexType.isFlat ? size.height : null,
+                    child: buildChild?.call(col, row),
+                    replaceChild: buildChild != null,
+                  );
+                }),
+              ),
+            ),
+          ),
         );
       },
     );
-  }
-
-  Widget _generateLayout(Size size) {
-    if (hexType.isPointy && rows == 1) {
-      return _singleRowPointy(size);
-    } else if (hexType.isFlat && columns == 1) {
-      return _singleColumnFlat(size);
-    }
-    return _mainAxis(
-      (mainCount) => List.generate(
-        mainCount,
-        (mainIndex) => _crossAxis(
-          (crossCount) => List.generate(crossCount, (crossIndex) {
-            if ((crossIndex == 0 || crossIndex >= crossCount - 1) &&
-                gridType.displace(mainIndex, crossIndex)) {
-              //return container with half the size of the hexagon for displaced row/column
-              return Container(
-                width: hexType.isPointy ? size.width / 2 : null,
-                height: hexType.isFlat ? size.height / 2 : null,
-              );
-            }
-            //calculate human readable column & row
-            final col = (hexType.isPointy
-                ? (crossIndex - (gridType.displaceFront(mainIndex) ? 1 : 0))
-                : mainIndex);
-            final row = hexType.isPointy
-                ? mainIndex
-                : (crossIndex - (gridType.displaceFront(mainIndex) ? 1 : 0));
-
-            HexagonWidgetBuilder builder = buildTile?.call(col, row) ??
-                hexagonBuilder ??
-                HexagonWidgetBuilder();
-
-            //use template values
-            return builder.build(
-              hexType,
-              inBounds: false,
-              width: hexType.isPointy ? size.width : null,
-              height: hexType.isFlat ? size.height : null,
-              child: buildChild?.call(col, row),
-              replaceChild: buildChild != null,
-            );
-          }),
-        ),
-      ),
-    );
-  }
-
-  Widget _singleRowPointy(Size size) {
-    return Row(
-        children: List.generate(columns, (col) {
-      HexagonWidgetBuilder builder =
-          buildTile?.call(col, 0) ?? hexagonBuilder ?? HexagonWidgetBuilder();
-
-      //use template values
-      return builder.build(
-        hexType,
-        inBounds: false,
-        width: hexType.isPointy ? size.width : null,
-        height: hexType.isFlat ? size.height : null,
-        child: buildChild?.call(col, 0),
-        replaceChild: buildChild != null,
-      );
-    }));
-  }
-
-  Widget _singleColumnFlat(Size size) {
-    return Column(
-        children: List.generate(rows, (row) {
-      HexagonWidgetBuilder builder =
-          buildTile?.call(0, row) ?? hexagonBuilder ?? HexagonWidgetBuilder();
-
-      //use template values
-      return builder.build(
-        hexType,
-        inBounds: false,
-        width: hexType.isPointy ? size.width : null,
-        height: hexType.isFlat ? size.height : null,
-        child: buildChild?.call(0, row),
-        replaceChild: buildChild != null,
-      );
-    }));
   }
 }

@@ -12,7 +12,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  hexagon: ^0.1.0
+  hexagon: ^0.1.1
 ```
 
 ## Usage
@@ -81,7 +81,9 @@ If you provide a `buildChild` function it will override any child provided in bu
 
 #### Hexagon Grid
 As it is expected this grid is in a shape of hexagon.
-Since offset coordinates wouldn't be intuitive in this case HexagonGrid uses cube and axial coordinates systems. You can read about them here: [Cube coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-cube), [Axial coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-axial).
+Since offset coordinates wouldn't be intuitive in this case HexagonGrid uses cube and axial coordinates systems.
+You can read about them here: [Cube coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-cube), [Axial coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-axial).
+
 `Coordinates` class combines both of them as they are easily convertible between each other.
 
 ```dart
@@ -91,7 +93,7 @@ Coordinates tileXYZ = Coordinates.cube(x, y, z);
 ```
 
 `HexagonGrid` requires to be constrained by its parent or else you have to provide at lest one size dimension (width or height). Currently this widget will fit itself to fill given space or best match to given size.
-Everything related customize hexagon tiles is similar as in offset grid above.
+Everything related to customize hexagon tiles is similar as in offset grid above.
 
 Below example of using `HexagonGrid` with `InteractiveViewer`.
 
@@ -119,3 +121,4 @@ InteractiveViewer(
 * ~~Hexagonal shaped grid (using cube/axial coordinates system)~~ (since 0.1.0)
 * Solve content spacing in hexagon widget
 * Check performance - any ideas how?
+* null-safety

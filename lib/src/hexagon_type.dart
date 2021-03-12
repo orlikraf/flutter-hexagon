@@ -1,5 +1,6 @@
 import 'dart:math';
 
+///Enum for hexagon "orientation".
 enum HexagonType { FLAT, POINTY }
 
 extension HexagonTypeExtension on HexagonType {
@@ -12,8 +13,10 @@ extension HexagonTypeExtension on HexagonType {
     return _ratioPointy;
   }
 
+  /// Returns true for POINTY;
   bool get isPointy => this == HexagonType.POINTY;
 
+  /// Returns true for FLAT;
   bool get isFlat => this == HexagonType.FLAT;
 
   double flatFactor(bool inBounds) => (isFlat && inBounds == false) ? 0.75 : 1;
