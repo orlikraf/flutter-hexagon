@@ -41,8 +41,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.oddFlat({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
@@ -69,8 +69,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.evenFlat({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
@@ -95,8 +95,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.oddPointy({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
@@ -121,8 +121,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.evenPointy({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
@@ -135,11 +135,11 @@ class HexagonOffsetGrid extends StatelessWidget {
   final GridType gridType;
   final int columns;
   final int rows;
-  final Color color;
-  final EdgeInsetsGeometry padding;
-  final HexagonWidgetBuilder hexagonBuilder;
-  final Widget Function(int col, int row) buildChild;
-  final HexagonWidgetBuilder Function(int col, int row) buildTile;
+  final Color? color;
+  final EdgeInsets? padding;
+  final HexagonWidgetBuilder? hexagonBuilder;
+  final Widget Function(int col, int row)? buildChild;
+  final HexagonWidgetBuilder Function(int col, int row)? buildTile;
 
   int get _displaceColumns => hexType.isPointy ? 1 : 0;
 
@@ -215,7 +215,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         var size = _hexSize(constraints.maxWidth, constraints.maxHeight);
-        var edgeInsets = EdgeInsets.symmetric(
+        EdgeInsets edgeInsets = EdgeInsets.symmetric(
           vertical: hexType.isPointy
               ? (size.height / (8 * hexType.pointyFactor(false)))
               : 0,
@@ -260,7 +260,7 @@ class HexagonOffsetGrid extends StatelessWidget {
 
                   //use template values
                   return builder.build(
-                    hexType,
+                    type: hexType,
                     inBounds: false,
                     width: hexType.isPointy ? size.width : null,
                     height: hexType.isFlat ? size.height : null,

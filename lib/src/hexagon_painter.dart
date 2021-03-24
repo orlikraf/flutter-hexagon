@@ -4,14 +4,14 @@ import 'hexagon_path_builder.dart';
 
 /// This class is responsible for painting HexagonWidget color and shadow in proper shape.
 class HexagonPainter extends CustomPainter {
-  HexagonPainter(this.pathBuilder, {this.color, this.elevation});
+  HexagonPainter(this.pathBuilder, {this.color, this.elevation = 0});
 
   final HexagonPathBuilder pathBuilder;
   final double elevation;
-  final Color color;
+  final Color? color;
 
   final Paint _paint = Paint();
-  Path _path;
+  Path? _path;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -19,11 +19,12 @@ class HexagonPainter extends CustomPainter {
     _paint.isAntiAlias = true;
     _paint.style = PaintingStyle.fill;
 
-    _path = pathBuilder.build(size);
+    Path path = pathBuilder.build(size);
+    _path = path;
 
-    if ((elevation ?? 0) > 0)
-      canvas.drawShadow(_path, Colors.black, elevation ?? 0, false);
-    canvas.drawPath(_path, _paint);
+    if ((elevation) > 0)
+      canvas.drawShadow(path, Colors.black, elevation, false);
+    canvas.drawPath(path, _paint);
   }
 
   @override
