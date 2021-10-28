@@ -25,7 +25,7 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [type] - A type of hexagon has to be either [HexagonType.FLAT] or [HexagonType.POINTY]
   const HexagonWidget({
-    Key key,
+    Key? key,
     this.width,
     this.height,
     this.color,
@@ -34,10 +34,9 @@ class HexagonWidget extends StatelessWidget {
     this.cornerRadius,
     this.elevation = 0,
     this.inBounds = true,
-    @required this.type,
+    required this.type,
   })  : assert(width != null || height != null),
-        assert((elevation ?? 0) >= 0),
-        assert(type != null),
+        assert((elevation) >= 0),
         super(key: key);
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
@@ -53,18 +52,18 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
-  HexagonWidget.flat(
-      {this.width,
-      this.height,
-      this.color,
-      this.child,
-      this.padding,
-      this.elevation = 0,
-      this.cornerRadius,
-      this.inBounds = true})
-      : assert(width != null || height != null),
-        assert((elevation ?? 0) >= 0),
-        this.type = HexagonType.FLAT;
+  HexagonWidget.flat({
+    this.width,
+    this.height,
+    this.color,
+    this.child,
+    this.padding,
+    this.elevation = 0,
+    this.cornerRadius,
+    this.inBounds = true,
+  })  : assert(width != null || height != null),
+        assert((elevation) >= 0),
+        type = HexagonType.FLAT;
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
@@ -79,51 +78,47 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
-  HexagonWidget.pointy(
-      {this.width,
-      this.height,
-      this.color,
-      this.child,
-      this.padding,
-      this.elevation = 0,
-      this.cornerRadius,
-      this.inBounds = true})
-      : assert(width != null || height != null),
-        assert((elevation ?? 0) >= 0),
-        this.type = HexagonType.POINTY;
+  HexagonWidget.pointy({
+    this.width,
+    this.height,
+    this.color,
+    this.child,
+    this.padding,
+    this.elevation = 0,
+    this.cornerRadius,
+    this.inBounds = true,
+  })  : assert(width != null || height != null),
+        assert((elevation) >= 0),
+        type = HexagonType.POINTY;
 
   final HexagonType type;
-  final double width;
-  final double height;
+  final double? width;
+  final double? height;
   final double elevation;
   final bool inBounds;
-  final Widget child;
-  final Color color;
-  final double padding;
-  final double cornerRadius;
+  final Widget? child;
+  final Color? color;
+  final double? padding;
+  final double? cornerRadius;
 
   Size _innerSize() {
     var flatFactor = type.flatFactor(inBounds);
     var pointyFactor = type.pointyFactor(inBounds);
 
-    if (height != null && width != null) return Size(width, height);
-    if (height != null)
-      return Size((height * type.ratio) * flatFactor / pointyFactor, height);
-    if (width != null)
-      return Size(width, (width / type.ratio) / flatFactor * pointyFactor);
-    return null;
+    if (height != null && width != null) return Size(width!, height!);
+    if (height != null) return Size((height! * type.ratio) * flatFactor / pointyFactor, height!);
+    if (width != null) return Size(width!, (width! / type.ratio) / flatFactor * pointyFactor);
+    return const Size.square(0);
   }
 
   Size _contentSize() {
     var flatFactor = type.flatFactor(inBounds);
     var pointyFactor = type.pointyFactor(inBounds);
 
-    if (height != null && width != null) return Size(width, height);
-    if (height != null)
-      return Size((height * type.ratio) / pointyFactor, height / pointyFactor);
-    if (width != null)
-      return Size(width / flatFactor, (width / type.ratio) / flatFactor);
-    return null;
+    if (height != null && width != null) return Size(width!, height!);
+    if (height != null) return Size((height! * type.ratio) / pointyFactor, height! / pointyFactor);
+    if (width != null) return Size(width! / flatFactor, (width! / type.ratio) / flatFactor);
+    return const Size.square(0);
   }
 
   @override
@@ -131,8 +126,7 @@ class HexagonWidget extends StatelessWidget {
     var innerSize = _innerSize();
     var contentSize = _contentSize();
 
-    HexagonPathBuilder pathBuilder = HexagonPathBuilder(type,
-        inBounds: inBounds, borderRadius: cornerRadius);
+    HexagonPathBuilder pathBuilder = HexagonPathBuilder(type, inBounds: inBounds, borderRadius: cornerRadius);
 
     return Align(
       child: Container(
@@ -164,16 +158,16 @@ class HexagonWidget extends StatelessWidget {
 }
 
 class HexagonWidgetBuilder {
-  final Key key;
+  final Key? key;
   final double elevation;
-  final Color color;
-  final double padding;
-  final double cornerRadius;
-  final Widget child;
+  final Color? color;
+  final double? padding;
+  final double? cornerRadius;
+  final Widget? child;
 
   HexagonWidgetBuilder({
     this.key,
-    this.elevation,
+    required this.elevation,
     this.color,
     this.padding,
     this.cornerRadius,
@@ -185,16 +179,16 @@ class HexagonWidgetBuilder {
     this.padding,
     this.cornerRadius,
     this.child,
-  })  : this.elevation = 0,
-        this.color = Colors.transparent;
+  })  : elevation = 0,
+        color = Colors.transparent;
 
   HexagonWidget build(
     HexagonType type, {
-    double width,
-    double height,
-    bool inBounds,
-    Widget child,
-    bool replaceChild,
+    double? width,
+    double? height,
+    bool inBounds = true,
+    Widget? child,
+    bool replaceChild = false,
   }) {
     return HexagonWidget(
       key: key,

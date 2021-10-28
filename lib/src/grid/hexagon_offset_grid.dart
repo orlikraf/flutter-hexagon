@@ -8,19 +8,17 @@ enum GridType { EVEN, ODD }
 extension _GridTypeExtension on GridType {
   bool displace(int mainIndex, int crossIndex) {
     if (crossIndex == 0) {
-      return this.displaceFront(mainIndex);
+      return displaceFront(mainIndex);
     }
-    return this.displaceBack(mainIndex);
+    return displaceBack(mainIndex);
   }
 
   bool displaceFront(int index) {
-    return (this == GridType.ODD && index.isOdd) ||
-        (this == GridType.EVEN && index.isEven);
+    return (this == GridType.ODD && index.isOdd) || (this == GridType.EVEN && index.isEven);
   }
 
   bool displaceBack(int index) {
-    return (this == GridType.ODD && index.isEven) ||
-        (this == GridType.EVEN && index.isOdd);
+    return (this == GridType.ODD && index.isEven) || (this == GridType.EVEN && index.isOdd);
   }
 }
 
@@ -41,8 +39,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.oddFlat({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
@@ -50,8 +48,8 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.hexagonBuilder,
   })  : assert(columns > 0),
         assert(rows > 0),
-        this.hexType = HexagonType.FLAT,
-        this.gridType = GridType.ODD;
+        hexType = HexagonType.FLAT,
+        gridType = GridType.ODD;
 
   ///Grid of flat hexagons with even columns starting with tile and odd with a space.
   ///
@@ -69,15 +67,15 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.evenFlat({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.FLAT,
-        this.gridType = GridType.EVEN;
+  })  : hexType = HexagonType.FLAT,
+        gridType = GridType.EVEN;
 
   ///Grid of pointy hexagons with odd rows starting with tile and even with a space.
   ///
@@ -95,15 +93,15 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.oddPointy({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
-        this.gridType = GridType.ODD;
+  })  : hexType = HexagonType.POINTY,
+        gridType = GridType.ODD;
 
   ///Grid of pointy hexagons with even rows starting with tile and odd with a space.
   ///
@@ -121,40 +119,36 @@ class HexagonOffsetGrid extends StatelessWidget {
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
   HexagonOffsetGrid.evenPointy({
-    @required this.columns,
-    @required this.rows,
+    required this.columns,
+    required this.rows,
     this.color,
     this.padding,
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
-        this.gridType = GridType.EVEN;
+  })  : hexType = HexagonType.POINTY,
+        gridType = GridType.EVEN;
 
   final HexagonType hexType;
   final GridType gridType;
   final int columns;
   final int rows;
-  final Color color;
-  final EdgeInsetsGeometry padding;
-  final HexagonWidgetBuilder hexagonBuilder;
-  final Widget Function(int col, int row) buildChild;
-  final HexagonWidgetBuilder Function(int col, int row) buildTile;
+  final Color? color;
+  final EdgeInsetsGeometry? padding;
+  final HexagonWidgetBuilder? hexagonBuilder;
+  final Widget Function(int col, int row)? buildChild;
+  final HexagonWidgetBuilder Function(int col, int row)? buildTile;
 
   int get _displaceColumns => hexType.isPointy ? 1 : 0;
 
   int get _displaceRows => hexType.isFlat ? 1 : 0;
 
   Widget _mainAxis(List<Widget> Function(int count) children) {
-    return hexType.isPointy
-        ? Column(children: children.call(rows + _displaceRows))
-        : Row(children: children.call(columns + _displaceColumns));
+    return hexType.isPointy ? Column(children: children.call(rows + _displaceRows)) : Row(children: children.call(columns + _displaceColumns));
   }
 
   Widget _crossAxis(List<Widget> Function(int count) children) {
-    return hexType.isPointy
-        ? Row(children: children.call(columns + _displaceColumns))
-        : Column(children: children.call(rows + _displaceRows));
+    return hexType.isPointy ? Row(children: children.call(columns + _displaceColumns)) : Column(children: children.call(rows + _displaceRows));
   }
 
   Size _hexSize(double maxWidth, double maxHeight) {
@@ -162,8 +156,8 @@ class HexagonOffsetGrid extends StatelessWidget {
       maxWidth -= (padding?.horizontal ?? 0);
       maxHeight -= (padding?.vertical ?? 0);
       //determine aspect ratio of grid, and of container
-      var gridWidth;
-      var gridHeight;
+      double gridWidth;
+      double gridHeight;
       if (hexType.isFlat) {
         gridWidth = 1 + (0.75 * (columns - 1));
         gridHeight = rows + (_displaceRows / 2);
@@ -214,16 +208,12 @@ class HexagonOffsetGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        var size = _hexSize(constraints.maxWidth, constraints.maxHeight);
-        var edgeInsets = EdgeInsets.symmetric(
-          vertical: hexType.isPointy
-              ? (size.height / (8 * hexType.pointyFactor(false)))
-              : 0,
-          horizontal: hexType.isFlat
-              ? (size.width / (8 * hexType.flatFactor(false)))
-              : 0,
+        Size size = _hexSize(constraints.maxWidth, constraints.maxHeight);
+        EdgeInsetsGeometry edgeInsets = EdgeInsets.symmetric(
+          vertical: hexType.isPointy ? (size.height / (8 * hexType.pointyFactor(false))) : 0,
+          horizontal: hexType.isFlat ? (size.width / (8 * hexType.flatFactor(false))) : 0,
         );
-        edgeInsets += padding ?? EdgeInsets.zero;
+        edgeInsets.add(padding ?? EdgeInsets.zero);
         return Container(
           color: color,
           padding: edgeInsets,
@@ -232,31 +222,18 @@ class HexagonOffsetGrid extends StatelessWidget {
               mainCount,
               (mainIndex) => _crossAxis(
                 (crossCount) => List.generate(crossCount, (crossIndex) {
-                  if ((crossIndex == 0 || crossIndex >= crossCount - 1) &&
-                      gridType.displace(mainIndex, crossIndex)) {
+                  if ((crossIndex == 0 || crossIndex >= crossCount - 1) && gridType.displace(mainIndex, crossIndex)) {
                     //return container with half the size of the hexagon for displaced row/column
-                    return Container(
-                      width: (hexType.isPointy && rows > 1)
-                          ? size.width / 2
-                          : null,
-                      height: (hexType.isFlat && columns > 1)
-                          ? size.height / 2
-                          : null,
+                    return SizedBox(
+                      width: (hexType.isPointy && rows > 1) ? size.width / 2 : null,
+                      height: (hexType.isFlat && columns > 1) ? size.height / 2 : null,
                     );
                   }
                   //calculate human readable column & row
-                  final col = (hexType.isPointy
-                      ? (crossIndex -
-                          (gridType.displaceFront(mainIndex) ? 1 : 0))
-                      : mainIndex);
-                  final row = hexType.isPointy
-                      ? mainIndex
-                      : (crossIndex -
-                          (gridType.displaceFront(mainIndex) ? 1 : 0));
+                  final col = (hexType.isPointy ? (crossIndex - (gridType.displaceFront(mainIndex) ? 1 : 0)) : mainIndex);
+                  final row = hexType.isPointy ? mainIndex : (crossIndex - (gridType.displaceFront(mainIndex) ? 1 : 0));
 
-                  HexagonWidgetBuilder builder = buildTile?.call(col, row) ??
-                      hexagonBuilder ??
-                      HexagonWidgetBuilder();
+                  HexagonWidgetBuilder builder = buildTile?.call(col, row) ?? hexagonBuilder ?? HexagonWidgetBuilder(elevation: 0);
 
                   //use template values
                   return builder.build(
