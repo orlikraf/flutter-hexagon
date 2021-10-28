@@ -7,11 +7,11 @@ class HexagonPainter extends CustomPainter {
   HexagonPainter(this.pathBuilder, {this.color, this.elevation});
 
   final HexagonPathBuilder pathBuilder;
-  final double elevation;
-  final Color color;
+  final double? elevation;
+  final Color? color;
 
   final Paint _paint = Paint();
-  Path _path;
+  Path? _path;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -21,9 +21,10 @@ class HexagonPainter extends CustomPainter {
 
     _path = pathBuilder.build(size);
 
-    if ((elevation ?? 0) > 0)
-      canvas.drawShadow(_path, Colors.black, elevation ?? 0, false);
-    canvas.drawPath(_path, _paint);
+    if ((elevation ?? 0) > 0) {
+      canvas.drawShadow(_path!, Colors.black, elevation ?? 0, false);
+    }
+    canvas.drawPath(_path!, _paint);
   }
 
   @override
@@ -37,15 +38,8 @@ class HexagonPainter extends CustomPainter {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HexagonPainter &&
-          runtimeType == other.runtimeType &&
-          pathBuilder == other.pathBuilder &&
-          elevation == other.elevation &&
-          color == other.color;
+  bool operator ==(Object other) => identical(this, other) || other is HexagonPainter && runtimeType == other.runtimeType && pathBuilder == other.pathBuilder && elevation == other.elevation && color == other.color;
 
   @override
-  int get hashCode =>
-      pathBuilder.hashCode ^ elevation.hashCode ^ color.hashCode;
+  int get hashCode => pathBuilder.hashCode ^ elevation.hashCode ^ color.hashCode;
 }
