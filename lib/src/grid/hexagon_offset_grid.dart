@@ -139,7 +139,7 @@ class HexagonOffsetGrid extends StatelessWidget {
   final EdgeInsets? padding;
   final HexagonWidgetBuilder? hexagonBuilder;
   final Widget Function(int col, int row)? buildChild;
-  final HexagonWidgetBuilder Function(int col, int row)? buildTile;
+  final HexagonWidgetBuilder? Function(int col, int row)? buildTile;
 
   int get _displaceColumns => hexType.isPointy ? 1 : 0;
 

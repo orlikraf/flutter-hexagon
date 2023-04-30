@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hexagon/hexagon.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -15,28 +17,28 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Example'),
+      home: const MyHomePage(title: 'Example'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int depth = 1;
   List<int> depths = [0, 1, 2, 3, 4];
   HexagonType type = HexagonType.FLAT;
   bool hasControls = true;
   bool showControls = true;
 
-  TabController tabController;
+  late TabController tabController;
 
   @override
   void initState() {
@@ -68,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         appBar: AppBar(
           bottom: TabBar(
             controller: tabController,
-            tabs: [
+            tabs: const [
               Tab(text: 'Grid'),
               Tab(text: 'V-Offset'),
               Tab(text: 'H-Offset'),
@@ -79,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           actions: hasControls
               ? [
                   Row(children: [
-                    Text('Controls'),
+                    const Text('Controls'),
                     Switch(
                       value: showControls,
                       activeColor: Colors.lightBlueAccent,
@@ -93,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
         body: TabBarView(
           controller: tabController,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             Stack(
               children: [
@@ -103,9 +105,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   child: Visibility(
                     visible: showControls,
                     child: Theme(
-                      data: ThemeData(colorScheme: ColorScheme.dark()),
+                      data: ThemeData(colorScheme: const ColorScheme.dark()),
                       child: Card(
-                        margin: EdgeInsets.all(8.0),
+                        margin: const EdgeInsets.all(8.0),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 2.0, horizontal: 16.0),
@@ -114,11 +116,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               DropdownButton<HexagonType>(
-                                onChanged: (value) => this.setState(() {
-                                  type = value;
+                                onChanged: (value) => setState(() {
+                                  if (value != null) {
+                                    type = value;
+                                  }
                                 }),
                                 value: type,
-                                items: [
+                                items: const [
                                   DropdownMenuItem<HexagonType>(
                                     value: HexagonType.FLAT,
                                     child: Text('Flat'),
@@ -128,14 +132,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                     child: Text('Pointy'),
                                   )
                                 ],
-                                selectedItemBuilder: (context) => [
-                                  Center(child: Text('Flat')),
-                                  Center(child: Text('Pointy')),
+                                selectedItemBuilder: (context) =>
+                                [
+                                  const Center(child: Text('Flat')),
+                                  const Center(child: Text('Pointy')),
                                 ],
                               ),
                               DropdownButton<int>(
-                                onChanged: (value) => this.setState(() {
-                                  depth = value;
+                                onChanged: (value) => setState(() {
+                                  if (value != null) {
+                                    depth = value;
+                                  }
                                 }),
                                 value: depth,
                                 items: depths
@@ -192,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       scrollDirection: Axis.horizontal,
       child: HexagonOffsetGrid.oddPointy(
         color: Colors.black54,
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
         columns: 9,
         rows: 4,
         buildTile: (col, row) => row.isOdd && col.isOdd
@@ -215,7 +222,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         children: [
           HexagonOffsetGrid.evenFlat(
             color: Colors.yellow.shade100,
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             columns: 5,
             rows: 10,
             buildTile: (col, row) => HexagonWidgetBuilder(
@@ -274,7 +281,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: HexagonWidget.flat(
                   height: h,
                   color: Colors.orangeAccent,
@@ -282,7 +289,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: HexagonWidget.pointy(
                   height: h,
                   color: Colors.red,
