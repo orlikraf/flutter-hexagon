@@ -40,6 +40,6 @@ jobs:
         run: dart pub publish --dry-run
         working-directory: ${{ inputs.working-directory }}
         
-#       - name: Publish to pub.dev
-#         run: dart pub publish -f
-#         working-directory: ${{ inputs.working-directory }}
+      - name: Publish to pub.dev
+        run: dart pub publish -f
+        working-directory: ${{ inputs.working-directory }}
