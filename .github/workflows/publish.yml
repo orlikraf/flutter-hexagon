@@ -7,6 +7,39 @@ on:
 
 jobs:
   publish:
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    # with:
-    #   working-directory: path/to/package/within/repository
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3.1.0
+      
+      - name: Update version in pubspec.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'pubspec.yaml'
+          propertyPath: 'version'
+          value: ${{github.ref_name}}
+          commitChange: false
+          updateFile: true
+          
+      - name: Flutter FVM config action
+        uses: kuhnroyal/flutter-fvm-config-action@v1
+        # with:
+          # path: # optional, default is .fvm/fvm_config.json
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+          cache-key: flutter_${{ env.FLUTTER_CHANNEL }}_${{ env.FLUTTER_VERSION }}
+      
+      - name: Pub get
+        run: flutter pub get
+        
+      - name: Publish - dry run
+        run: dart pub publish --dry-run
+        working-directory: ${{ inputs.working-directory }}
+        
+#       - name: Publish to pub.dev
+#         run: dart pub publish -f
+#         working-directory: ${{ inputs.working-directory }}
