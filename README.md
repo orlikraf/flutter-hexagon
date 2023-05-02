@@ -12,7 +12,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  hexagon: ^0.2.0-nullsafety.1
+  hexagon: ^0.2.0
 ```
 
 ## Usage

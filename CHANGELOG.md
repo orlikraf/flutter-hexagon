@@ -1,4 +1,4 @@
-## [0.2.0-nullsafety.1] - 24.03.2021
+## [0.2.0] - 01.05.2023
 
 * Migrated to null safety.
 
