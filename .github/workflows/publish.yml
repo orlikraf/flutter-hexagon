@@ -36,10 +36,9 @@ jobs:
       - name: Pub get
         run: flutter pub get
         
-      - name: Publish - dry run
-        run: dart pub publish --dry-run
-        working-directory: ${{ inputs.working-directory }}
-        
-      - name: Publish to pub.dev
-        run: dart pub publish -f
-        working-directory: ${{ inputs.working-directory }}
+      - name: Dart and Flutter Package Publisher
+        uses: k-paxian/dart-package-publisher@v1.5.1
+        with:
+          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
+          flutter: true
+          skipTests: true
