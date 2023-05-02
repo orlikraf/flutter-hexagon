@@ -1,7 +1,6 @@
 library hexagon;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import 'hexagon_clipper.dart';
 import 'hexagon_painter.dart';
@@ -35,7 +34,7 @@ class HexagonWidget extends StatelessWidget {
     this.elevation = 0,
     this.inBounds = true,
     required this.type,
-  })   : assert(width != null || height != null),
+  })  : assert(width != null || height != null),
         assert(elevation >= 0),
         super(key: key);
 
