@@ -8,18 +8,21 @@ class HexagonPathBuilder {
   final bool inBounds;
   final double borderRadius;
 
-  HexagonPathBuilder(this.type, {this.inBounds, this.borderRadius});
+  ///
+  HexagonPathBuilder(this.type, {this.inBounds = true, this.borderRadius = 0})
+      : assert(borderRadius >= 0);
 
+  /// Builds hexagon shaped path in given size.
   Path build(Size size) => _hexagonPath(size);
 
-  Point _flatHexagonCorner(Offset center, double size, int i) {
+  Point<double> _flatHexagonCorner(Offset center, double size, int i) {
     var angleDeg = 60 * i;
     var angleRad = pi / 180 * angleDeg;
     return Point(
         center.dx + size * cos(angleRad), center.dy + size * sin(angleRad));
   }
 
-  Point _pointyHexagonCorner(Offset center, double size, int i) {
+  Point<double> _pointyHexagonCorner(Offset center, double size, int i) {
     var angleDeg = 60 * i - 30;
     var angleRad = pi / 180 * angleDeg;
     return Point(
@@ -27,23 +30,23 @@ class HexagonPathBuilder {
   }
 
   /// Calculates hexagon corners for given size and center.
-  List<Point> _flatHexagonCornerList(Offset center, double size) =>
-      List<Point>.generate(
+  List<Point<double>> _flatHexagonCornerList(Offset center, double size) =>
+      List<Point<double>>.generate(
         6,
         (index) => _flatHexagonCorner(center, size, index),
         growable: false,
       );
 
   /// Calculates hexagon corners for given size and center.
-  List<Point> _pointyHexagonCornerList(Offset center, double size) =>
-      List<Point>.generate(
+  List<Point<double>> _pointyHexagonCornerList(Offset center, double size) =>
+      List<Point<double>>.generate(
         6,
         (index) => _pointyHexagonCorner(center, size, index),
         growable: false,
       );
 
-  Point _pointBetween(Point start, Point end,
-      {double distance, double fraction}) {
+  Point<double> _pointBetween(Point<double> start, Point<double> end,
+      {double? distance, double? fraction}) {
     double xLength = end.x - start.x;
     double yLength = end.y - start.y;
     if (fraction == null) {
@@ -56,17 +59,17 @@ class HexagonPathBuilder {
     return Point(start.x + xLength * fraction, start.y + yLength * fraction);
   }
 
-  Point _radiusStart(
-      Point corner, int index, List<Point> cornerList, double radius) {
-    Point prevCorner =
+  Point<double> _radiusStart(Point<double> corner, int index,
+      List<Point<double>> cornerList, double radius) {
+    var prevCorner =
         index > 0 ? cornerList[index - 1] : cornerList[cornerList.length - 1];
     double distance = radius * tan(pi / 6);
     return _pointBetween(corner, prevCorner, distance: distance);
   }
 
-  Point _radiusEnd(
-      Point corner, int index, List<Point> cornerList, double radius) {
-    Point nextCorner =
+  Point<double> _radiusEnd(Point<double> corner, int index,
+      List<Point<double>> cornerList, double radius) {
+    var nextCorner =
         index < cornerList.length - 1 ? cornerList[index + 1] : cornerList[0];
     double distance = radius * tan(pi / 6);
     return _pointBetween(corner, nextCorner, distance: distance);
@@ -74,11 +77,9 @@ class HexagonPathBuilder {
 
   /// Returns path in shape of hexagon.
   Path _hexagonPath(Size size) {
-    var inBounds = this.inBounds == true;
-    var borderRadius = this.borderRadius ?? 0;
     final center = Offset(size.width / 2, size.height / 2);
 
-    List<Point> cornerList;
+    List<Point<double>> cornerList;
     if (type == HexagonType.FLAT) {
       cornerList = _flatHexagonCornerList(
           center, size.width / type.flatFactor(inBounds) / 2);
@@ -89,8 +90,8 @@ class HexagonPathBuilder {
 
     final path = Path();
     if (borderRadius > 0) {
-      Point rStart;
-      Point rEnd;
+      var rStart;
+      var rEnd;
       cornerList.asMap().forEach((index, point) {
         rStart = _radiusStart(point, index, cornerList, borderRadius);
         rEnd = _radiusEnd(point, index, cornerList, borderRadius);
@@ -100,8 +101,8 @@ class HexagonPathBuilder {
           path.lineTo(rStart.x, rStart.y);
         }
         // rough approximation of an circular arc for 120 deg angle.
-        Point control1 = _pointBetween(rStart, point, fraction: 0.7698);
-        Point control2 = _pointBetween(rEnd, point, fraction: 0.7698);
+        var control1 = _pointBetween(rStart, point, fraction: 0.7698);
+        var control2 = _pointBetween(rEnd, point, fraction: 0.7698);
         path.cubicTo(
           control1.x,
           control1.y,

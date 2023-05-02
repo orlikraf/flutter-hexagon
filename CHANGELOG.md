@@ -1,3 +1,7 @@
+## [0.2.0] - 01.05.2023
+
+* Migrated to null safety.
+
 ## [0.1.1] - 12.03.2021
 
 * Single row/column offset grids won't have displaces tiles.

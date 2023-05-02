@@ -12,7 +12,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  hexagon: ^0.1.1
+  hexagon: ^0.2.0
 ```
 
 ## Usage
@@ -118,7 +118,7 @@ InteractiveViewer(
 ## Road map
 
 * ~~Margins between tiles in HexagonOffsetGrid~~ (Added padding since `0.0.5`)
-* ~~Hexagonal shaped grid (using cube/axial coordinates system)~~ (since 0.1.0)
+* ~~Hexagonal shaped grid (using cube/axial coordinates system)~~ (since `0.1.0`)
+* ~~null-safety~~ (since `0.2.0`)
 * Solve content spacing in hexagon widget
 * Check performance - any ideas how?
-* null-safety

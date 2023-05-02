@@ -4,16 +4,11 @@ import 'dart:math';
 ///
 class Coordinates {
   ///Cube constructor
-  const Coordinates.cube(this.x, this.y, this.z)
-      : assert(x != null),
-        assert(y != null),
-        assert(z != null);
+  const Coordinates.cube(this.x, this.y, this.z);
 
   ///Axial constructor
   Coordinates.axial(int q, int r)
-      : assert(q != null),
-        assert(r != null),
-        this.x = q,
+      : this.x = q,
         this.y = (-q - r).toInt(),
         this.z = r;
 

@@ -25,19 +25,18 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [type] - A type of hexagon has to be either [HexagonType.FLAT] or [HexagonType.POINTY]
   const HexagonWidget({
-    Key key,
+    Key? key,
     this.width,
     this.height,
     this.color,
     this.child,
-    this.padding,
-    this.cornerRadius,
+    this.padding = 0.0,
+    this.cornerRadius = 0.0,
     this.elevation = 0,
     this.inBounds = true,
-    @required this.type,
-  })  : assert(width != null || height != null),
-        assert((elevation ?? 0) >= 0),
-        assert(type != null),
+    required this.type,
+  })   : assert(width != null || height != null),
+        assert(elevation >= 0),
         super(key: key);
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
@@ -53,18 +52,20 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
-  HexagonWidget.flat(
-      {this.width,
-      this.height,
-      this.color,
-      this.child,
-      this.padding,
-      this.elevation = 0,
-      this.cornerRadius,
-      this.inBounds = true})
-      : assert(width != null || height != null),
-        assert((elevation ?? 0) >= 0),
-        this.type = HexagonType.FLAT;
+  HexagonWidget.flat({
+    Key? key,
+    this.width,
+    this.height,
+    this.color,
+    this.child,
+    this.padding = 0.0,
+    this.elevation = 0,
+    this.cornerRadius = 0.0,
+    this.inBounds = true,
+  })  : assert(width != null || height != null),
+        assert(elevation >= 0),
+        this.type = HexagonType.FLAT,
+        super(key: key);
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
@@ -79,26 +80,28 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
-  HexagonWidget.pointy(
-      {this.width,
-      this.height,
-      this.color,
-      this.child,
-      this.padding,
-      this.elevation = 0,
-      this.cornerRadius,
-      this.inBounds = true})
-      : assert(width != null || height != null),
-        assert((elevation ?? 0) >= 0),
-        this.type = HexagonType.POINTY;
+  HexagonWidget.pointy({
+    Key? key,
+    this.width,
+    this.height,
+    this.color,
+    this.child,
+    this.padding = 0.0,
+    this.elevation = 0,
+    this.cornerRadius = 0.0,
+    this.inBounds = true,
+  })  : assert(width != null || height != null),
+        assert(elevation >= 0),
+        this.type = HexagonType.POINTY,
+        super(key: key);
 
   final HexagonType type;
-  final double width;
-  final double height;
+  final double? width;
+  final double? height;
   final double elevation;
   final bool inBounds;
-  final Widget child;
-  final Color color;
+  final Widget? child;
+  final Color? color;
   final double padding;
   final double cornerRadius;
 
@@ -106,24 +109,25 @@ class HexagonWidget extends StatelessWidget {
     var flatFactor = type.flatFactor(inBounds);
     var pointyFactor = type.pointyFactor(inBounds);
 
-    if (height != null && width != null) return Size(width, height);
+    if (height != null && width != null) return Size(width!, height!);
     if (height != null)
-      return Size((height * type.ratio) * flatFactor / pointyFactor, height);
+      return Size((height! * type.ratio) * flatFactor / pointyFactor, height!);
     if (width != null)
-      return Size(width, (width / type.ratio) / flatFactor * pointyFactor);
-    return null;
+      return Size(width!, (width! / type.ratio) / flatFactor * pointyFactor);
+    return Size.zero; //dead path
   }
 
   Size _contentSize() {
     var flatFactor = type.flatFactor(inBounds);
     var pointyFactor = type.pointyFactor(inBounds);
 
-    if (height != null && width != null) return Size(width, height);
+    if (height != null && width != null) return Size(width!, height!);
     if (height != null)
-      return Size((height * type.ratio) / pointyFactor, height / pointyFactor);
+      return Size(
+          (height! * type.ratio) / pointyFactor, height! / pointyFactor);
     if (width != null)
-      return Size(width / flatFactor, (width / type.ratio) / flatFactor);
-    return null;
+      return Size(width! / flatFactor, (width! / type.ratio) / flatFactor);
+    return Size.zero; //dead path
   }
 
   @override
@@ -136,7 +140,7 @@ class HexagonWidget extends StatelessWidget {
 
     return Align(
       child: Container(
-        padding: EdgeInsets.all(padding ?? 0.0),
+        padding: EdgeInsets.all(padding),
         width: innerSize.width,
         height: innerSize.height,
         child: CustomPaint(
@@ -164,12 +168,12 @@ class HexagonWidget extends StatelessWidget {
 }
 
 class HexagonWidgetBuilder {
-  final Key key;
-  final double elevation;
-  final Color color;
-  final double padding;
-  final double cornerRadius;
-  final Widget child;
+  final Key? key;
+  final double? elevation;
+  final Color? color;
+  final double? padding;
+  final double? cornerRadius;
+  final Widget? child;
 
   HexagonWidgetBuilder({
     this.key,
@@ -188,13 +192,13 @@ class HexagonWidgetBuilder {
   })  : this.elevation = 0,
         this.color = Colors.transparent;
 
-  HexagonWidget build(
-    HexagonType type, {
-    double width,
-    double height,
-    bool inBounds,
-    Widget child,
-    bool replaceChild,
+  HexagonWidget build({
+    required HexagonType type,
+    required inBounds,
+    double? width,
+    double? height,
+    Widget? child,
+    bool replaceChild = false,
   }) {
     return HexagonWidget(
       key: key,
@@ -204,9 +208,9 @@ class HexagonWidgetBuilder {
       height: height,
       child: replaceChild ? child : this.child,
       color: color,
-      padding: padding,
-      cornerRadius: cornerRadius,
-      elevation: elevation,
+      padding: padding ?? 0.0,
+      cornerRadius: cornerRadius ?? 0.0,
+      elevation: elevation ?? 0,
     );
   }
 }
