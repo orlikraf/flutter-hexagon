@@ -78,20 +78,24 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ],
           ),
           title: Text(widget.title),
-          actions: hasControls
-              ? [
-                  Row(children: [
-                    const Text('Controls'),
-                    Switch(
-                      value: showControls,
-                      activeColor: Colors.lightBlueAccent,
-                      onChanged: (value) => setState(() {
-                        showControls = value;
-                      }),
+          actions:
+              hasControls
+                  ? [
+                    Row(
+                      children: [
+                        const Text('Controls'),
+                        Switch(
+                          value: showControls,
+                          activeColor: Colors.lightBlueAccent,
+                          onChanged:
+                              (value) => setState(() {
+                                showControls = value;
+                              }),
+                        ),
+                      ],
                     ),
-                  ])
-                ]
-              : null,
+                  ]
+                  : null,
         ),
         body: TabBarView(
           controller: tabController,
@@ -110,17 +114,20 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         margin: const EdgeInsets.all(8.0),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 2.0, horizontal: 16.0),
+                            vertical: 2.0,
+                            horizontal: 16.0,
+                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               DropdownButton<HexagonType>(
-                                onChanged: (value) => setState(() {
-                                  if (value != null) {
-                                    type = value;
-                                  }
-                                }),
+                                onChanged:
+                                    (value) => setState(() {
+                                      if (value != null) {
+                                        type = value;
+                                      }
+                                    }),
                                 value: type,
                                 items: const [
                                   DropdownMenuItem<HexagonType>(
@@ -130,31 +137,36 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                   DropdownMenuItem<HexagonType>(
                                     value: HexagonType.POINTY,
                                     child: Text('Pointy'),
-                                  )
+                                  ),
                                 ],
-                                selectedItemBuilder: (context) =>
-                                [
-                                  const Center(child: Text('Flat')),
-                                  const Center(child: Text('Pointy')),
-                                ],
+                                selectedItemBuilder:
+                                    (context) => [
+                                      const Center(child: Text('Flat')),
+                                      const Center(child: Text('Pointy')),
+                                    ],
                               ),
                               DropdownButton<int>(
-                                onChanged: (value) => setState(() {
-                                  if (value != null) {
-                                    depth = value;
-                                  }
-                                }),
+                                onChanged:
+                                    (value) => setState(() {
+                                      if (value != null) {
+                                        depth = value;
+                                      }
+                                    }),
                                 value: depth,
-                                items: depths
-                                    .map((e) => DropdownMenuItem<int>(
-                                          value: e,
-                                          child: Text('Depth: $e'),
-                                        ))
-                                    .toList(),
+                                items:
+                                    depths
+                                        .map(
+                                          (e) => DropdownMenuItem<int>(
+                                            value: e,
+                                            child: Text('Depth: $e'),
+                                          ),
+                                        )
+                                        .toList(),
                                 selectedItemBuilder: (context) {
                                   return depths
-                                      .map((e) =>
-                                          Center(child: Text('Depth: $e')))
+                                      .map(
+                                        (e) => Center(child: Text('Depth: $e')),
+                                      )
                                       .toList();
                                 },
                               ),
@@ -184,12 +196,13 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         hexType: type,
         color: Colors.pink,
         depth: depth,
-        buildTile: (coordinates) => HexagonWidgetBuilder(
-          padding: 2.0,
-          cornerRadius: 8.0,
-          child: Text('${coordinates.q}, ${coordinates.r}'),
-          // Text('${coordinates.x}, ${coordinates.y}, ${coordinates.z}\n  ${coordinates.q}, ${coordinates.r}'),
-        ),
+        buildTile:
+            (coordinates) => HexagonWidgetBuilder(
+              padding: 2.0,
+              cornerRadius: 8.0,
+              child: Text('${coordinates.q}, ${coordinates.r}'),
+              // Text('${coordinates.x}, ${coordinates.y}, ${coordinates.z}\n  ${coordinates.q}, ${coordinates.r}'),
+            ),
       ),
     );
   }
@@ -202,15 +215,20 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
         columns: 9,
         rows: 4,
-        buildTile: (col, row) => row.isOdd && col.isOdd
-            ? null
-            : HexagonWidgetBuilder(
-                elevation: col.toDouble(),
-                padding: 4.0,
-                cornerRadius: row.isOdd ? 24.0 : null,
-                color: col == 1 || row == 1 ? Colors.lightBlue.shade200 : null,
-                child: Text('$col, $row'),
-              ),
+        buildTile:
+            (col, row) =>
+                row.isOdd && col.isOdd
+                    ? null
+                    : HexagonWidgetBuilder(
+                      elevation: col.toDouble(),
+                      padding: 4.0,
+                      cornerRadius: row.isOdd ? 24.0 : null,
+                      color:
+                          col == 1 || row == 1
+                              ? Colors.lightBlue.shade200
+                              : null,
+                      child: Text('$col, $row'),
+                    ),
       ),
     );
   }
@@ -225,11 +243,12 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(8.0),
             columns: 5,
             rows: 10,
-            buildTile: (col, row) => HexagonWidgetBuilder(
-              color: row.isEven ? Colors.yellow : Colors.orangeAccent,
-              elevation: 2.0,
-              padding: 2.0,
-            ),
+            buildTile:
+                (col, row) => HexagonWidgetBuilder(
+                  color: row.isEven ? Colors.yellow : Colors.orangeAccent,
+                  elevation: 2.0,
+                  padding: 2.0,
+                ),
             buildChild: (col, row) => Text('$col, $row'),
           ),
         ],
@@ -255,10 +274,7 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   width: w,
                   child: AspectRatio(
                     aspectRatio: HexagonType.FLAT.ratio,
-                    child: Image.asset(
-                      'assets/bee.jpg',
-                      fit: BoxFit.fitHeight,
-                    ),
+                    child: Image.asset('assets/bee.jpg', fit: BoxFit.fitHeight),
                   ),
                 ),
               ),
@@ -268,10 +284,7 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   width: w,
                   child: AspectRatio(
                     aspectRatio: HexagonType.POINTY.ratio,
-                    child: Image.asset(
-                      'assets/tram.jpg',
-                      fit: BoxFit.fitWidth,
-                    ),
+                    child: Image.asset('assets/tram.jpg', fit: BoxFit.fitWidth),
                   ),
                 ),
               ),
@@ -293,7 +306,11 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 child: HexagonWidget.pointy(
                   height: h,
                   color: Colors.red,
-                  child: Text('pointy\nheight: ${h.toStringAsFixed(2)}'),
+                  borderWidth: 5,
+                  borderColor: Colors.amber,
+                  child: Text(
+                    'pointy\nheight: ${h.toStringAsFixed(2)}\nborder',
+                  ),
                 ),
               ),
             ],
@@ -312,7 +329,22 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             child: HexagonWidget.pointy(
               width: w,
               color: Colors.lightBlue,
-              child: Text('pointy\nwidth: ${w.toStringAsFixed(2)}'),
+              elevation: 10,
+              child: Text(
+                'pointy\nwidth: ${w.toStringAsFixed(2)}\nelevation: 10',
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(padding),
+            child: HexagonWidget.pointy(
+              width: w,
+              borderColor: Colors.red,
+              borderWidth: 10,
+              color: Colors.lightBlue,
+              child: Text(
+                'pointy\nwidth: ${w.toStringAsFixed(2)} \nborderWidth: 10, borderColor: Colors.red',
+              ),
             ),
           ),
         ],

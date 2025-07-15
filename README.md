@@ -42,6 +42,27 @@ HexagonWidget.pointy(
 ),
 ```
 
+#### Borders
+You can add borders to hexagons using the `borderWidth` and `borderColor` properties:
+
+```dart
+HexagonWidget.flat(
+  width: 120,
+  color: Colors.white,
+  borderWidth: 3,
+  borderColor: Colors.black,
+  child: Text('Hexagon with border'),
+),
+HexagonWidget.pointy(
+  height: 100,
+  color: Colors.lightBlue,
+  borderWidth: 5,
+  borderColor: Colors.darkBlue,
+  elevation: 4,
+  child: Icon(Icons.star),
+),
+```
+
 ### Grids
 #### Offset Grid
 [Check Coordinates Offset on redblobgames](https://www.redblobgames.com/grids/hexagons/#coordinates-offset)
