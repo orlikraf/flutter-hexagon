@@ -14,7 +14,8 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
-  /// [cornerRadius] - Radius of hexagon corners. Values <= 0 have no effect.
+  /// [cornerRadius] - Radius of hexagon corners. Values <= 0 have no effect;
+  /// values larger than the hexagon allows are clamped.
   ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
@@ -43,7 +44,8 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
-  /// [cornerRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  /// [cornerRadius] - Radius of hexagon corners. Values <= 0 have no effect;
+  /// values larger than the hexagon allows are clamped.
   ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
@@ -70,7 +72,8 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [color] - Color used to fill hexagon. Use transparency with 0 elevation
   ///
-  /// [cornerRadius] - Border radius of hexagon corners. Values <= 0 have no effect.
+  /// [cornerRadius] - Radius of hexagon corners. Values <= 0 have no effect;
+  /// values larger than the hexagon allows are clamped.
   ///
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///

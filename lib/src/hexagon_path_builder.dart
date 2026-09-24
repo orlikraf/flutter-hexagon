@@ -6,12 +6,14 @@ import 'hexagon_type.dart';
 class HexagonPathBuilder {
   final HexagonType type;
   final bool inBounds;
+
+  /// Radius of the rounded corners. Values <= 0 give sharp corners; values
+  /// larger than the hexagon allows are clamped.
   final double borderRadius;
 
-  HexagonPathBuilder(this.type, {this.inBounds = true, this.borderRadius = 0})
-    : assert(borderRadius >= 0);
+  HexagonPathBuilder(this.type, {this.inBounds = true, this.borderRadius = 0});
 
-  /// Builds hexagon shaped path in given size.
+  /// Builds the largest hexagon path that fits in [size], centered.
   Path build(Size size) => _hexagonPath(size);
 
   Point<double> _flatHexagonCorner(Offset center, double size, int i) {
@@ -48,24 +50,18 @@ class HexagonPathBuilder {
         growable: false,
       );
 
-  Point<double> _pointBetween(
+  /// The point [distance] away from [start] in the direction of [end].
+  Point<double> _pointTowards(
     Point<double> start,
-    Point<double> end, {
-    double? distance,
-    double? fraction,
-  }) {
-    double xLength = end.x - start.x;
-    double yLength = end.y - start.y;
-    if (fraction == null) {
-      if (distance == null) {
-        throw Exception('Distance or fraction should be specified.');
-      }
-      double length = sqrt(xLength * xLength + yLength * yLength);
-      fraction = distance / length;
-    }
-    return Point(start.x + xLength * fraction, start.y + yLength * fraction);
+    Point<double> end,
+    double distance,
+  ) {
+    final fraction = distance / start.distanceTo(end);
+    return start + (end - start) * fraction;
   }
 
+  /// Where the rounding of [corner] starts, on the edge from the previous
+  /// corner.
   Point<double> _radiusStart(
     Point<double> corner,
     int index,
@@ -75,10 +71,10 @@ class HexagonPathBuilder {
     var prevCorner = index > 0
         ? cornerList[index - 1]
         : cornerList[cornerList.length - 1];
-    double distance = radius * tan(pi / 6);
-    return _pointBetween(corner, prevCorner, distance: distance);
+    return _pointTowards(corner, prevCorner, radius * tan(pi / 6));
   }
 
+  /// Where the rounding of [corner] ends, on the edge to the next corner.
   Point<double> _radiusEnd(
     Point<double> corner,
     int index,
@@ -88,48 +84,56 @@ class HexagonPathBuilder {
     var nextCorner = index < cornerList.length - 1
         ? cornerList[index + 1]
         : cornerList[0];
-    double distance = radius * tan(pi / 6);
-    return _pointBetween(corner, nextCorner, distance: distance);
+    return _pointTowards(corner, nextCorner, radius * tan(pi / 6));
+  }
+
+  /// The circumradius of the largest hexagon that fits in [size].
+  ///
+  /// When [inBounds] is false, the pointed ends may overflow the box by an
+  /// eighth of the hexagon on each side.
+  double _circumradius(Size size) {
+    if (type.isFlat) {
+      return min(
+        size.width / type.flatFactor(inBounds) / 2,
+        size.height / sqrt(3),
+      );
+    }
+    return min(
+      size.height / type.pointyFactor(inBounds) / 2,
+      size.width / sqrt(3),
+    );
   }
 
   /// Returns path in shape of hexagon.
   Path _hexagonPath(Size size) {
     final center = Offset(size.width / 2, size.height / 2);
+    final circumradius = _circumradius(size);
 
-    List<Point<double>> cornerList;
-    if (type == HexagonType.FLAT) {
-      cornerList = _flatHexagonCornerList(
-        center,
-        size.width / type.flatFactor(inBounds) / 2,
-      );
-    } else {
-      cornerList = _pointyHexagonCornerList(
-        center,
-        size.height / type.pointyFactor(inBounds) / 2,
-      );
-    }
+    final cornerList = type.isFlat
+        ? _flatHexagonCornerList(center, circumradius)
+        : _pointyHexagonCornerList(center, circumradius);
+
+    // Beyond the apothem, neighbouring corner arcs would overlap and the
+    // path would intersect itself. At the apothem the hexagon is a circle.
+    final cornerRadius = min(
+      max(borderRadius, 0.0),
+      circumradius * sqrt(3) / 2,
+    );
 
     final path = Path();
-    if (borderRadius > 0) {
+    if (cornerRadius > 0) {
       for (var index = 0; index < cornerList.length; index++) {
         final point = cornerList[index];
-        final rStart = _radiusStart(point, index, cornerList, borderRadius);
-        final rEnd = _radiusEnd(point, index, cornerList, borderRadius);
+        final rStart = _radiusStart(point, index, cornerList, cornerRadius);
+        final rEnd = _radiusEnd(point, index, cornerList, cornerRadius);
         if (index == 0) {
           path.moveTo(rStart.x, rStart.y);
         } else {
           path.lineTo(rStart.x, rStart.y);
         }
-        // rough approximation of an circular arc for 120 deg angle.
-        var control1 = _pointBetween(rStart, point, fraction: 0.7698);
-        var control2 = _pointBetween(rEnd, point, fraction: 0.7698);
-        path.cubicTo(
-          control1.x,
-          control1.y,
-          control2.x,
-          control2.y,
-          rEnd.x,
-          rEnd.y,
+        path.arcToPoint(
+          Offset(rEnd.x, rEnd.y),
+          radius: Radius.circular(cornerRadius),
         );
       }
     } else {
@@ -156,5 +160,5 @@ class HexagonPathBuilder {
           borderRadius == other.borderRadius;
 
   @override
-  int get hashCode => type.hashCode ^ inBounds.hashCode ^ borderRadius.hashCode;
+  int get hashCode => Object.hash(type, inBounds, borderRadius);
 }

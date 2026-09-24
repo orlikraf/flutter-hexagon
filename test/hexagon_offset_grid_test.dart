@@ -40,7 +40,12 @@ final _constructors = <String, _GridFactory>{
 
 const _shapes = [(5, 10), (9, 4), (1, 3), (3, 1), (1, 1)];
 
-const _boxes = [Size(400, 1000), Size(1000, 400), Size(300, 300), Size(800, 600)];
+const _boxes = [
+  Size(400, 1000),
+  Size(1000, 400),
+  Size(300, 300),
+  Size(800, 600),
+];
 
 void main() {
   // Regression: the grid compared aspect ratios in mixed units (hexagon
@@ -59,10 +64,7 @@ void main() {
 
             expect(tester.takeException(), isNull);
             expectTilesWithin(tester, Offset.zero & box);
-            expect(
-              find.byType(HexagonWidget),
-              findsNWidgets(columns * rows),
-            );
+            expect(find.byType(HexagonWidget), findsNWidgets(columns * rows));
           });
         }
       }

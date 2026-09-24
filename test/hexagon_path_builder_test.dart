@@ -56,10 +56,7 @@ void main() {
         HexagonType.FLAT,
         inBounds: false,
       ).build(size);
-      _expectRect(
-        path.getBounds(),
-        Rect.fromLTRB(-12.5, 0, 87.5, 50 * _sqrt3),
-      );
+      _expectRect(path.getBounds(), Rect.fromLTRB(-12.5, 0, 87.5, 50 * _sqrt3));
     });
 
     test('pointy hexagon out of bounds overflows top and bottom by 1/8', () {
@@ -68,10 +65,7 @@ void main() {
         HexagonType.POINTY,
         inBounds: false,
       ).build(size);
-      _expectRect(
-        path.getBounds(),
-        Rect.fromLTRB(0, -12.5, 50 * _sqrt3, 87.5),
-      );
+      _expectRect(path.getBounds(), Rect.fromLTRB(0, -12.5, 50 * _sqrt3, 87.5));
     });
 
     test('equality', () {
@@ -91,7 +85,9 @@ void main() {
     // outside its box.
     test('flat hexagon fits a wide, short box and is centered', () {
       const size = Size(200, 50);
-      final bounds = HexagonPathBuilder(HexagonType.FLAT).build(size).getBounds();
+      final bounds = HexagonPathBuilder(
+        HexagonType.FLAT,
+      ).build(size).getBounds();
       _expectWithin(bounds, Offset.zero & size);
       expect(bounds.height, closeTo(50, _tolerance));
       expect(bounds.center.dx, closeTo(100, _tolerance));

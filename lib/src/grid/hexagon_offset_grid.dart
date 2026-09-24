@@ -81,7 +81,9 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  }) : hexType = HexagonType.FLAT,
+  }) : assert(columns > 0),
+       assert(rows > 0),
+       hexType = HexagonType.FLAT,
        gridType = GridType.EVEN;
 
   ///Grid of pointy hexagons with odd rows starting with tile and even with a space.
@@ -108,7 +110,9 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  }) : hexType = HexagonType.POINTY,
+  }) : assert(columns > 0),
+       assert(rows > 0),
+       hexType = HexagonType.POINTY,
        gridType = GridType.ODD;
 
   ///Grid of pointy hexagons with even rows starting with tile and odd with a space.
@@ -135,7 +139,9 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  }) : hexType = HexagonType.POINTY,
+  }) : assert(columns > 0),
+       assert(rows > 0),
+       hexType = HexagonType.POINTY,
        gridType = GridType.EVEN;
 
   final HexagonType hexType;
@@ -164,38 +170,43 @@ class HexagonOffsetGrid extends StatelessWidget {
         : Column(children: children.call(rows + _displaceRows));
   }
 
-  Size _hexSize(double maxWidth, double maxHeight) {
-    if (maxWidth.isFinite && maxHeight.isFinite) {
-      maxWidth -= (padding?.horizontal ?? 0);
-      maxHeight -= (padding?.vertical ?? 0);
-      //determine aspect ratio of grid, and of container
-      double gridWidth;
-      double gridHeight;
-      if (hexType.isFlat) {
-        gridWidth = 1 + (0.75 * (columns - 1));
-        gridHeight = rows + (_displaceRows / 2);
-      } else {
-        gridWidth = columns + (_displaceColumns / 2);
-        gridHeight = 1 + (0.75 * (rows - 1));
+  /// Tolerance for rounding errors when checking whether the grid fits.
+  static const double _epsilon = 1e-9;
+
+  /// Rows of a flat grid, in tile heights: displaced columns add half a
+  /// tile when there is more than one column.
+  double get _rowSpan => rows + (columns > 1 ? 0.5 : 0);
+
+  /// Columns of a pointy grid, in tile widths: displaced rows add half a
+  /// tile when there is more than one row.
+  double get _columnSpan => columns + (rows > 1 ? 0.5 : 0);
+
+  /// The size of each tile, chosen so the whole grid fits the available
+  /// space in both dimensions.
+  Size _hexSize(BoxConstraints constraints) {
+    final maxWidth = constraints.maxWidth - (padding?.horizontal ?? 0);
+    final maxHeight = constraints.maxHeight - (padding?.vertical ?? 0);
+
+    if (maxWidth.isFinite) {
+      final sizeFromWidth = _hexSizeWidthConstrained(maxWidth);
+      if (!maxHeight.isFinite ||
+          _gridHeight(sizeFromWidth) <= maxHeight + _epsilon) {
+        return sizeFromWidth;
       }
-      var gridAspectRatio = gridWidth / gridHeight;
-      var constraintAspectRatio = maxWidth / maxHeight;
-      if (constraintAspectRatio <= gridAspectRatio) {
-        //constrained by width
-        return _hexSizeWidthConstrained(maxWidth);
-      } else {
-        return _hexSizeHeightConstrained(maxHeight);
-      }
-    } else if (maxWidth.isFinite) {
-      maxWidth -= (padding?.horizontal ?? 0);
-      return _hexSizeWidthConstrained(maxWidth);
-    } else if (maxHeight.isFinite) {
-      maxHeight -= (padding?.vertical ?? 0);
-      return _hexSizeHeightConstrained(maxHeight);
-    } else {
-      throw Exception('Error: Infinite constraints in both dimensions!');
     }
+    if (maxHeight.isFinite) {
+      return _hexSizeHeightConstrained(maxHeight);
+    }
+    throw FlutterError(
+      'HexagonOffsetGrid has unbounded width and height.\n'
+      'Place it in a parent that constrains at least one dimension.',
+    );
   }
+
+  /// Height of the grid, including its edge insets, for tiles of [size].
+  double _gridHeight(Size size) => hexType.isFlat
+      ? size.height * _rowSpan
+      : size.height * (rows + 1 / 3);
 
   Size _hexSizeWidthConstrained(double maxWidth) {
     if (hexType.isFlat) {
@@ -203,8 +214,8 @@ class HexagonOffsetGrid extends StatelessWidget {
       var size = Size(quarters, quarters * hexType.ratio);
       return size * hexType.flatFactor(false);
     }
-    var half = maxWidth / (columns * 2 + _displaceColumns);
-    return Size(half * 2, half * 2 * hexType.ratio);
+    final width = maxWidth / _columnSpan;
+    return Size(width, width * hexType.ratio);
   }
 
   Size _hexSizeHeightConstrained(double maxHeight) {
@@ -213,15 +224,21 @@ class HexagonOffsetGrid extends StatelessWidget {
       var size = Size(quarters / hexType.ratio, quarters);
       return size * hexType.pointyFactor(false);
     }
-    var half = maxHeight / (rows * 2 + _displaceRows);
-    return Size(half * 2 / hexType.ratio, half * 2);
+    final height = maxHeight / _rowSpan;
+    return Size(height / hexType.ratio, height);
   }
 
   @override
   Widget build(BuildContext context) {
+    assert(
+      hexagonBuilder?.key == null,
+      'HexagonOffsetGrid.hexagonBuilder is a template shared by every tile, '
+      'so its key would be duplicated. Give tiles their own keys with '
+      'buildTile.',
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
-        var size = _hexSize(constraints.maxWidth, constraints.maxHeight);
+        var size = _hexSize(constraints);
         EdgeInsets edgeInsets = EdgeInsets.symmetric(
           vertical: hexType.isPointy
               ? (size.height / (8 * hexType.pointyFactor(false)))

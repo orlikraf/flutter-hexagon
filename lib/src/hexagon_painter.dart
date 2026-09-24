@@ -48,6 +48,5 @@ class HexagonPainter extends CustomPainter {
           color == other.color;
 
   @override
-  int get hashCode =>
-      pathBuilder.hashCode ^ elevation.hashCode ^ color.hashCode;
+  int get hashCode => Object.hash(pathBuilder, elevation, color);
 }

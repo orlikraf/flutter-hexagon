@@ -36,7 +36,7 @@ class Coordinates {
       other is Coordinates && other.x == x && other.y == y && other.z == z;
 
   @override
-  int get hashCode => x ^ y ^ z;
+  int get hashCode => Object.hash(x, y, z);
 
   ///Constant value of space center
   static const Coordinates zero = Coordinates.cube(0, 0, 0);

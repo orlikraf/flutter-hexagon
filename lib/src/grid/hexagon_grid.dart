@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:flutter/material.dart';
 
 import '../hexagon_type.dart';
@@ -105,7 +107,7 @@ class HexagonGrid extends StatelessWidget {
   final EdgeInsets? padding;
   final HexagonWidgetBuilder? hexagonBuilder;
   final Widget Function(Coordinates coordinates)? buildChild;
-  final HexagonWidgetBuilder Function(Coordinates coordinates)? buildTile;
+  final HexagonWidgetBuilder? Function(Coordinates coordinates)? buildTile;
 
   int get _maxHexCount => 1 + (depth * 2);
 
@@ -144,6 +146,11 @@ class HexagonGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    assert(
+      hexagonBuilder?.key == null,
+      'HexagonGrid.hexagonBuilder is a template shared by every tile, so its '
+      'key would be duplicated. Give tiles their own keys with buildTile.',
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
         Size size = _hexSize(constraints);
@@ -215,43 +222,46 @@ class HexagonGrid extends StatelessWidget {
     );
   }
 
+  /// Tolerance for rounding errors when checking whether the grid fits.
+  static const double _epsilon = 1e-9;
+
+  /// The size of each tile, chosen so the whole grid fits the available
+  /// space in both dimensions.
   Size _hexSize(BoxConstraints constraints) {
-    double maxWidth = constraints.maxWidth - (padding?.horizontal ?? 0);
-    double maxHeight = constraints.maxHeight - (padding?.vertical ?? 0);
+    // An explicit width or height replaces the incoming constraint, but can
+    // never exceed it.
+    final maxWidth =
+        (width == null
+            ? constraints.maxWidth
+            : min(width!, constraints.maxWidth)) -
+        (padding?.horizontal ?? 0);
+    final maxHeight =
+        (height == null
+            ? constraints.maxHeight
+            : min(height!, constraints.maxHeight)) -
+        (padding?.vertical ?? 0);
 
-    if (width != null || height != null) {
-      maxWidth = width ?? double.infinity;
-      maxHeight = height ?? double.infinity;
-    }
-    if (maxWidth.isFinite && maxHeight.isFinite) {
-      var sizeFromHeight = _fromHeight(maxHeight);
-      var sizeFromWidth = _fromWidth(maxWidth);
-
-      if (hexType.isFlat) {
-        var hh = (maxHeight - (sizeFromHeight.height * _maxHexCount));
-        var hw = (maxHeight - (sizeFromWidth.height * _maxHexCount));
-        if (hh == 0 && hw < 0) {
-          return sizeFromHeight;
-        } else {
-          return sizeFromWidth;
-        }
-      } else {
-        var wh = (maxWidth - (sizeFromHeight.width * _maxHexCount));
-        var ww = (maxWidth - (sizeFromWidth.width * _maxHexCount));
-        if (ww == 0 && wh < 0) {
-          return sizeFromWidth;
-        } else {
-          return sizeFromHeight;
-        }
+    if (maxWidth.isFinite) {
+      final sizeFromWidth = _fromWidth(maxWidth);
+      if (!maxHeight.isFinite ||
+          _gridHeight(sizeFromWidth) <= maxHeight + _epsilon) {
+        return sizeFromWidth;
       }
-    } else if (maxWidth.isFinite) {
-      return _fromWidth(maxWidth);
-    } else if (maxHeight.isFinite) {
-      return _fromHeight(maxHeight);
-    } else {
-      throw Exception('Error: Infinite constraints in both grid dimensions!');
     }
+    if (maxHeight.isFinite) {
+      return _fromHeight(maxHeight);
+    }
+    throw FlutterError(
+      'HexagonGrid has unbounded width and height.\n'
+      'Give it a width or a height, or place it in a parent that constrains '
+      'at least one dimension.',
+    );
   }
+
+  /// Height of the grid, including its edge insets, for tiles of [size].
+  double _gridHeight(Size size) => hexType.isFlat
+      ? size.height * _maxHexCount
+      : size.height * (_maxHexCount + 1 / 3);
 
   Size _fromWidth(double maxWidth) {
     if (hexType.isFlat) {
