@@ -1,3 +1,24 @@
+## Unreleased
+
+* Requires Dart 3.8 / Flutter 3.32 or newer.
+* Fixed: `HexagonOffsetGrid` overflowing its box for some sizes and shapes.
+* Fixed: `HexagonGrid` overflowing for some sizes, ignoring `padding` when
+  `width` or `height` is set, and exceeding its parent's constraints.
+* Fixed: `Coordinates.hashCode` collisions that slowed down maps and sets.
+* Fixed: rounded corners are now circular arcs; `cornerRadius` is clamped
+  to what the hexagon allows, and negative values are ignored as
+  documented.
+* Fixed: a hexagon given both `width` and `height` is now fitted inside its
+  box instead of painted outside it.
+* `HexagonGrid.buildTile` may return `null` to use `hexagonBuilder`, as
+  documented.
+* Grids now assert when the shared `hexagonBuilder` has a key (use
+  `buildTile` for per-tile keys), and every `HexagonOffsetGrid`
+  constructor asserts `columns > 0` and `rows > 0`.
+* `HexagonGrid` and `HexagonOffsetGrid` accept a `key`; grid constructors
+  and `HexagonWidget.flat` / `.pointy` are now `const`.
+* `HexagonWidgetBuilder.build` types its `inBounds` parameter as `bool`.
+
 ## [0.2.0] - 01.05.2023
 
 * Migrated to null safety.

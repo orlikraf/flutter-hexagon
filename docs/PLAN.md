@@ -87,36 +87,37 @@ dry-run publish passes.
 
 ---
 
-## Phase 1: Correctness fixes (0.2.x patch releases)
+## Phase 1: Correctness fixes
 
-Order: most user-visible first. Every item gets a failing test first.
+Every fix has a regression test. The tests were pushed first (`c60ede7`)
+and CI showed them failing on the old code: 20 failed, 139 passed. The
+passing ones were sweep cases that already fit, and the hit-test guard.
 
-| # | Bug | Location | Test that proves it |
-|---|-----|----------|---------------------|
-| 1 | `Coordinates.hashCode` uses `x ^ y ^ z`: 331 tiles share only 16 hashes | `grid/coordinates.dart:40` | Distinct-hash count over a depth-10 grid, above 95% |
-| 2 | Offset grid mixes units when comparing aspect ratios, so tiles overflow (5×10 flat grid in 400×1000 renders 440px wide) | `grid/hexagon_offset_grid.dart:167-176` | Pump across a sweep of box sizes; no overflow exception, content fits |
-| 3 | `HexagonGrid` drops `padding` when `width`/`height` is set, and ignores the parent's constraints | `grid/hexagon_grid.dart:218-224` | Explicit width plus padding: content stays within bounds |
-| 4 | Exact float `==` on `hh`/`ww` picks the wrong branch (126 of the heights from 100 to 2000) | `grid/hexagon_grid.dart:232,239` | Height 115, depth 1: fits |
-| 5 | `HexagonWidgetBuilder.key` is put on every tile, so siblings get duplicate keys | `hexagon_widget.dart:203` | Grid with a keyed template must not assert. Fix: deprecate the field and stop forwarding it |
-| 6 | `HexagonGrid.buildTile` can't return `null`, though the docs say it can | `grid/hexagon_grid.dart:105` | Returning `null` falls back to `hexagonBuilder` |
-| 7 | Negative `cornerRadius` asserts, though the docs say it's ignored; large radii make a self-intersecting path | `hexagon_path_builder.dart:13`, `hexagon_widget.dart` | Clamp to `[0, maxRadius]`; path bounds stay inside the size |
-| 8 | Rounded corners aren't circular (the Bézier constant is 0.7698 but should be 0.6188) | `hexagon_path_builder.dart:104` | Replace with `arcToPoint`; sampled arc points lie at distance `r` from the arc centre |
-| 9 | `width` and `height` together: the painted hexagon overflows its box | `hexagon_widget.dart:111,123` | Fit the hexagon inside `min(w, h/ratio)` and centre it (contain) |
-| 10 | Only `oddFlat` asserts `columns > 0 && rows > 0` | `grid/hexagon_offset_grid.dart` | All four constructors assert |
-| 11 | `HexagonPainter.hitTest` depends on state saved during `paint` | `hexagon_painter.dart:14,31` | Hit-test works deterministically (Phase 3 replaces the painter anyway) |
+| # | Bug | Fix | Test | Status |
+|---|-----|-----|------|--------|
+| 1 | `Coordinates.hashCode` was `x ^ y ^ z`: 331 tiles shared 16 hashes | `Object.hash` (also on the path builder and painter) | `coordinates_test.dart`: over 95% distinct hashes on a depth-10 grid | [x] |
+| 2 | Offset grid compared aspect ratios in mixed units and overflowed (5×10 flat in 400×1000 rendered 440px wide; 1×1 pointy overflowed 16px) | Fit by width, check the resulting height, else fit by height. Single-row and single-column grids no longer reserve a phantom half tile | `hexagon_offset_grid_test.dart`: 4 constructors × 5 shapes × 4 boxes | [x] |
+| 3 | `HexagonGrid` dropped `padding` with explicit `width`/`height`, and ignored the parent's constraints | Subtract padding; clamp to the parent's constraints | `hexagon_grid_test.dart`: explicit width with padding, width larger than the parent | [x] |
+| 4 | Exact float `==` picked the wrong dimension (depth 3 in 800×115 rendered 882px tall) | Same fit check as #2, with a tolerance | `hexagon_grid_test.dart`: depth 3 in 800×115, plus a sweep of 2 types × 5 depths × 5 boxes | [x] |
+| 5 | A key on the shared `hexagonBuilder` template was copied onto every tile ("Duplicate keys found") | Assert with a message pointing to `buildTile`. Per-tile keys stay supported, so the field isn't deprecated | Both grid test files | [x] |
+| 6 | `HexagonGrid.buildTile` couldn't return `null`, though the docs said it could | Nullable return type (non-breaking for callers) | `hexagon_grid_build_tile_test.dart` | [x] |
+| 7 | Negative `cornerRadius` threw; oversized radii self-intersected | Clamp to `[0, apothem]` | `hexagon_path_builder_test.dart`, `hexagon_widget_test.dart` | [x] |
+| 8 | Rounded corners weren't circular (off by about 3% of the radius) | `arcToPoint` | At maximum radius the outline is a circle within 1px | [x] |
+| 9 | With both `width` and `height`, the hexagon was painted outside its box | Largest hexagon that fits, centered | Path bounds for a wide flat box and a tall pointy box | [x] |
+| 10 | Only `oddFlat` asserted `columns > 0 && rows > 0` | All four constructors assert | `hexagon_offset_grid_test.dart` | [x] |
+| 11 | ~~`HexagonPainter.hitTest` depends on state saved during `paint`~~ | Not a bug: `RenderCustomPaint` keeps the old painter when the new one is `==`, so hit tests use the painted path. The painter is replaced in Phase 3 | Guard test: taps hit the hexagon (not its corners), also after a rebuild | n/a |
 
-Supporting tests added in this phase:
-- **Geometry unit tests** for the path builder: six vertices, correct
-  apothem and circumradius, bounds for both orientations, with and without
-  `inBounds`.
-- **Layout tests** for both grids: for a matrix of (type × depth or
-  rows/cols × constraint shape), no `RenderFlex` overflow and total size ≤
-  constraints.
-- **Golden tests** on Linux CI only, using the Ahem font: single flat and
-  pointy hexagons, rounded corners, and each of the four offset grids.
+Supporting tests:
+- [x] **Geometry unit tests** for the path builder: bounds for both
+      orientations, with and without `inBounds`.
+- [x] **Layout sweeps** for both grids: no overflow, and every tile inside
+      the box.
+- [ ] **Golden tests.** Deferred: the reference images have to be
+      generated and reviewed locally, which needs `storage.googleapis.com`
+      and `pub.dev`.
 
-**Done when:** every row above has a test that passes, and the README
-examples render without overflow.
+**Done when:** every row above has a passing test, and the example app
+renders every tab without overflow (the example smoke test in CI).
 
 ---
 
@@ -144,10 +145,9 @@ examples render without overflow.
 - [ ] **Layout side effect:** remove the root `Align` from `HexagonWidget`.
       It's breaking (the widget currently expands inside bounded parents),
       so document it in the migration guide.
-- [ ] **Errors:** replace `throw Exception('Error: ...')` with `FlutterError`
-      and actionable messages (e.g. "HexagonGrid got unbounded constraints
-      in both axes; give it a width/height or wrap it in a SizedBox").
-      Split `_pointBetween(distance?, fraction?)` into two functions.
+- [x] **Errors:** replace `throw Exception('Error: ...')` with `FlutterError`
+      and actionable messages. Split `_pointBetween(distance?, fraction?)`.
+      (Done in Phase 1, since the code was rewritten there.)
 - [ ] **Imports:** `package:flutter/widgets.dart` instead of `material.dart`
       across `lib/`, and consistent relative imports.
 - [ ] **Docs:** class-level dartdoc on every public type, field-level docs
