@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'hexagon_layout.dart';
+import 'geometry/hex_metrics.dart';
 import 'hexagon_type.dart';
 
 /// Builds the outline of a hexagon for a given size.
@@ -99,27 +99,10 @@ class HexagonPathBuilder {
     return _pointTowards(corner, nextCorner, radius * tan(pi / 6));
   }
 
-  /// The circumradius of the largest hexagon that fits in [size].
-  ///
-  /// When [inBounds] is false, the pointed ends may overflow the box by an
-  /// eighth of the hexagon on each side.
-  double _circumradius(Size size) {
-    if (type.isFlat) {
-      return min(
-        size.width / type.widthFactor(inBounds) / 2,
-        size.height / sqrt(3),
-      );
-    }
-    return min(
-      size.height / type.heightFactor(inBounds) / 2,
-      size.width / sqrt(3),
-    );
-  }
-
   /// Returns path in shape of hexagon.
   Path _hexagonPath(Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final circumradius = _circumradius(size);
+    final circumradius = HexMetrics.circumradius(type, size, inBounds);
 
     final cornerList = type.isFlat
         ? _flatHexagonCornerList(center, circumradius)
@@ -129,7 +112,7 @@ class HexagonPathBuilder {
     // path would intersect itself. At the apothem the hexagon is a circle.
     final cornerRadius = min(
       max(borderRadius, 0.0),
-      circumradius * sqrt(3) / 2,
+      circumradius * HexMetrics.sqrt3 / 2,
     );
 
     final path = Path();

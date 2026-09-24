@@ -50,4 +50,63 @@ void main() {
     await tester.tap(find.byType(HexagonWidget));
     expect(taps, 2);
   });
+
+  group('clipping', () {
+    Finder clipIn(Finder tile) =>
+        find.descendant(of: tile, matching: find.byType(ClipPath));
+
+    testWidgets('a hexagon without a child is not clipped', (tester) async {
+      await tester.pumpWidget(
+        const Center(child: HexagonWidget.flat(width: 100)),
+      );
+      expect(clipIn(find.byType(HexagonWidget)), findsNothing);
+    });
+
+    testWidgets('a child is clipped with clipBehavior', (tester) async {
+      await tester.pumpWidget(
+        const Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: HexagonWidget.flat(
+              width: 100,
+              clipBehavior: Clip.hardEdge,
+              child: Text('A'),
+            ),
+          ),
+        ),
+      );
+      final clip = tester.widget<ClipPath>(clipIn(find.byType(HexagonWidget)));
+      expect(clip.clipBehavior, Clip.hardEdge);
+    });
+
+    testWidgets('Clip.none keeps the child unclipped', (tester) async {
+      await tester.pumpWidget(
+        const Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: HexagonWidget.pointy(
+              width: 100,
+              clipBehavior: Clip.none,
+              child: Text('A'),
+            ),
+          ),
+        ),
+      );
+      expect(clipIn(find.byType(HexagonWidget)), findsNothing);
+      expect(find.text('A'), findsOneWidget);
+    });
+
+    test('HexagonWidgetBuilder passes clipBehavior on', () {
+      final tile = HexagonWidgetBuilder(
+        clipBehavior: Clip.none,
+      ).build(type: HexagonType.flat, inBounds: true, width: 10);
+      expect(tile.clipBehavior, Clip.none);
+      expect(
+        HexagonWidgetBuilder()
+            .build(type: HexagonType.flat, inBounds: true, width: 10)
+            .clipBehavior,
+        Clip.antiAlias,
+      );
+    });
+  });
 }

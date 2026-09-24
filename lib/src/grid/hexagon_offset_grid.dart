@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../hexagon_layout.dart';
+import '../geometry/hex_metrics.dart';
 import '../hexagon_type.dart';
 import '../hexagon_widget.dart';
 
@@ -171,9 +171,6 @@ class HexagonOffsetGrid extends StatelessWidget {
         : Column(children: children.call(rows + _displaceRows));
   }
 
-  /// Tolerance for rounding errors when checking whether the grid fits.
-  static const double _epsilon = 1e-9;
-
   /// Rows of a flat grid, in tile heights: displaced columns add half a
   /// tile when there is more than one column.
   double get _rowSpan => rows + (columns > 1 ? 0.5 : 0);
@@ -191,7 +188,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     if (maxWidth.isFinite) {
       final sizeFromWidth = _hexSizeWidthConstrained(maxWidth);
       if (!maxHeight.isFinite ||
-          _gridHeight(sizeFromWidth) <= maxHeight + _epsilon) {
+          _gridHeight(sizeFromWidth) <= maxHeight + HexMetrics.epsilon) {
         return sizeFromWidth;
       }
     }
@@ -204,28 +201,25 @@ class HexagonOffsetGrid extends StatelessWidget {
     );
   }
 
-  /// Height of the grid, including its edge insets, for tiles of [size].
-  double _gridHeight(Size size) =>
-      hexType.isFlat ? size.height * _rowSpan : size.height * (rows + 1 / 3);
+  /// Height of the grid, including its edge insets, for tiles of [tile].
+  double _gridHeight(Size tile) => hexType.isFlat
+      ? tile.height * _rowSpan
+      : tile.height * rows + HexMetrics.edgeInsets(hexType, tile).vertical;
 
+  /// Tile size for a grid [maxWidth] wide.
   Size _hexSizeWidthConstrained(double maxWidth) {
-    if (hexType.isFlat) {
-      var quarters = maxWidth / (1 + (0.75 * (columns - 1)));
-      var size = Size(quarters, quarters * hexType.ratio);
-      return size * hexType.widthFactor(false);
-    }
-    final width = maxWidth / _columnSpan;
-    return Size(width, width * hexType.ratio);
+    final hexagons = hexType.isFlat
+        ? HexMetrics.interlockedSpan(columns)
+        : _columnSpan;
+    return HexMetrics.tileFromWidth(hexType, maxWidth / hexagons);
   }
 
+  /// Tile size for a grid [maxHeight] tall.
   Size _hexSizeHeightConstrained(double maxHeight) {
-    if (hexType.isPointy) {
-      var quarters = maxHeight / (1 + (0.75 * (rows - 1)));
-      var size = Size(quarters / hexType.ratio, quarters);
-      return size * hexType.heightFactor(false);
-    }
-    final height = maxHeight / _rowSpan;
-    return Size(height / hexType.ratio, height);
+    final hexagons = hexType.isPointy
+        ? HexMetrics.interlockedSpan(rows)
+        : _rowSpan;
+    return HexMetrics.tileFromHeight(hexType, maxHeight / hexagons);
   }
 
   @override
@@ -239,15 +233,8 @@ class HexagonOffsetGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         var size = _hexSize(constraints);
-        EdgeInsets edgeInsets = EdgeInsets.symmetric(
-          vertical: hexType.isPointy
-              ? (size.height / (8 * hexType.heightFactor(false)))
-              : 0,
-          horizontal: hexType.isFlat
-              ? (size.width / (8 * hexType.widthFactor(false)))
-              : 0,
-        );
-        edgeInsets += padding ?? EdgeInsets.zero;
+        final edgeInsets =
+            HexMetrics.edgeInsets(hexType, size) + (padding ?? EdgeInsets.zero);
         return Container(
           color: color,
           padding: edgeInsets,

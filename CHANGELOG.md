@@ -8,6 +8,11 @@ See [doc/migration.md](doc/migration.md) for upgrading from 0.2.
   consistent (e.g. `flatBottom`, `pointyBottomRight`). `flatFactor` and
   `pointyFactor` are deprecated.
 * Added `HexDirections.of(type)` and exported `HexagonPathBuilder`.
+* Added `HexagonBorder`, a hexagon `OutlinedBorder` for `Material`, `Card`,
+  `InkWell`, `ShapeDecoration` and `ShapeBorderClipper`, with an optional
+  outline (`side`) and smooth `lerp` between corner radii.
+* Added `clipBehavior` to `HexagonWidget` and `HexagonWidgetBuilder`. Tiles
+  without a child are no longer clipped, so they build fewer widgets.
 * `HexDirections` fields are `const`; `Coordinates.axial` is `const`;
   `Coordinates.cube` asserts `x + y + z == 0`.
 * Every public API is documented.

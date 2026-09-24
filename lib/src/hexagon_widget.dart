@@ -33,6 +33,7 @@ class HexagonWidget extends StatelessWidget {
     this.cornerRadius = 0.0,
     this.elevation = 0,
     this.inBounds = true,
+    this.clipBehavior = Clip.antiAlias,
     required this.type,
   }) : assert(width != null || height != null),
        assert(elevation >= 0);
@@ -48,6 +49,7 @@ class HexagonWidget extends StatelessWidget {
     this.elevation = 0,
     this.cornerRadius = 0.0,
     this.inBounds = true,
+    this.clipBehavior = Clip.antiAlias,
   }) : assert(width != null || height != null),
        assert(elevation >= 0),
        type = HexagonType.flat;
@@ -63,6 +65,7 @@ class HexagonWidget extends StatelessWidget {
     this.elevation = 0,
     this.cornerRadius = 0.0,
     this.inBounds = true,
+    this.clipBehavior = Clip.antiAlias,
   }) : assert(width != null || height != null),
        assert(elevation >= 0),
        type = HexagonType.pointy;
@@ -101,6 +104,10 @@ class HexagonWidget extends StatelessWidget {
   /// larger than the hexagon allows are clamped.
   final double cornerRadius;
 
+  /// How [child] is clipped to the hexagon. With [Clip.none] it isn't
+  /// clipped; when there is no [child], nothing is clipped either way.
+  final Clip clipBehavior;
+
   Size _innerSize() {
     var widthFactor = type.widthFactor(inBounds);
     var heightFactor = type.heightFactor(inBounds);
@@ -132,6 +139,22 @@ class HexagonWidget extends StatelessWidget {
     return Size.zero; //dead path
   }
 
+  Widget? _clippedChild(HexagonPathBuilder pathBuilder, Size contentSize) {
+    if (child == null) return null;
+    final content = OverflowBox(
+      alignment: Alignment.center,
+      maxHeight: contentSize.height,
+      maxWidth: contentSize.width,
+      child: Align(alignment: Alignment.center, child: child),
+    );
+    if (clipBehavior == Clip.none) return content;
+    return ClipPath(
+      clipper: HexagonClipper(pathBuilder),
+      clipBehavior: clipBehavior,
+      child: content,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var innerSize = _innerSize();
@@ -154,15 +177,7 @@ class HexagonWidget extends StatelessWidget {
             color: color,
             elevation: elevation,
           ),
-          child: ClipPath(
-            clipper: HexagonClipper(pathBuilder),
-            child: OverflowBox(
-              alignment: Alignment.center,
-              maxHeight: contentSize.height,
-              maxWidth: contentSize.width,
-              child: Align(alignment: Alignment.center, child: child),
-            ),
-          ),
+          child: _clippedChild(pathBuilder, contentSize),
         ),
       ),
     );
@@ -197,6 +212,9 @@ class HexagonWidgetBuilder {
   /// See [HexagonWidget.child]. A grid's `buildChild` replaces it.
   final Widget? child;
 
+  /// See [HexagonWidget.clipBehavior]. Defaults to [Clip.antiAlias].
+  final Clip? clipBehavior;
+
   /// Creates a tile template.
   HexagonWidgetBuilder({
     this.key,
@@ -205,6 +223,7 @@ class HexagonWidgetBuilder {
     this.padding,
     this.cornerRadius,
     this.child,
+    this.clipBehavior,
   });
 
   /// Creates a template for invisible tiles without a shadow, for example
@@ -214,6 +233,7 @@ class HexagonWidgetBuilder {
     this.padding,
     this.cornerRadius,
     this.child,
+    this.clipBehavior,
   }) : elevation = 0,
        color = const Color(0x00000000);
 
@@ -239,6 +259,7 @@ class HexagonWidgetBuilder {
       padding: padding ?? 0.0,
       cornerRadius: cornerRadius ?? 0.0,
       elevation: elevation ?? 0,
+      clipBehavior: clipBehavior ?? Clip.antiAlias,
       child: replaceChild ? child : this.child,
     );
   }

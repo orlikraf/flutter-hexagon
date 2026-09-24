@@ -2,7 +2,7 @@ import 'dart:math' show min;
 
 import 'package:flutter/widgets.dart';
 
-import '../hexagon_layout.dart';
+import '../geometry/hex_metrics.dart';
 import '../hexagon_type.dart';
 import '../hexagon_widget.dart';
 import 'coordinates.dart';
@@ -160,16 +160,8 @@ class HexagonGrid extends StatelessWidget {
           );
         }
 
-        var edgeInsets = EdgeInsets.symmetric(
-          vertical:
-              ((hexType.isPointy ? 1 : 0) *
-              (size.height / (8 * hexType.heightFactor(false)))),
-          horizontal:
-              ((hexType.isFlat ? 1 : 0) *
-              (size.width / (8 * hexType.widthFactor(false)))),
-        );
-
-        edgeInsets += padding ?? EdgeInsets.zero;
+        final edgeInsets =
+            HexMetrics.edgeInsets(hexType, size) + (padding ?? EdgeInsets.zero);
 
         if (depth == 0) {
           return Container(
@@ -211,9 +203,6 @@ class HexagonGrid extends StatelessWidget {
     );
   }
 
-  /// Tolerance for rounding errors when checking whether the grid fits.
-  static const double _epsilon = 1e-9;
-
   /// The size of each tile, chosen so the whole grid fits the available
   /// space in both dimensions.
   Size _hexSize(BoxConstraints constraints) {
@@ -233,7 +222,7 @@ class HexagonGrid extends StatelessWidget {
     if (maxWidth.isFinite) {
       final sizeFromWidth = _fromWidth(maxWidth);
       if (!maxHeight.isFinite ||
-          _gridHeight(sizeFromWidth) <= maxHeight + _epsilon) {
+          _gridHeight(sizeFromWidth) <= maxHeight + HexMetrics.epsilon) {
         return sizeFromWidth;
       }
     }
@@ -247,42 +236,24 @@ class HexagonGrid extends StatelessWidget {
     );
   }
 
-  /// Height of the grid, including its edge insets, for tiles of [size].
-  double _gridHeight(Size size) => hexType.isFlat
-      ? size.height * _maxHexCount
-      : size.height * (_maxHexCount + 1 / 3);
+  /// Height of the grid, including its edge insets, for tiles of [tile].
+  double _gridHeight(Size tile) =>
+      tile.height * _maxHexCount +
+      HexMetrics.edgeInsets(hexType, tile).vertical;
 
+  /// Tile size for a grid [maxWidth] wide.
   Size _fromWidth(double maxWidth) {
-    if (hexType.isFlat) {
-      var quarters =
-          maxWidth / (depth == 0 ? 1.0 : (1.0 + (0.75 * (2 * depth))));
-      return Size(quarters, quarters * hexType.ratio) *
-          hexType.widthFactor(false);
-    }
-    //is Pointy
-    var width = maxWidth / (depth == 0 ? 1 : (_maxHexCount));
-    return Size(
-      width,
-      (width / hexType.ratio) /
-          hexType.widthFactor(false) *
-          hexType.heightFactor(false),
-    );
+    final hexagons = hexType.isFlat
+        ? HexMetrics.interlockedSpan(_maxHexCount)
+        : _maxHexCount.toDouble();
+    return HexMetrics.tileFromWidth(hexType, maxWidth / hexagons);
   }
 
+  /// Tile size for a grid [maxHeight] tall.
   Size _fromHeight(double maxHeight) {
-    if (hexType.isPointy) {
-      var quarters =
-          maxHeight / (depth == 0 ? 1.0 : (1.0 + (0.75 * (2 * depth))));
-      return Size(quarters / hexType.ratio, quarters) *
-          hexType.heightFactor(false);
-    }
-    //is Flat
-    var height = maxHeight / (depth == 0 ? 1.0 : (_maxHexCount));
-    return Size(
-      (height * hexType.ratio) *
-          hexType.widthFactor(false) /
-          hexType.heightFactor(false),
-      height,
-    );
+    final hexagons = hexType.isPointy
+        ? HexMetrics.interlockedSpan(_maxHexCount)
+        : _maxHexCount.toDouble();
+    return HexMetrics.tileFromHeight(hexType, maxHeight / hexagons);
   }
 }
