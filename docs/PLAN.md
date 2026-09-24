@@ -123,39 +123,37 @@ renders every tab without overflow (the example smoke test in CI).
 
 ## Phase 2: API modernisation (0.3.0 deprecates, 1.0.0 removes)
 
-- [ ] **Enums:** `HexagonType.flat` / `.pointy`, `GridType.even` / `.odd`.
-      Keep the old names as `@Deprecated static const FLAT = flat;` in
-      enhanced enums so 0.3.0 isn't breaking.
-- [ ] **Public surface:** export `HexagonPathBuilder` (or its replacement,
-      `HexagonBorder`, from Phase 3). Nothing in the public API should
-      require `package:hexagon/src/...`. Make the `flatFactor` and
-      `pointyFactor` extension methods private.
-- [ ] **Coordinates:**
-  - make `Coordinates.axial` a `const` constructor
-  - assert `x + y + z == 0` in `.cube`
-  - drop the redundant `.toInt()`
-  - `Object.hash` (Phase 1)
-- [ ] **HexDirections:** `static const` fields, private constructor,
-      consistent names (`topRight`/`bottomLeft` on both orientations), plus
-      `HexDirections.of(HexagonType)` returning the ordered six.
-- [ ] **Widgets:**
-  - [x] `Key? key` on `HexagonGrid` and `HexagonOffsetGrid` (done in phase 0)
-  - [x] `const` constructors (done in phase 0)
-  - [x] give `HexagonWidgetBuilder.build(inBounds)` a type (done in phase 0)
-- [ ] **Layout side effect:** remove the root `Align` from `HexagonWidget`.
-      It's breaking (the widget currently expands inside bounded parents),
-      so document it in the migration guide.
-- [x] **Errors:** replace `throw Exception('Error: ...')` with `FlutterError`
-      and actionable messages. Split `_pointBetween(distance?, fraction?)`.
-      (Done in Phase 1, since the code was rewritten there.)
-- [ ] **Imports:** `package:flutter/widgets.dart` instead of `material.dart`
-      across `lib/`, and consistent relative imports.
-- [ ] **Docs:** class-level dartdoc on every public type, field-level docs
-      written once (not copied onto every constructor), `{@tool snippet}`
-      examples, fix all typos. Add a migration guide in `doc/migration.md`.
+0.3.0 renames only through deprecated aliases, so nothing existing stops
+compiling. `doc/migration.md` lists every change.
 
-**Done when:** `flutter analyze` is clean with the lints on, `dart doc` has
-no warnings, and `pana` reports 160/160 (checked in CI).
+- [x] **Enums:** `HexagonType.flat` / `.pointy`, `GridType.even` / `.odd`.
+      The old names stay as `@Deprecated static const` aliases in enhanced
+      enums.
+- [x] **Public surface:** `HexagonPathBuilder` is exported, so nothing
+      needs `package:hexagon/src/...`. `flatFactor` / `pointyFactor` are
+      deprecated; the widgets use an internal `HexagonLayout` extension.
+- [x] **Coordinates:** `const Coordinates.axial`, an assert that cube
+      components sum to 0, no redundant `.toInt()`, `Object.hash`.
+- [x] **HexDirections:** `abstract final class` with `static const`
+      fields, consistent names (`flatTopRight`, `pointyBottomLeft`, …)
+      with the old names deprecated, and `HexDirections.of(type)`
+      (clockwise). A test checks each name against a rendered grid.
+- [x] **Widgets:** keys, `const` constructors, typed `inBounds` (Phase 0).
+- [ ] **Layout side effect:** removing the root `Align` from
+      `HexagonWidget` is breaking and can't be deprecated, so it moves to
+      **1.0.0** (Phase 4). It's announced in `doc/migration.md`.
+- [x] **Errors:** `FlutterError` with guidance, `_pointBetween` split
+      (Phase 1).
+- [x] **Imports:** `package:flutter/widgets.dart` everywhere in `lib/`,
+      relative imports.
+- [x] **Docs:** class, field and constructor docs on every public member,
+      enforced by the `public_member_api_docs` lint, with code examples
+      on the main classes. Stale README text (`buildHexagon`) is fixed.
+      Migration guide in `doc/migration.md`.
+
+**Done when:** `flutter analyze` is clean with the lints on. The pana
+score (160/160) and `dart doc` warnings are checked when the sandbox can
+reach pub.dev; CI doesn't run pana yet.
 
 ---
 
@@ -206,6 +204,8 @@ in the goldens.
       `ring(radius)`, `spiral(radius)`, rotation, and rounding from
       fractional cube coordinates. (The Future work section needs these.)
 - [ ] Switch the CHANGELOG to Keep-a-Changelog format and use ISO dates.
+- [ ] Remove the root `Align` from `HexagonWidget` (announced in
+      `doc/migration.md`).
 - [ ] Remove the 0.3.0 deprecations and tag `1.0.0` through the hardened
       publish workflow.
 

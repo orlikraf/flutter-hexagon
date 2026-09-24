@@ -32,6 +32,17 @@ void main() {
       expect(hashes.length, greaterThan(tiles.length * 0.95));
     });
 
+    test('cube components must sum to zero', () {
+      // Not const, so the assert runs when the test runs.
+      var one = 1;
+      expect(() => Coordinates.cube(one, one, one), throwsAssertionError);
+    });
+
+    test('axial coordinates can be const', () {
+      const tile = Coordinates.axial(2, -1);
+      expect(tile, const Coordinates.cube(2, -1, -1));
+    });
+
     test('mirrored tiles do not share a hash code', () {
       expect(
         Coordinates.cube(1, -1, 0).hashCode,

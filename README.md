@@ -76,8 +76,8 @@ Column(
 ),
 ```
 
-To customize any `HexagonWidget` in grid use buildHexagon function and return a `HexagonWidgetBuilder` for tile of your choosing.
-If you provide a `buildChild` function it will override any child provided in builder.
+To customize any `HexagonWidget` in the grid, use `buildTile` and return a `HexagonWidgetBuilder` for the tile of your choosing, or `null` to use `hexagonBuilder`.
+If you provide a `buildChild` function, it overrides any child provided in a builder.
 
 #### Hexagon Grid
 As it is expected this grid is in a shape of hexagon.
@@ -91,6 +91,8 @@ Coordinates tileQR = Coordinates.axial(q, r);
 
 Coordinates tileXYZ = Coordinates.cube(x, y, z);
 ```
+
+To move to a neighbouring tile, add one of the `HexDirections`, e.g. `tile + HexDirections.pointyRight`. `HexDirections.of(HexagonType.pointy)` lists all six, clockwise.
 
 `HexagonGrid` requires to be constrained by its parent or else you have to provide at lest one size dimension (width or height). Currently this widget will fit itself to fill given space or best match to given size.
 Everything related to customize hexagon tiles is similar as in offset grid above.

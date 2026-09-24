@@ -1,9 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:hexagon/src/hexagon_path_builder.dart';
+import 'package:flutter/widgets.dart';
 
+import 'hexagon_path_builder.dart';
+
+/// Clips to the hexagon outline given by [pathBuilder].
 class HexagonClipper extends CustomClipper<Path> {
+  /// Creates a clipper in the shape built by [pathBuilder].
   HexagonClipper(this.pathBuilder);
 
+  /// Builds the hexagon outline for the clipped size.
   final HexagonPathBuilder pathBuilder;
 
   @override

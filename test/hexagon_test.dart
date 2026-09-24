@@ -1,12 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hexagon/hexagon.dart';
-import 'package:hexagon/src/hexagon_path_builder.dart';
 
 void main() {
   testWidgets('HexagonWidget exists.', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const Center(child: HexagonWidget(type: HexagonType.FLAT, height: 100)),
+      const Center(child: HexagonWidget(type: HexagonType.flat, height: 100)),
     );
 
     expect(find.byType(HexagonWidget), findsOneWidget);
@@ -28,16 +27,16 @@ void main() {
   });
 
   test("HexagonPainter test", () {
-    var hexagonPainter = HexagonPainter(HexagonPathBuilder(HexagonType.FLAT));
+    var hexagonPainter = HexagonPainter(HexagonPathBuilder(HexagonType.flat));
 
     expect(hexagonPainter.hitTest(Offset.zero), false);
   });
   test("HexagonPathBuilder test", () {
-    var flat = HexagonPathBuilder(HexagonType.FLAT);
-    var flat2 = HexagonPathBuilder(HexagonType.FLAT, inBounds: true);
-    var flat3 = HexagonPathBuilder(HexagonType.FLAT, inBounds: false);
-    var pointy = HexagonPathBuilder(HexagonType.POINTY, borderRadius: 2.0);
-    var pointy2 = HexagonPathBuilder(HexagonType.POINTY, borderRadius: 2);
+    var flat = HexagonPathBuilder(HexagonType.flat);
+    var flat2 = HexagonPathBuilder(HexagonType.flat, inBounds: true);
+    var flat3 = HexagonPathBuilder(HexagonType.flat, inBounds: false);
+    var pointy = HexagonPathBuilder(HexagonType.pointy, borderRadius: 2.0);
+    var pointy2 = HexagonPathBuilder(HexagonType.pointy, borderRadius: 2);
 
     expect(flat == flat, true);
     // inBounds defaults to true.

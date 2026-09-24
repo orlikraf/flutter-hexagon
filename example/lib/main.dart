@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int depth = 1;
   List<int> depths = [0, 1, 2, 3, 4];
-  HexagonType type = HexagonType.FLAT;
+  HexagonType type = HexagonType.flat;
   bool hasControls = true;
   bool showControls = true;
 
@@ -127,11 +127,11 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 value: type,
                                 items: const [
                                   DropdownMenuItem<HexagonType>(
-                                    value: HexagonType.FLAT,
+                                    value: HexagonType.flat,
                                     child: Text('Flat'),
                                   ),
                                   DropdownMenuItem<HexagonType>(
-                                    value: HexagonType.POINTY,
+                                    value: HexagonType.pointy,
                                     child: Text('Pointy'),
                                   ),
                                 ],
@@ -259,7 +259,7 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 child: HexagonWidget.flat(
                   width: w,
                   child: AspectRatio(
-                    aspectRatio: HexagonType.FLAT.ratio,
+                    aspectRatio: HexagonType.flat.ratio,
                     child: Image.asset('assets/bee.jpg', fit: BoxFit.fitHeight),
                   ),
                 ),
@@ -269,7 +269,7 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 child: HexagonWidget.pointy(
                   width: w,
                   child: AspectRatio(
-                    aspectRatio: HexagonType.POINTY.ratio,
+                    aspectRatio: HexagonType.pointy.ratio,
                     child: Image.asset('assets/tram.jpg', fit: BoxFit.fitWidth),
                   ),
                 ),

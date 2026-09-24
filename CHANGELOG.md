@@ -1,6 +1,16 @@
 ## Unreleased
 
+See [doc/migration.md](doc/migration.md) for upgrading from 0.2.
+
 * Requires Dart 3.8 / Flutter 3.32 or newer.
+* Renamed, with the old names deprecated until 1.0.0: `HexagonType.flat` /
+  `.pointy`, `GridType.even` / `.odd`, and `HexDirections` names made
+  consistent (e.g. `flatBottom`, `pointyBottomRight`). `flatFactor` and
+  `pointyFactor` are deprecated.
+* Added `HexDirections.of(type)` and exported `HexagonPathBuilder`.
+* `HexDirections` fields are `const`; `Coordinates.axial` is `const`;
+  `Coordinates.cube` asserts `x + y + z == 0`.
+* Every public API is documented.
 * Fixed: `HexagonOffsetGrid` overflowing its box for some sizes and shapes.
 * Fixed: `HexagonGrid` overflowing for some sizes, ignoring `padding` when
   `width` or `height` is set, and exceeding its parent's constraints.

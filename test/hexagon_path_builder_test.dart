@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hexagon/hexagon.dart';
-import 'package:hexagon/src/hexagon_path_builder.dart';
 
 const _tolerance = 1e-3;
 final _sqrt3 = math.sqrt(3);
@@ -40,20 +39,20 @@ void main() {
   group('HexagonPathBuilder geometry', () {
     test('flat hexagon fills its box', () {
       final size = Size(100, 50 * _sqrt3);
-      final path = HexagonPathBuilder(HexagonType.FLAT).build(size);
+      final path = HexagonPathBuilder(HexagonType.flat).build(size);
       _expectRect(path.getBounds(), Offset.zero & size);
     });
 
     test('pointy hexagon fills its box', () {
       final size = Size(50 * _sqrt3, 100);
-      final path = HexagonPathBuilder(HexagonType.POINTY).build(size);
+      final path = HexagonPathBuilder(HexagonType.pointy).build(size);
       _expectRect(path.getBounds(), Offset.zero & size);
     });
 
     test('flat hexagon out of bounds overflows left and right by 1/8', () {
       final size = Size(75, 50 * _sqrt3);
       final path = HexagonPathBuilder(
-        HexagonType.FLAT,
+        HexagonType.flat,
         inBounds: false,
       ).build(size);
       _expectRect(path.getBounds(), Rect.fromLTRB(-12.5, 0, 87.5, 50 * _sqrt3));
@@ -62,7 +61,7 @@ void main() {
     test('pointy hexagon out of bounds overflows top and bottom by 1/8', () {
       final size = Size(50 * _sqrt3, 75);
       final path = HexagonPathBuilder(
-        HexagonType.POINTY,
+        HexagonType.pointy,
         inBounds: false,
       ).build(size);
       _expectRect(path.getBounds(), Rect.fromLTRB(0, -12.5, 50 * _sqrt3, 87.5));
@@ -70,12 +69,12 @@ void main() {
 
     test('equality', () {
       expect(
-        HexagonPathBuilder(HexagonType.FLAT),
-        HexagonPathBuilder(HexagonType.FLAT, inBounds: true),
+        HexagonPathBuilder(HexagonType.flat),
+        HexagonPathBuilder(HexagonType.flat, inBounds: true),
       );
       expect(
-        HexagonPathBuilder(HexagonType.FLAT, borderRadius: 2).hashCode,
-        HexagonPathBuilder(HexagonType.FLAT, borderRadius: 2.0).hashCode,
+        HexagonPathBuilder(HexagonType.flat, borderRadius: 2).hashCode,
+        HexagonPathBuilder(HexagonType.flat, borderRadius: 2.0).hashCode,
       );
     });
   });
@@ -86,7 +85,7 @@ void main() {
     test('flat hexagon fits a wide, short box and is centered', () {
       const size = Size(200, 50);
       final bounds = HexagonPathBuilder(
-        HexagonType.FLAT,
+        HexagonType.flat,
       ).build(size).getBounds();
       _expectWithin(bounds, Offset.zero & size);
       expect(bounds.height, closeTo(50, _tolerance));
@@ -97,7 +96,7 @@ void main() {
     test('pointy hexagon fits a narrow, tall box and is centered', () {
       const size = Size(50, 200);
       final bounds = HexagonPathBuilder(
-        HexagonType.POINTY,
+        HexagonType.pointy,
       ).build(size).getBounds();
       _expectWithin(bounds, Offset.zero & size);
       expect(bounds.width, closeTo(50, _tolerance));
@@ -112,7 +111,7 @@ void main() {
     test('negative radius is treated as no rounding', () {
       final size = Size(100, 50 * _sqrt3);
       final path = HexagonPathBuilder(
-        HexagonType.FLAT,
+        HexagonType.flat,
         borderRadius: -5,
       ).build(size);
       _expectRect(path.getBounds(), Offset.zero & size);
@@ -123,7 +122,7 @@ void main() {
     test('oversized radius stays inside the hexagon', () {
       final size = Size(100, 50 * _sqrt3);
       final path = HexagonPathBuilder(
-        HexagonType.FLAT,
+        HexagonType.flat,
         borderRadius: 1000,
       ).build(size);
       _expectWithin(path.getBounds(), Offset.zero & size);
@@ -137,7 +136,7 @@ void main() {
       // At the largest radius every corner arc meets its neighbours, so
       // the whole outline is a circle around the center.
       final path = HexagonPathBuilder(
-        HexagonType.FLAT,
+        HexagonType.flat,
         borderRadius: apothem,
       ).build(size);
       final center = size.center(Offset.zero);

@@ -8,3 +8,9 @@ analyzer:
   exclude:
     # The example has its own analysis_options.yaml.
     - example/**
+
+linter:
+  rules:
+    # Every public member of the package is documented (also checked by
+    # pub.dev's score).
+    - public_member_api_docs

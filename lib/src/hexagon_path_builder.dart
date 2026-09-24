@@ -1,16 +1,28 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'hexagon_layout.dart';
 import 'hexagon_type.dart';
 
+/// Builds the outline of a hexagon for a given size.
+///
+/// Used by `HexagonPainter` and `HexagonClipper`, and useful for custom
+/// painting or clipping in the same shape as a `HexagonWidget`.
 class HexagonPathBuilder {
+  /// The orientation of the hexagon.
   final HexagonType type;
+
+  /// Whether the hexagon must fit inside the size given to [build].
+  ///
+  /// When false, its pointed ends overflow by an eighth of the hexagon on
+  /// each side, as tiles do in the grids.
   final bool inBounds;
 
   /// Radius of the rounded corners. Values <= 0 give sharp corners; values
   /// larger than the hexagon allows are clamped.
   final double borderRadius;
 
+  /// Creates a path builder for hexagons of [type].
   HexagonPathBuilder(this.type, {this.inBounds = true, this.borderRadius = 0});
 
   /// Builds the largest hexagon path that fits in [size], centered.
@@ -94,12 +106,12 @@ class HexagonPathBuilder {
   double _circumradius(Size size) {
     if (type.isFlat) {
       return min(
-        size.width / type.flatFactor(inBounds) / 2,
+        size.width / type.widthFactor(inBounds) / 2,
         size.height / sqrt(3),
       );
     }
     return min(
-      size.height / type.pointyFactor(inBounds) / 2,
+      size.height / type.heightFactor(inBounds) / 2,
       size.width / sqrt(3),
     );
   }
