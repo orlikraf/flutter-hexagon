@@ -80,3 +80,30 @@ jobs:
         run: |
           flutter pub outdated
           cd example && flutter pub outdated
+
+  benchmark:
+    name: Benchmark (Flutter stable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Run benchmark
+        run: |
+          set -o pipefail
+          flutter test benchmark --reporter expanded | tee benchmark.txt
+          {
+            echo '### Grid benchmark'
+            echo
+            echo 'Debug-mode widget test: compare runs with each other, not with release builds.'
+            echo
+            echo '| Grid | Tiles | First build (ms) | Rebuild (ms) | Relayout (ms) | Elements per tile | Render objects per tile |'
+            echo '|---|---|---|---|---|---|---|'
+            grep -o 'BENCHMARK .*' benchmark.txt | sed 's/^BENCHMARK //'
+          } >> "$GITHUB_STEP_SUMMARY"

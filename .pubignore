@@ -80,3 +80,4 @@ build/
 .fvmrc
 .github/
 docs/
+benchmark/
