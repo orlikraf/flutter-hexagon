@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Analyze and test (Flutter ${{ matrix.flutter }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter: [stable]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ matrix.flutter != 'stable' && matrix.flutter || '' }}
+          cache: true
+
+      - run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install example dependencies
+        working-directory: example
+        run: flutter pub get
+
+      - name: Check formatting
+        if: matrix.flutter == 'stable'
+        # Formats in place and prints the diff, so a failure shows exactly
+        # what to change.
+        run: |
+          dart format lib test example/lib example/test
+          git diff --exit-code
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Test example
+        working-directory: example
+        run: flutter test
+
+      - name: Build example (web)
+        working-directory: example
+        run: flutter build web
+
+      - name: Report outdated dependencies
+        if: matrix.flutter == 'stable'
+        run: |
+          flutter pub outdated
+          cd example && flutter pub outdated
