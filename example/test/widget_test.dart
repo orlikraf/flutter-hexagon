@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hexagon/hexagon.dart';
 
 Future<void> _openTab(WidgetTester tester, String label) async {
-  await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.text(label)));
+  await tester.tap(
+    find.descendant(of: find.byType(TabBar), matching: find.text(label)),
+  );
   await tester.pumpAndSettle();
 }
 
