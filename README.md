@@ -1,126 +1,175 @@
-# Hexagon
-
-A widget in a shape of hexagon.
-Inspired by fantastic hexagons analysis available on [redblobgames](https://www.redblobgames.com/grids/hexagons/).
-
-<img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_3.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_4.png" width="200">
-
-## Installation
-Add this to your package's pubspec.yaml file:
+# hexagon
 
 [![pub package](https://img.shields.io/pub/v/hexagon.svg)](https://pub.dev/packages/hexagon)
+[![CI](https://github.com/orlikraf/flutter-hexagon/actions/workflows/ci.yml/badge.svg)](https://github.com/orlikraf/flutter-hexagon/actions/workflows/ci.yml)
+
+Hexagon-shaped widgets and hexagonal grids for Flutter. The geometry
+follows the excellent
+[hexagon guide on Red Blob Games](https://www.redblobgames.com/grids/hexagons/).
+
+<img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/example/hexagon_example_3.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/example/hexagon_example_4.png" width="200">
+
+## Features
+
+| | |
+|---|---|
+| `HexagonWidget` | A flat or pointy hexagon with color, elevation, rounded corners and a clipped child |
+| `HexagonOffsetGrid` | A rectangular grid addressed by column and row |
+| `HexagonGrid` | A hexagon-shaped grid addressed by cube / axial `Coordinates` |
+| `Coordinates` | Distances, neighbours, rings, spirals, lines and rotation |
+| `HexagonBorder` | The hexagon as a `ShapeBorder`, for `Material`, `Card`, `InkWell` and decorations |
+
+## Installation
 
 ```yaml
 dependencies:
-  hexagon: ^0.2.0
+  hexagon: ^0.3.0
 ```
-
-## Usage
 
 ```dart
 import 'package:hexagon/hexagon.dart';
-
-//...
 ```
 
-### Single widget
-Width or height must be set when defining a HexagonWidget. The other dimension is calculated based on selected HexagonType.
-Use named constructors for flat or pointy for simple shaped hexagon. Elevation changes hexagon shadow size.
+Requires Dart 3.8 / Flutter 3.32 or newer. Upgrading from 0.2? See the
+[migration guide](doc/migration.md).
+
+## A single hexagon
+
+Give a `HexagonWidget` a width or a height; the other follows from the
+hexagon's aspect ratio. If you give both, the largest hexagon that fits is
+drawn, centered.
 
 ```dart
 HexagonWidget.flat(
-  width: w,
+  width: 120,
   color: Colors.limeAccent,
-  padding: 4.0,
-  child: Text('A flat tile'),
+  padding: 4,
+  child: const Text('A flat tile'),
 ),
 HexagonWidget.pointy(
-  width: w,
+  width: 120,
   color: Colors.red,
   elevation: 8,
-  child: Text('A pointy tile'),
+  cornerRadius: 12,
+  child: const Text('A pointy tile'),
 ),
 ```
 
-### Grids
-#### Offset Grid
-[Check Coordinates Offset on redblobgames](https://www.redblobgames.com/grids/hexagons/#coordinates-offset)
+The child is clipped to the hexagon; pass `clipBehavior: Clip.none` to let
+it overflow.
 
-Simple coordinate system similar to regular table.
+## Which grid do I need?
 
-As hexagon columns or rows can begin with hex or an empty space this grid has 4 named constructors to represent all combinations with flat and pointy hexagons.
-* oddPointy
-* evenPointy
-* oddFlat
-* evenFlat
+| | `HexagonOffsetGrid` | `HexagonGrid` |
+|---|---|---|
+| Shape | Rectangle | Hexagon |
+| Tiles addressed by | `(col, row)` | `Coordinates` (cube / axial) |
+| Size | `columns` × `rows` | `depth` rings around a center tile |
+| Good for | Boards, maps, menus laid out in rows | Game boards, radial layouts, anything using distances or neighbours |
 
-Every constructor requires `columns` and `rows` params.
-At least one of grid constrains must be finite. The grid will fit given rows and columns in given space.
+Both grids fit themselves into the available space. Style every tile with a
+`hexagonBuilder` template, or a single tile by returning a
+`HexagonWidgetBuilder` from `buildTile` (return `null` to use the
+template). `buildChild` sets a tile's content and overrides any child from
+a builder.
 
-```dart
-Column(
-  crossAxisAlignment: CrossAxisAlignment.stretch,
-  children: [
-    HexagonOffsetGrid.oddPointy(
-      columns: 5,
-      rows: 10,
-      buildTile: (col, row) => HexagonWidgetBuilder(
-        color: row.isEven ? Colors.yellow : Colors.orangeAccent,
-        elevation: 2,
-      ),
-      buildChild: (col, row) {
-        return Text('$col, $row');
-      },
-    ),
-  ],
-),
-```
+### Offset grid
 
-To customize any `HexagonWidget` in the grid, use `buildTile` and return a `HexagonWidgetBuilder` for the tile of your choosing, or `null` to use `hexagonBuilder`.
-If you provide a `buildChild` function, it overrides any child provided in a builder.
-
-#### Hexagon Grid
-As it is expected this grid is in a shape of hexagon.
-Since offset coordinates wouldn't be intuitive in this case HexagonGrid uses cube and axial coordinates systems.
-You can read about them here: [Cube coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-cube), [Axial coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-axial).
-
-`Coordinates` class combines both of them as they are easily convertible between each other.
+Every other column (flat tiles) or row (pointy tiles) is shifted by half a
+tile. The constructor says which: `oddFlat`, `evenFlat`, `oddPointy` or
+`evenPointy`, like the
+[offset coordinates on Red Blob Games](https://www.redblobgames.com/grids/hexagons/#coordinates-offset).
+At least one of the grid's constraints must be bounded.
 
 ```dart
-Coordinates tileQR = Coordinates.axial(q, r);
-
-Coordinates tileXYZ = Coordinates.cube(x, y, z);
+HexagonOffsetGrid.oddPointy(
+  columns: 5,
+  rows: 10,
+  buildTile: (col, row) => HexagonWidgetBuilder(
+    color: row.isEven ? Colors.yellow : Colors.orangeAccent,
+    elevation: 2,
+  ),
+  buildChild: (col, row) => Text('$col, $row'),
+)
 ```
 
-To move to a neighbouring tile, add one of the `HexDirections`, e.g. `tile + HexDirections.pointyRight`. `HexDirections.of(HexagonType.pointy)` lists all six, clockwise.
+### Hexagon grid
 
-`HexagonGrid` requires to be constrained by its parent or else you have to provide at lest one size dimension (width or height). Currently this widget will fit itself to fill given space or best match to given size.
-Everything related to customize hexagon tiles is similar as in offset grid above.
-
-Below example of using `HexagonGrid` with `InteractiveViewer`.
+`depth` rings of tiles surround the center tile, `Coordinates.zero`. Give
+the grid bounded constraints, or a `width` or `height`.
 
 ```dart
 InteractiveViewer(
-  minScale: 0.2,
-  maxScale: 4.0,
   constrained: false,
   child: HexagonGrid.pointy(
-    color: Colors.pink,
-    depth: depth,
+    depth: 5,
     width: 1920,
     buildTile: (coordinates) => HexagonWidgetBuilder(
-      padding: 2.0,
-      cornerRadius: 8.0,
-      child: Text('${coordinates.q}, ${coordinates.r}'),
+      padding: 2,
+      cornerRadius: 8,
+      color: coordinates == Coordinates.zero ? Colors.red : null,
     ),
+    buildChild: (coordinates) => Text('${coordinates.q}, ${coordinates.r}'),
   ),
 )
 ```
 
-## Road map
+## Coordinates
 
-* ~~Margins between tiles in HexagonOffsetGrid~~ (Added padding since `0.0.5`)
-* ~~Hexagonal shaped grid (using cube/axial coordinates system)~~ (since `0.1.0`)
-* ~~null-safety~~ (since `0.2.0`)
-* Solve content spacing in hexagon widget
-* Check performance - any ideas how?
+`Coordinates` combines
+[cube and axial coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-cube),
+which describe the same tile:
+
+```dart
+const tile = Coordinates.axial(2, -1); // q, r
+assert(tile == Coordinates.cube(2, -1, -1)); // x, y, z with x + y + z == 0
+
+tile.distance(Coordinates.zero); // 2
+tile + HexDirections.pointyRight; // the neighbour to the right
+tile.neighbors; // all six, clockwise
+tile.ring(2); // the 12 tiles exactly 2 steps away
+tile.spiral(2); // the 19 tiles at most 2 steps away
+tile.rotate(1); // a sixth of a turn clockwise around the center
+tile.lineTo(Coordinates.zero); // a connected line of tiles
+Coordinates.nearest(1.4, -0.2); // round a fractional position to a tile
+```
+
+`HexDirections` names each neighbour by where it appears on screen, e.g.
+`pointyTopRight` or `flatBottom`. `HexDirections.of(type)` lists all six,
+clockwise.
+
+## The hexagon as a border
+
+`HexagonBorder` puts the hexagon anywhere Flutter takes a `ShapeBorder`,
+with an optional outline. Clipping to it also limits taps to the hexagon.
+
+```dart
+Material(
+  color: Colors.teal,
+  shape: const HexagonBorder(
+    type: HexagonType.pointy,
+    cornerRadius: 12,
+    side: BorderSide(color: Colors.white, width: 3),
+  ),
+  clipBehavior: Clip.antiAlias,
+  child: InkWell(
+    onTap: () {},
+    child: const SizedBox(width: 200, height: 200),
+  ),
+)
+```
+
+Borders of the same type animate smoothly, for example in an
+`AnimatedContainer` with a `ShapeDecoration`.
+
+## Example
+
+The [example app](example/lib/main.dart) shows every feature, including an
+interactive page for the `Coordinates` helpers.
+
+## Contributing
+
+CI checks formatting, analysis (with every public member documented) and
+tests on the oldest supported and the latest stable Flutter. A benchmark of
+large grids runs on every push. `docs/PLAN.md` in the repository has the
+roadmap.

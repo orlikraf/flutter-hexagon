@@ -213,27 +213,42 @@ matches the baseline).
 
 ---
 
-## Phase 4: Polish and 1.0.0
+## Phase 4: Polish, then 1.0.0
 
-- [ ] Rewrite the README:
-  - correct API (e.g. `buildTile`, not `buildHexagon`)
-  - fresh screenshots
-  - a feature table
-  - a "which grid do I need?" section
-- [ ] Rebuild the example app:
-  - dispose the `TabController`
-  - remove the redundant `DefaultTabController`
-  - use `SingleTickerProviderStateMixin`
-  - add one tab per feature, including `HexagonBorder` with `Material` and
-    `InkWell`
-- [ ] Add small value features to `Coordinates`: `neighbors`,
-      `ring(radius)`, `spiral(radius)`, rotation, and rounding from
-      fractional cube coordinates. (The Future work section needs these.)
-- [ ] Switch the CHANGELOG to Keep-a-Changelog format and use ISO dates.
+- [x] **README rewrite:**
+  - correct API (`buildTile`, `null` fallback)
+  - feature table and a "which grid do I need?" table
+  - `Coordinates` helpers and `HexagonBorder` sections
+  - CI badge and links to the migration guide and example
+  - [ ] fresh screenshots. The current ones still show the 0.2 visuals;
+    new ones need the app running locally, so they're blocked until
+    `storage.googleapis.com` and `pub.dev` are reachable.
+- [x] **Example app** rebuilt as five pages (Grid, Offset, Widgets,
+      Border, Coordinates). It uses `DefaultTabController` only, which
+      removes the second `TabController` that was never disposed. The
+      Border page covers `HexagonBorder` with `Material` + `InkWell` and an
+      animated `ShapeDecoration`. The Coordinates page is interactive: tap a
+      tile to see its neighbours, a ring, a spiral or the line from the
+      center. Smoke tests visit every page and tap a tile.
+- [x] **`Coordinates` helpers:** `neighbors`, `ring`, `spiral`, `rotate`,
+      `lineTo`, `Coordinates.nearest`, `operator *`, all tested (counts,
+      distances, connectivity, clockwise order, rotation round trips).
+- [x] **CHANGELOG** in Keep-a-Changelog format with ISO dates, and an
+      `[Unreleased]` section with Added / Changed / Deprecated / Fixed.
+- [ ] **Release 0.3.0**, following issue #29 (pub.dev automated
+      publishing setup, version, CHANGELOG date, tag).
+
+### 1.0.0 (after 0.3.0 has been published)
+
+The removals wait until 0.3.0 has been on pub.dev for a while, so users
+get the deprecation warnings before anything breaks:
+
+- [ ] Remove the deprecated names (the enum aliases, the old
+      `HexDirections` names, `flatFactor` / `pointyFactor`).
 - [ ] Remove the root `Align` from `HexagonWidget` (announced in
       `doc/migration.md`).
-- [ ] Remove the 0.3.0 deprecations and tag `1.0.0` through the hardened
-      publish workflow.
+- [ ] Update `doc/migration.md` for 0.3 → 1.0, then tag `1.0.0` through
+      the hardened publish workflow.
 
 ---
 
