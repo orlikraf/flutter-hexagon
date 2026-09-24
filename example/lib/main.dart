@@ -84,7 +84,7 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     const Text('Controls'),
                     Switch(
                       value: showControls,
-                      activeColor: Colors.lightBlueAccent,
+                      activeThumbColor: Colors.lightBlueAccent,
                       onChanged: (value) => setState(() {
                         showControls = value;
                       }),
