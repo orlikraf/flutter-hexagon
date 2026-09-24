@@ -44,24 +44,33 @@ jobs:
         # what to change.
         run: |
           dart format lib test example/lib example/test
-          git diff --exit-code
+          git diff --exit-code -- lib test example/lib example/test
 
       - name: Analyze
+        if: ${{ !cancelled() }}
         run: flutter analyze
 
       - name: Test
+        if: ${{ !cancelled() }}
         run: flutter test
 
       - name: Test example
+        if: ${{ !cancelled() }}
         working-directory: example
         run: flutter test
 
       - name: Build example (web)
+        if: ${{ !cancelled() }}
         working-directory: example
         run: flutter build web
 
+      - name: Report lockfile drift
+        if: ${{ !cancelled() && matrix.flutter == 'stable' }}
+        continue-on-error: true
+        run: git diff --exit-code -- pubspec.lock example/pubspec.lock
+
       - name: Report outdated dependencies
-        if: matrix.flutter == 'stable'
+        if: ${{ !cancelled() && matrix.flutter == 'stable' }}
         run: |
           flutter pub outdated
           cd example && flutter pub outdated
