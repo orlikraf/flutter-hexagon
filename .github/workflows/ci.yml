@@ -50,6 +50,11 @@ jobs:
         if: ${{ !cancelled() }}
         run: flutter analyze
 
+      - name: Analyze example
+        if: ${{ !cancelled() }}
+        working-directory: example
+        run: flutter analyze
+
       - name: Test
         if: ${{ !cancelled() }}
         run: flutter test

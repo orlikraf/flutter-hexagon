@@ -21,17 +21,17 @@ Nothing else is trustworthy until tests run automatically.
 - [ ] Add a root `analysis_options.yaml` that includes `flutter_lints` and
       turns on `strict-casts`, `strict-inference` and `strict-raw-types`.
 - [ ] Add `flutter_lints` to `dev_dependencies`.
-- [ ] Fix mechanical lint hits that don't change the API: braces on `if`,
+- [x] Fix mechanical lint hits that don't change the API: braces on `if`,
       unnecessary `this.`, `SizedBox` instead of empty `Container`, and the
       stray `library hexagon;` in `lib/src/hexagon_widget.dart`.
       Enum renames wait for Phase 2.
 
 ### 0.2 CI
-- [ ] Add `.github/workflows/ci.yml`, run on every PR and push to `master`:
+- [x] Add `.github/workflows/ci.yml`, run on every PR and push to `master`:
       `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`.
 - [ ] Test on two Flutter versions: the minimum supported version and
       current stable.
-- [ ] Also build the example app (`flutter build web`) so it can't rot.
+- [x] Also build the example app (`flutter build web`) so it can't rot.
 
 ### 0.3 Dependencies and toolchain
 - [ ] `pubspec.yaml`: `sdk: ">=3.0.0 <4.0.0"`. Set `flutter:` to the real
@@ -49,33 +49,33 @@ Nothing else is trustworthy until tests run automatically.
 - [ ] FVM: pin current stable and migrate `.fvm/fvm_config.json` to
       FVM 3's `.fvmrc`.
 - [ ] Update `.metadata` (it still points at a `beta` channel revision).
-- [ ] Add `.github/dependabot.yml` for the `pub` (root and `/example`) and
+- [x] Add `.github/dependabot.yml` for the `pub` (root and `/example`) and
       `github-actions` ecosystems, so dependencies don't go stale again.
 
 ### 0.4 Make the test suite honest
-- [ ] Fix `test/hexagon_test.dart:41`. `flat != flat2` has been wrong since
+- [x] Fix `test/hexagon_test.dart:41`. `flat != flat2` has been wrong since
       `inBounds` defaulted to `true`; assert equality instead.
-- [ ] Wrap grid tests in `Directionality`. A multi-child `Row` asserts
+- [x] Wrap grid tests in `Directionality`. A multi-child `Row` asserts
       without it.
-- [ ] Replace the Flutter counter template in `example/test/widget_test.dart`
+- [x] Replace the Flutter counter template in `example/test/widget_test.dart`
       with a smoke test that pumps each tab.
-- [ ] Fix the "HexagonGird" typo.
+- [x] Fix the "HexagonGird" typo.
 
 ### 0.5 Harden publishing (`publish.yml`)
-- [ ] Switch to pub.dev automated publishing with GitHub OIDC
+- [x] Switch to pub.dev automated publishing with GitHub OIDC
       (`dart-lang/setup-dart/.github/workflows/publish.yml`). Then delete
       the `CREDENTIAL_JSON` secret: it's a long-lived Google refresh token.
-- [ ] Remove `fjogeleit/yaml-update-action@main`: a third-party action on
+- [x] Remove `fjogeleit/yaml-update-action@main`: a third-party action on
       a moving branch, in a job that holds secrets. Instead, fail the job
       if the tag doesn't match `pubspec.yaml`'s version and the top
       CHANGELOG entry. The repo becomes the source of truth.
-- [ ] Add a minimal `permissions:` block, pin actions to commit SHAs, and
+- [x] Add a minimal `permissions:` block, pin actions to commit SHAs, and
       run tests before publishing (drop `skipTests: true`).
 
 ### 0.6 Package metadata
-- [ ] Add `repository`, `issue_tracker` and `topics` (hexagon, grid, shape,
+- [x] Add `repository`, `issue_tracker` and `topics` (hexagon, grid, shape,
       game). Fix `homepage` to point at the maintained repo.
-- [ ] Add `.pubignore` to leave `docs/`, `.github/` and `.fvm/` out of the
+- [x] Add `.pubignore` to leave `docs/`, `.github/` and `.fvm/` out of the
       published archive.
 
 **Done when:** CI is green on a PR, the dependencies are current, and a
@@ -134,9 +134,9 @@ examples render without overflow.
       consistent names (`topRight`/`bottomLeft` on both orientations), plus
       `HexDirections.of(HexagonType)` returning the ordered six.
 - [ ] **Widgets:**
-  - `Key? key` on `HexagonGrid` and `HexagonOffsetGrid` (use `super.key`)
-  - `const` on every constructor where possible
-  - give `HexagonWidgetBuilder.build(inBounds)` a type
+  - [x] `Key? key` on `HexagonGrid` and `HexagonOffsetGrid` (done in phase 0)
+  - [x] `const` constructors (done in phase 0)
+  - [x] give `HexagonWidgetBuilder.build(inBounds)` a type (done in phase 0)
 - [ ] **Layout side effect:** remove the root `Align` from `HexagonWidget`.
       It's breaking (the widget currently expands inside bounded parents),
       so document it in the migration guide.
