@@ -15,6 +15,10 @@ import '../test/test_utils.dart';
 const _runs = 15;
 const _box = Size(1000, 1000);
 
+// Not const, so every grid built from them is a new widget.
+final _depth = 20;
+final _size = 30;
+
 /// Median duration of [action] over [_runs] runs, in milliseconds.
 Future<double> _medianMs(Future<void> Function() action) async {
   final samples = <int>[];
@@ -39,13 +43,16 @@ int _countRenderObjects(RenderObject root) {
   return count;
 }
 
+/// Benchmarks the grid returned by [buildGrid], which must create a new
+/// (equal) widget on every call, as a parent rebuilding would.
 Future<void> _benchmark(
   WidgetTester tester,
   String name,
   int tiles,
-  Widget grid,
+  Widget Function() buildGrid,
 ) async {
   useLargeSurface(tester);
+  final grid = buildGrid();
 
   final firstBuild = await _medianMs(() async {
     await tester.pumpWidget(const SizedBox.shrink());
@@ -59,7 +66,7 @@ Future<void> _benchmark(
       StatefulBuilder(
         builder: (context, setState) {
           rebuild = setState;
-          return grid;
+          return buildGrid();
         },
       ),
     ),
@@ -77,7 +84,7 @@ Future<void> _benchmark(
     );
   });
 
-  final root = find.byWidget(grid);
+  final root = find.byType(grid.runtimeType);
   final elements = collectAllElementsFrom(
     tester.element(root),
     skipOffstage: false,
@@ -103,7 +110,7 @@ void main() {
       tester,
       'HexagonGrid depth 20',
       1261,
-      const HexagonGrid.flat(depth: 20),
+      () => HexagonGrid.flat(depth: _depth),
     );
   });
 
@@ -114,8 +121,8 @@ void main() {
       tester,
       'HexagonGrid depth 20 with text',
       1261,
-      HexagonGrid.flat(
-        depth: 20,
+      () => HexagonGrid.flat(
+        depth: _depth,
         buildChild: (coordinates) => Text('${coordinates.q},${coordinates.r}'),
       ),
     );
@@ -126,7 +133,7 @@ void main() {
       tester,
       'HexagonOffsetGrid 30x30',
       900,
-      const HexagonOffsetGrid.oddPointy(columns: 30, rows: 30),
+      () => HexagonOffsetGrid.oddPointy(columns: _size, rows: _size),
     );
   });
 }
