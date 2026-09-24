@@ -146,7 +146,10 @@ void main() {
             shape: HexagonBorder(
               type: HexagonType.pointy,
               cornerRadius: 12,
-              side: BorderSide(width: 3, strokeAlign: BorderSide.strokeAlignCenter),
+              side: BorderSide(
+                width: 3,
+                strokeAlign: BorderSide.strokeAlignCenter,
+              ),
             ),
           ),
           child: SizedBox(width: 100, height: 115),
