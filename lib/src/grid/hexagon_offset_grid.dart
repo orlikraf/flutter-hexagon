@@ -204,9 +204,8 @@ class HexagonOffsetGrid extends StatelessWidget {
   }
 
   /// Height of the grid, including its edge insets, for tiles of [size].
-  double _gridHeight(Size size) => hexType.isFlat
-      ? size.height * _rowSpan
-      : size.height * (rows + 1 / 3);
+  double _gridHeight(Size size) =>
+      hexType.isFlat ? size.height * _rowSpan : size.height * (rows + 1 / 3);
 
   Size _hexSizeWidthConstrained(double maxWidth) {
     if (hexType.isFlat) {
