@@ -18,37 +18,41 @@ Findings referenced below come from the audit of 2026-09-24.
 Nothing else is trustworthy until tests run automatically.
 
 ### 0.1 Lints
-- [ ] Add a root `analysis_options.yaml` that includes `flutter_lints` and
+- [x] Add a root `analysis_options.yaml` that includes `flutter_lints` and
       turns on `strict-casts`, `strict-inference` and `strict-raw-types`.
-- [ ] Add `flutter_lints` to `dev_dependencies`.
+- [x] Add `flutter_lints` to `dev_dependencies`.
 - [x] Fix mechanical lint hits that don't change the API: braces on `if`,
       unnecessary `this.`, `SizedBox` instead of empty `Container`, and the
       stray `library hexagon;` in `lib/src/hexagon_widget.dart`.
       Enum renames wait for Phase 2.
 
 ### 0.2 CI
-- [x] Add `.github/workflows/ci.yml`, run on every PR and push to `master`:
+- [x] Add `.github/workflows/ci.yml`, run on every push and on PRs to `main`:
       `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`.
-- [ ] Test on two Flutter versions: the minimum supported version and
-      current stable.
+- [x] Test on two Flutter versions: the minimum supported version (3.32.0)
+      and current stable.
 - [x] Also build the example app (`flutter build web`) so it can't rot.
 
 ### 0.3 Dependencies and toolchain
-- [ ] `pubspec.yaml`: `sdk: ">=3.0.0 <4.0.0"`. Set `flutter:` to the real
-      minimum that CI tests (the current `>=1.17.0` is wrong: null safety
-      needs 2.0+).
-- [ ] `dev_dependencies`: latest `flutter_lints`.
-- [ ] Example: bump the SDK constraint, `flutter_lints` (currently `^2.0.0`)
-      and `cupertino_icons` to latest, then run `flutter pub upgrade
-      --major-versions`.
-- [ ] Regenerate the example's platform folders (android, ios, macos,
+- [x] `pubspec.yaml`: `sdk: ^3.8.0`, `flutter: ">=3.32.0"`, the oldest
+      versions CI tests. The floor is set by `flutter_lints` 6 (Dart 3.8).
+      (Was `<3.0.0` / `>=1.17.0`: no Dart 3, and allowed Flutter versions
+      without null safety.)
+- [x] `dev_dependencies`: latest `flutter_lints` (^6.0.0).
+- [x] Example: bump the SDK constraint and `flutter_lints` (^2.0.0 to
+      ^6.0.0). Removed `cupertino_icons`: it was unused, and its latest
+      version needs Dart 3.9. Replaced the deprecated `Switch.activeColor`.
+- [ ] **Blocked until the sandbox can reach `storage.googleapis.com` and
+      `pub.dev`:** regenerate the example's platform folders (android, ios, macos,
       linux, windows, web) with `flutter create .` on current stable. They
       date from Flutter 3.7: old Gradle/AGP, Groovy build scripts, old
       Xcode project format.
-- [ ] Regenerate both `pubspec.lock` files with tooling, never by hand.
-- [ ] FVM: pin current stable and migrate `.fvm/fvm_config.json` to
-      FVM 3's `.fvmrc`.
+- [x] Regenerate both `pubspec.lock` files with tooling, never by hand
+      (taken from `flutter pub get` output in CI).
+- [x] FVM: pin current stable (3.47.5) and migrate `.fvm/fvm_config.json`
+      to FVM 3's `.fvmrc`.
 - [ ] Update `.metadata` (it still points at a `beta` channel revision).
+      Blocked with the platform folders: `flutter create` rewrites it.
 - [x] Add `.github/dependabot.yml` for the `pub` (root and `/example`) and
       `github-actions` ecosystems, so dependencies don't go stale again.
 
