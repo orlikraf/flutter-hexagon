@@ -5,7 +5,7 @@ import 'package:hexagon/src/hexagon_path_builder.dart';
 
 void main() {
   testWidgets('HexagonWidget exists.', (WidgetTester tester) async {
-    await tester.pumpWidget(Center(
+    await tester.pumpWidget(const Center(
       child: HexagonWidget(
         type: HexagonType.FLAT,
         height: 100,
@@ -17,7 +17,7 @@ void main() {
 
   testWidgets('HexagonGrid', (WidgetTester tester) async {
     // Rows and Columns with several children need a text direction.
-    await tester.pumpWidget(Directionality(
+    await tester.pumpWidget(const Directionality(
       textDirection: TextDirection.ltr,
       child: Center(
         child: HexagonGrid.flat(

@@ -8,7 +8,6 @@ class HexagonPathBuilder {
   final bool inBounds;
   final double borderRadius;
 
-  ///
   HexagonPathBuilder(this.type, {this.inBounds = true, this.borderRadius = 0})
       : assert(borderRadius >= 0);
 
@@ -90,11 +89,10 @@ class HexagonPathBuilder {
 
     final path = Path();
     if (borderRadius > 0) {
-      var rStart;
-      var rEnd;
-      cornerList.asMap().forEach((index, point) {
-        rStart = _radiusStart(point, index, cornerList, borderRadius);
-        rEnd = _radiusEnd(point, index, cornerList, borderRadius);
+      for (var index = 0; index < cornerList.length; index++) {
+        final point = cornerList[index];
+        final rStart = _radiusStart(point, index, cornerList, borderRadius);
+        final rEnd = _radiusEnd(point, index, cornerList, borderRadius);
         if (index == 0) {
           path.moveTo(rStart.x, rStart.y);
         } else {
@@ -111,15 +109,16 @@ class HexagonPathBuilder {
           rEnd.x,
           rEnd.y,
         );
-      });
+      }
     } else {
-      cornerList.asMap().forEach((index, point) {
+      for (var index = 0; index < cornerList.length; index++) {
+        final point = cornerList[index];
         if (index == 0) {
           path.moveTo(point.x, point.y);
         } else {
           path.lineTo(point.x, point.y);
         }
-      });
+      }
     }
 
     return path..close();

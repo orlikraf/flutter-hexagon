@@ -8,9 +8,9 @@ class Coordinates {
 
   ///Axial constructor
   Coordinates.axial(int q, int r)
-      : this.x = q,
-        this.y = (-q - r).toInt(),
-        this.z = r;
+      : x = q,
+        y = -q - r,
+        z = r;
 
   final int x, y, z;
 

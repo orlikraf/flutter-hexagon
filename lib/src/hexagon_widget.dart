@@ -1,5 +1,3 @@
-library hexagon;
-
 import 'package:flutter/material.dart';
 
 import 'hexagon_clipper.dart';
@@ -24,7 +22,7 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [type] - A type of hexagon has to be either [HexagonType.FLAT] or [HexagonType.POINTY]
   const HexagonWidget({
-    Key? key,
+    super.key,
     this.width,
     this.height,
     this.color,
@@ -35,8 +33,7 @@ class HexagonWidget extends StatelessWidget {
     this.inBounds = true,
     required this.type,
   })  : assert(width != null || height != null),
-        assert(elevation >= 0),
-        super(key: key);
+        assert(elevation >= 0);
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
@@ -51,8 +48,8 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
-  HexagonWidget.flat({
-    Key? key,
+  const HexagonWidget.flat({
+    super.key,
     this.width,
     this.height,
     this.color,
@@ -63,8 +60,7 @@ class HexagonWidget extends StatelessWidget {
     this.inBounds = true,
   })  : assert(width != null || height != null),
         assert(elevation >= 0),
-        this.type = HexagonType.FLAT,
-        super(key: key);
+        type = HexagonType.FLAT;
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
@@ -79,8 +75,8 @@ class HexagonWidget extends StatelessWidget {
   /// [inBounds] - Set to false if you want to overlap hexagon corners outside it's space.
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
-  HexagonWidget.pointy({
-    Key? key,
+  const HexagonWidget.pointy({
+    super.key,
     this.width,
     this.height,
     this.color,
@@ -91,8 +87,7 @@ class HexagonWidget extends StatelessWidget {
     this.inBounds = true,
   })  : assert(width != null || height != null),
         assert(elevation >= 0),
-        this.type = HexagonType.POINTY,
-        super(key: key);
+        type = HexagonType.POINTY;
 
   final HexagonType type;
   final double? width;
@@ -109,10 +104,12 @@ class HexagonWidget extends StatelessWidget {
     var pointyFactor = type.pointyFactor(inBounds);
 
     if (height != null && width != null) return Size(width!, height!);
-    if (height != null)
+    if (height != null) {
       return Size((height! * type.ratio) * flatFactor / pointyFactor, height!);
-    if (width != null)
+    }
+    if (width != null) {
       return Size(width!, (width! / type.ratio) / flatFactor * pointyFactor);
+    }
     return Size.zero; //dead path
   }
 
@@ -121,11 +118,13 @@ class HexagonWidget extends StatelessWidget {
     var pointyFactor = type.pointyFactor(inBounds);
 
     if (height != null && width != null) return Size(width!, height!);
-    if (height != null)
+    if (height != null) {
       return Size(
           (height! * type.ratio) / pointyFactor, height! / pointyFactor);
-    if (width != null)
+    }
+    if (width != null) {
       return Size(width! / flatFactor, (width! / type.ratio) / flatFactor);
+    }
     return Size.zero; //dead path
   }
 
@@ -188,12 +187,12 @@ class HexagonWidgetBuilder {
     this.padding,
     this.cornerRadius,
     this.child,
-  })  : this.elevation = 0,
-        this.color = Colors.transparent;
+  })  : elevation = 0,
+        color = Colors.transparent;
 
   HexagonWidget build({
     required HexagonType type,
-    required inBounds,
+    required bool inBounds,
     double? width,
     double? height,
     Widget? child,
@@ -205,11 +204,11 @@ class HexagonWidgetBuilder {
       inBounds: inBounds,
       width: width,
       height: height,
-      child: replaceChild ? child : this.child,
       color: color,
       padding: padding ?? 0.0,
       cornerRadius: cornerRadius ?? 0.0,
       elevation: elevation ?? 0,
+      child: replaceChild ? child : this.child,
     );
   }
 }

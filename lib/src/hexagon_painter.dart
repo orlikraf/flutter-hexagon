@@ -22,8 +22,9 @@ class HexagonPainter extends CustomPainter {
     Path path = pathBuilder.build(size);
     _path = path;
 
-    if ((elevation) > 0)
+    if (elevation > 0) {
       canvas.drawShadow(path, Colors.black, elevation, false);
+    }
     canvas.drawPath(path, _paint);
   }
 

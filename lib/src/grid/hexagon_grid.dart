@@ -24,7 +24,8 @@ class HexagonGrid extends StatelessWidget {
   /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
-  HexagonGrid({
+  const HexagonGrid({
+    super.key,
     required this.hexType,
     this.depth = 0,
     this.width,
@@ -53,7 +54,8 @@ class HexagonGrid extends StatelessWidget {
   /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
-  HexagonGrid.pointy({
+  const HexagonGrid.pointy({
+    super.key,
     this.width,
     this.height,
     this.depth = 0,
@@ -63,7 +65,7 @@ class HexagonGrid extends StatelessWidget {
     this.buildChild,
     this.hexagonBuilder,
   })  : assert(depth >= 0),
-        this.hexType = HexagonType.POINTY;
+        hexType = HexagonType.POINTY;
 
   ///Hexagon shaped grid of flat hexagons.
   ///
@@ -82,7 +84,8 @@ class HexagonGrid extends StatelessWidget {
   /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
   ///
   /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
-  HexagonGrid.flat({
+  const HexagonGrid.flat({
+    super.key,
     this.width,
     this.height,
     this.depth = 0,
@@ -92,7 +95,7 @@ class HexagonGrid extends StatelessWidget {
     this.buildChild,
     this.hexagonBuilder,
   })  : assert(depth >= 0),
-        this.hexType = HexagonType.FLAT;
+        hexType = HexagonType.FLAT;
 
   final HexagonType hexType;
   final double? width;
@@ -192,10 +195,11 @@ class HexagonGrid extends StatelessWidget {
                     currentDepth.abs(),
                     (crossCount) {
                       return List.generate(crossCount, (crossIndex) {
-                        if (currentDepth <= 0)
+                        if (currentDepth <= 0) {
                           crossIndex = -depth - currentDepth + crossIndex;
-                        else
+                        } else {
                           crossIndex = -depth + crossIndex;
+                        }
 
                         final coordinates = Coordinates.axial(
                           hexType.isPointy ? crossIndex : currentDepth,
@@ -231,15 +235,17 @@ class HexagonGrid extends StatelessWidget {
         var hw = (maxHeight - (sizeFromWidth.height * _maxHexCount));
         if (hh == 0 && hw < 0) {
           return sizeFromHeight;
-        } else
+        } else {
           return sizeFromWidth;
+        }
       } else {
         var wh = (maxWidth - (sizeFromHeight.width * _maxHexCount));
         var ww = (maxWidth - (sizeFromWidth.width * _maxHexCount));
         if (ww == 0 && wh < 0) {
           return sizeFromWidth;
-        } else
+        } else {
           return sizeFromHeight;
+        }
       }
     } else if (maxWidth.isFinite) {
       return _fromWidth(maxWidth);

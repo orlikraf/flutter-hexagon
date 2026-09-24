@@ -1,11 +1,14 @@
+// TODO(phase-2): rename to lowerCamelCase with deprecated aliases.
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 
 ///Enum for hexagon "orientation".
 enum HexagonType { FLAT, POINTY }
 
 extension HexagonTypeExtension on HexagonType {
-  static double _ratioPointy = (sqrt(3) / 2);
-  static double _ratioFlat = 1 / _ratioPointy;
+  static final double _ratioPointy = sqrt(3) / 2;
+  static final double _ratioFlat = 1 / _ratioPointy;
 
   /// Hexagon width to height ratio
   double get ratio {
@@ -19,8 +22,8 @@ extension HexagonTypeExtension on HexagonType {
   /// Returns true for FLAT;
   bool get isFlat => this == HexagonType.FLAT;
 
-  double flatFactor(bool inBounds) => (isFlat && inBounds == false) ? 0.75 : 1;
+  double flatFactor(bool inBounds) => (isFlat && !inBounds) ? 0.75 : 1;
 
   double pointyFactor(bool inBounds) =>
-      (isPointy && inBounds == false) ? 0.75 : 1;
+      (isPointy && !inBounds) ? 0.75 : 1;
 }
