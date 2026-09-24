@@ -32,8 +32,8 @@ class HexagonWidget extends StatelessWidget {
     this.elevation = 0,
     this.inBounds = true,
     required this.type,
-  })  : assert(width != null || height != null),
-        assert(elevation >= 0);
+  }) : assert(width != null || height != null),
+       assert(elevation >= 0);
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
@@ -58,9 +58,9 @@ class HexagonWidget extends StatelessWidget {
     this.elevation = 0,
     this.cornerRadius = 0.0,
     this.inBounds = true,
-  })  : assert(width != null || height != null),
-        assert(elevation >= 0),
-        type = HexagonType.FLAT;
+  }) : assert(width != null || height != null),
+       assert(elevation >= 0),
+       type = HexagonType.FLAT;
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
   ///
@@ -85,9 +85,9 @@ class HexagonWidget extends StatelessWidget {
     this.elevation = 0,
     this.cornerRadius = 0.0,
     this.inBounds = true,
-  })  : assert(width != null || height != null),
-        assert(elevation >= 0),
-        type = HexagonType.POINTY;
+  }) : assert(width != null || height != null),
+       assert(elevation >= 0),
+       type = HexagonType.POINTY;
 
   final HexagonType type;
   final double? width;
@@ -120,7 +120,9 @@ class HexagonWidget extends StatelessWidget {
     if (height != null && width != null) return Size(width!, height!);
     if (height != null) {
       return Size(
-          (height! * type.ratio) / pointyFactor, height! / pointyFactor);
+        (height! * type.ratio) / pointyFactor,
+        height! / pointyFactor,
+      );
     }
     if (width != null) {
       return Size(width! / flatFactor, (width! / type.ratio) / flatFactor);
@@ -133,8 +135,11 @@ class HexagonWidget extends StatelessWidget {
     var innerSize = _innerSize();
     var contentSize = _contentSize();
 
-    HexagonPathBuilder pathBuilder = HexagonPathBuilder(type,
-        inBounds: inBounds, borderRadius: cornerRadius);
+    HexagonPathBuilder pathBuilder = HexagonPathBuilder(
+      type,
+      inBounds: inBounds,
+      borderRadius: cornerRadius,
+    );
 
     return Align(
       child: Container(
@@ -153,10 +158,7 @@ class HexagonWidget extends StatelessWidget {
               alignment: Alignment.center,
               maxHeight: contentSize.height,
               maxWidth: contentSize.width,
-              child: Align(
-                alignment: Alignment.center,
-                child: child,
-              ),
+              child: Align(alignment: Alignment.center, child: child),
             ),
           ),
         ),
@@ -187,8 +189,8 @@ class HexagonWidgetBuilder {
     this.padding,
     this.cornerRadius,
     this.child,
-  })  : elevation = 0,
-        color = Colors.transparent;
+  }) : elevation = 0,
+       color = Colors.transparent;
 
   HexagonWidget build({
     required HexagonType type,

@@ -64,8 +64,8 @@ class HexagonGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : assert(depth >= 0),
-        hexType = HexagonType.POINTY;
+  }) : assert(depth >= 0),
+       hexType = HexagonType.POINTY;
 
   ///Hexagon shaped grid of flat hexagons.
   ///
@@ -94,8 +94,8 @@ class HexagonGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : assert(depth >= 0),
-        hexType = HexagonType.FLAT;
+  }) : assert(depth >= 0),
+       hexType = HexagonType.FLAT;
 
   final HexagonType hexType;
   final double? width;
@@ -125,7 +125,9 @@ class HexagonGrid extends StatelessWidget {
   }
 
   Widget _crossAxis(
-      int currentDepth, List<Widget> Function(int count) children) {
+    int currentDepth,
+    List<Widget> Function(int count) children,
+  ) {
     if (hexType.isPointy) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -147,7 +149,8 @@ class HexagonGrid extends StatelessWidget {
         Size size = _hexSize(constraints);
 
         HexagonWidget buildHex(Coordinates coordinates) {
-          HexagonWidgetBuilder builder = buildTile?.call(coordinates) ??
+          HexagonWidgetBuilder builder =
+              buildTile?.call(coordinates) ??
               hexagonBuilder ??
               HexagonWidgetBuilder();
 
@@ -162,9 +165,11 @@ class HexagonGrid extends StatelessWidget {
         }
 
         var edgeInsets = EdgeInsets.symmetric(
-          vertical: ((hexType.isPointy ? 1 : 0) *
+          vertical:
+              ((hexType.isPointy ? 1 : 0) *
               (size.height / (8 * hexType.pointyFactor(false)))),
-          horizontal: ((hexType.isFlat ? 1 : 0) *
+          horizontal:
+              ((hexType.isFlat ? 1 : 0) *
               (size.width / (8 * hexType.flatFactor(false)))),
         );
 
@@ -185,34 +190,26 @@ class HexagonGrid extends StatelessWidget {
           width: width,
           height: height,
           padding: edgeInsets,
-          child: _mainAxis(
-            (mainCount) {
-              return List.generate(
-                mainCount,
-                (mainIndex) {
-                  int currentDepth = mainIndex - depth;
-                  return _crossAxis(
-                    currentDepth.abs(),
-                    (crossCount) {
-                      return List.generate(crossCount, (crossIndex) {
-                        if (currentDepth <= 0) {
-                          crossIndex = -depth - currentDepth + crossIndex;
-                        } else {
-                          crossIndex = -depth + crossIndex;
-                        }
+          child: _mainAxis((mainCount) {
+            return List.generate(mainCount, (mainIndex) {
+              int currentDepth = mainIndex - depth;
+              return _crossAxis(currentDepth.abs(), (crossCount) {
+                return List.generate(crossCount, (crossIndex) {
+                  if (currentDepth <= 0) {
+                    crossIndex = -depth - currentDepth + crossIndex;
+                  } else {
+                    crossIndex = -depth + crossIndex;
+                  }
 
-                        final coordinates = Coordinates.axial(
-                          hexType.isPointy ? crossIndex : currentDepth,
-                          hexType.isPointy ? currentDepth : crossIndex,
-                        );
-                        return buildHex.call(coordinates);
-                      });
-                    },
+                  final coordinates = Coordinates.axial(
+                    hexType.isPointy ? crossIndex : currentDepth,
+                    hexType.isPointy ? currentDepth : crossIndex,
                   );
-                },
-              );
-            },
-          ),
+                  return buildHex.call(coordinates);
+                });
+              });
+            });
+          }),
         );
       },
     );

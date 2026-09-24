@@ -5,28 +5,23 @@ import 'package:hexagon/src/hexagon_path_builder.dart';
 
 void main() {
   testWidgets('HexagonWidget exists.', (WidgetTester tester) async {
-    await tester.pumpWidget(const Center(
-      child: HexagonWidget(
-        type: HexagonType.FLAT,
-        height: 100,
-      ),
-    ));
+    await tester.pumpWidget(
+      const Center(child: HexagonWidget(type: HexagonType.FLAT, height: 100)),
+    );
 
     expect(find.byType(HexagonWidget), findsOneWidget);
   });
 
   testWidgets('HexagonGrid', (WidgetTester tester) async {
     // Rows and Columns with several children need a text direction.
-    await tester.pumpWidget(const Directionality(
-      textDirection: TextDirection.ltr,
-      child: Center(
-        child: HexagonGrid.flat(
-          width: 400,
-          height: 500,
-          depth: 1,
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: HexagonGrid.flat(width: 400, height: 500, depth: 1),
         ),
       ),
-    ));
+    );
 
     expect(find.byType(HexagonGrid), findsOneWidget);
     expect(find.byType(HexagonWidget), findsNWidgets(7));

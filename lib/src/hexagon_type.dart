@@ -24,6 +24,5 @@ extension HexagonTypeExtension on HexagonType {
 
   double flatFactor(bool inBounds) => (isFlat && !inBounds) ? 0.75 : 1;
 
-  double pointyFactor(bool inBounds) =>
-      (isPointy && !inBounds) ? 0.75 : 1;
+  double pointyFactor(bool inBounds) => (isPointy && !inBounds) ? 0.75 : 1;
 }

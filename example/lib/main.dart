@@ -80,16 +80,18 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           title: Text(widget.title),
           actions: hasControls
               ? [
-                  Row(children: [
-                    const Text('Controls'),
-                    Switch(
-                      value: showControls,
-                      activeThumbColor: Colors.lightBlueAccent,
-                      onChanged: (value) => setState(() {
-                        showControls = value;
-                      }),
-                    ),
-                  ])
+                  Row(
+                    children: [
+                      const Text('Controls'),
+                      Switch(
+                        value: showControls,
+                        activeThumbColor: Colors.lightBlueAccent,
+                        onChanged: (value) => setState(() {
+                          showControls = value;
+                        }),
+                      ),
+                    ],
+                  ),
                 ]
               : null,
         ),
@@ -110,7 +112,9 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         margin: const EdgeInsets.all(8.0),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 2.0, horizontal: 16.0),
+                            vertical: 2.0,
+                            horizontal: 16.0,
+                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,10 +134,9 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                   DropdownMenuItem<HexagonType>(
                                     value: HexagonType.POINTY,
                                     child: Text('Pointy'),
-                                  )
+                                  ),
                                 ],
-                                selectedItemBuilder: (context) =>
-                                [
+                                selectedItemBuilder: (context) => [
                                   const Center(child: Text('Flat')),
                                   const Center(child: Text('Pointy')),
                                 ],
@@ -146,15 +149,18 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 }),
                                 value: depth,
                                 items: depths
-                                    .map((e) => DropdownMenuItem<int>(
-                                          value: e,
-                                          child: Text('Depth: $e'),
-                                        ))
+                                    .map(
+                                      (e) => DropdownMenuItem<int>(
+                                        value: e,
+                                        child: Text('Depth: $e'),
+                                      ),
+                                    )
                                     .toList(),
                                 selectedItemBuilder: (context) {
                                   return depths
-                                      .map((e) =>
-                                          Center(child: Text('Depth: $e')))
+                                      .map(
+                                        (e) => Center(child: Text('Depth: $e')),
+                                      )
                                       .toList();
                                 },
                               ),
@@ -255,10 +261,7 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   width: w,
                   child: AspectRatio(
                     aspectRatio: HexagonType.FLAT.ratio,
-                    child: Image.asset(
-                      'assets/bee.jpg',
-                      fit: BoxFit.fitHeight,
-                    ),
+                    child: Image.asset('assets/bee.jpg', fit: BoxFit.fitHeight),
                   ),
                 ),
               ),
@@ -268,10 +271,7 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   width: w,
                   child: AspectRatio(
                     aspectRatio: HexagonType.POINTY.ratio,
-                    child: Image.asset(
-                      'assets/tram.jpg',
-                      fit: BoxFit.fitWidth,
-                    ),
+                    child: Image.asset('assets/tram.jpg', fit: BoxFit.fitWidth),
                   ),
                 ),
               ),

@@ -7,10 +7,7 @@ class Coordinates {
   const Coordinates.cube(this.x, this.y, this.z);
 
   ///Axial constructor
-  Coordinates.axial(int q, int r)
-      : x = q,
-        y = -q - r,
-        z = r;
+  Coordinates.axial(int q, int r) : x = q, y = -q - r, z = r;
 
   final int x, y, z;
 
@@ -21,7 +18,9 @@ class Coordinates {
   ///Distance measured in steps between tiles. A single step is only going over edge of neighbouring tiles.
   int distance(Coordinates other) {
     return max(
-        (x - other.x).abs(), max((y - other.y).abs(), (z - other.z).abs()));
+      (x - other.x).abs(),
+      max((y - other.y).abs(), (z - other.z).abs()),
+    );
   }
 
   Coordinates operator +(Coordinates other) {
