@@ -159,31 +159,57 @@ reach pub.dev; CI doesn't run pana yet.
 
 ## Phase 3: Internals, rendering and performance
 
-- [ ] **One geometry module** (`lib/src/geometry/hex_metrics.dart`): named
-      constants in place of the magic `0.75`, `8` and `1.5`, and one
-      sizing function that both grids share. Today the two grids duplicate
-      the math and only agree by coincidence (0.75·2/√3 = √3/2).
-- [ ] **`HexagonBorder extends OutlinedBorder`**: this replaces the custom
-      painter and clipper, and unlocks:
-  - `ShapeDecoration`, `Material(shape: HexagonBorder())` (ink splashes,
-    elevation), `Card`, `InkWell` with hexagon-shaped hit areas
-  - border `side` (stroke colour and width), which users keep asking for
-  - `lerp` for animated morphs (flat ↔ pointy, radius changes)
-- [ ] **Paths:** build once per size and share between paint and clip.
-      Precompute the six unit-corner offsets (no trig per frame).
-- [ ] **Clipping:** skip `ClipPath` when there's no child; add a
-      `clipBehavior` parameter.
-- [ ] **Benchmark:**
-  - add `benchmark/` with a depth-20 `HexagonGrid` (1,261 tiles)
-  - record build, layout and raster times with `integration_test` and a
-    timeline summary
-  - record the before and after numbers in this file
-- [ ] **Grid rendering:** try a single `RenderObject` (or
-      `CustomMultiChildLayout`) for grids instead of nested Rows and
-      Columns. Keep it if the benchmark shows a win.
+- [x] **One geometry module** (`lib/src/geometry/hex_metrics.dart`,
+      internal): tile sizes, interlocked spans, edge insets and the fitting
+      circumradius, with named constants in place of the magic `0.75`, `8`
+      and `1.5`. Both grids and the path builder use it. The math is
+      algebraically unchanged, and the Phase 1 layout sweeps guard it.
+- [x] **`HexagonBorder extends OutlinedBorder`** (new, exported):
+  - works with `Material`, `Card`, `InkWell`, `ShapeDecoration` and
+    `ShapeBorderClipper`; a test checks taps are limited to the hexagon
+  - border `side`, inside, centered or outside, with correctly offset
+    rounded corners
+  - `scale`, `copyWith`, and `lerp` between borders of the same type
+    (corner radius and side)
+  - it doesn't replace `HexagonPainter`/`HexagonClipper`: they're public
+    API, and the painter draws `elevation` shadows the way it always has
+- [x] **Clipping:** tiles without a child no longer build an
+      `OverflowBox`, `Align` and `ClipPath`. New `clipBehavior` on
+      `HexagonWidget` and `HexagonWidgetBuilder`.
+- [x] **Benchmark:** `benchmark/grid_benchmark_test.dart`, run by the
+      `Benchmark` CI job, which writes a table to the job summary. It's a
+      debug-mode widget test, not `integration_test` on a device: it runs
+      on every push without an emulator. Timings are for comparing runs;
+      the element and render object counts are exact.
+- [ ] ~~**Paths:** build once per size and share between paint and clip~~
+      **Dropped.** Tiles without a child now build their path once (the
+      clipper is gone), so only tiles with children build it twice. The
+      saving is below the benchmark's noise, and caching would add mutable
+      state to `HexagonPathBuilder`, a public value class.
+- [ ] **Grid rendering as a single `RenderObject`:** deferred. Tiles now
+      cost 6 elements and 4 render objects (from 9 and 7). Going further
+      means rewriting grid layout and hit testing, and tiles with children
+      still need their own subtrees. Revisit if large boards show up as a
+      bottleneck in real apps.
 
-**Done when:** the benchmark numbers are recorded and no regressions show
-in the goldens.
+### Benchmark results
+
+Median over 15 runs in milliseconds, CI runner, debug mode. Two identical
+runs of the baseline differed by up to 15%.
+
+| Grid | | First build | Rebuild | Relayout | Elements / tile | Render objects / tile |
+|---|---|---|---|---|---|---|
+| `HexagonGrid` depth 20, 1,261 tiles | before | 101.5 | 20.7 | 65.8 | 9.0 | 7.0 |
+| | after (2 runs) | 70.2 / 61.5 | 14.0 / 10.5 | 40.8 / 37.2 | **6.0** | **4.0** |
+| … with a `Text` in every tile | before | 198.4 | 47.9 | 129.5 | 11.0 | 8.0 |
+| | after (2 runs) | 246.3 / 191.8 | 51.2 / 44.9 | 148.9 / 142.6 | 11.0 | 8.0 |
+| `HexagonOffsetGrid` 30×30, 900 tiles | before | 60.9 | 14.8 | 39.2 | 9.1 | 7.1 |
+| | after (2 runs) | 47.9 / 38.7 | 10.4 / 8.2 | 26.0 / 22.6 | **6.1** | **4.1** |
+
+Tiles without a child: a third fewer elements, 43% fewer render objects,
+and 20–50% faster in every measure. Tiles with a child have the same
+structure as before, and their timings are within noise (the second run
+matches the baseline).
 
 ---
 
