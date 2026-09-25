@@ -1,16 +1,17 @@
-# example
+# hexagon example
 
-A example project.
+A gallery of the `hexagon` package, also
+[running in the browser](https://orlikraf.github.io/flutter-hexagon/).
 
-## Getting Started
+* **Widgets** ([widgets_page.dart](lib/widgets_page.dart)): `Hexagon` in
+  flat and pointy, with images, wrap sizing, rounded corners and outlines,
+  and `HexagonBorder` on buttons, cards and an animated container.
+* **Grids** ([grids_page.dart](lib/grids_page.dart)): `HexGrid` with every
+  `HexShape`, flat or pointy, adjustable spacing and tap-to-select.
+* **Game map** ([map_page.dart](lib/map_page.dart)): `HexGridView` with
+  generated terrain, units on a widget layer, movement range, path preview
+  and field of view, plus camera controls.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```sh
+flutter run
+```
