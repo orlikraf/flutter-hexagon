@@ -1,0 +1,23 @@
+name: hexagon_core
+description: >-
+  Pure Dart hexagonal grid math: axial, cube, offset and doubled coordinates,
+  pixel layouts, map shapes, pathfinding, reachability and field of view.
+version: 1.0.0
+homepage: https://github.com/orlikraf/flutter-hexagon
+repository: https://github.com/orlikraf/flutter-hexagon/tree/master/packages/hexagon_core
+issue_tracker: https://github.com/orlikraf/flutter-hexagon/issues
+topics:
+  - hexagon
+  - grid
+  - game
+  - pathfinding
+  - geometry
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.0

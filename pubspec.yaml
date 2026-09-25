@@ -1,21 +1,11 @@
-name: hexagon
-description: Library about hexagon shape. You can create pointy or flat hexagons in any color you like.
-version: 0.3.0
-homepage: https://github.com/orlikraf/flutter-hexagon
+name: hexagon_workspace
+description: Workspace for the hexagon and hexagon_core packages.
+publish_to: none
 
 environment:
-  sdk: ">=3.0.0"
-  flutter: ">=3.0.0"
+  sdk: ^3.6.0
 
-dependencies:
-  flutter:
-    sdk: flutter
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
-
-# The following section is specific to Flutter.
-flutter:
-  uses-material-design: false
+workspace:
+  - packages/hexagon_core
+  - packages/hexagon
+  - packages/hexagon/example

@@ -1,0 +1,23 @@
+# Data-driven fixes for `dart fix`. See
+# https://github.com/flutter/flutter/blob/master/docs/contributing/Data-driven-Fixes.md
+version: 1
+transforms:
+  - title: "Rename to 'flat'"
+    date: 2026-09-25
+    element:
+      uris: ['package:hexagon_core/hexagon_core.dart', 'package:hexagon/hexagon.dart']
+      field: 'FLAT'
+      inEnum: 'HexagonType'
+    changes:
+      - kind: 'rename'
+        newName: 'flat'
+
+  - title: "Rename to 'pointy'"
+    date: 2026-09-25
+    element:
+      uris: ['package:hexagon_core/hexagon_core.dart', 'package:hexagon/hexagon.dart']
+      field: 'POINTY'
+      inEnum: 'HexagonType'
+    changes:
+      - kind: 'rename'
+        newName: 'pointy'

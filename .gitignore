@@ -75,3 +75,5 @@ build/
 
 # FVM Version Cache
 .fvm/
+# Workspace lock file (libraries do not commit it)
+pubspec.lock

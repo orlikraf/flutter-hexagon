@@ -1,0 +1,30 @@
+# TEMPORARY: formats pushes to the 1.0 development branch, because the
+# session developing it has no local Dart SDK. Remove before merging.
+name: Auto-format (temporary)
+
+on:
+  push:
+    branches: [new_implementatiton]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format packages
+      - name: Commit formatting changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -am "Apply dart format"
+            git push
+          fi
