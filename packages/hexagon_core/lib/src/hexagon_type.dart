@@ -38,8 +38,7 @@ enum HexagonType {
 
   /// Height of the bounding box of a regular hexagon with the given
   /// circumradius (distance from the center to a corner).
-  double heightForRadius(double radius) =>
-      isFlat ? sqrt3 * radius : 2 * radius;
+  double heightForRadius(double radius) => isFlat ? sqrt3 * radius : 2 * radius;
 
   /// Circumradius of the largest regular hexagon that fits in a box of
   /// [width] × [height].

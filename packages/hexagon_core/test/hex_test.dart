@@ -59,8 +59,10 @@ void main() {
       const hex = Hex(3, 0);
       expect(hex.rotateAround(center, 6), hex);
       expect(hex.rotateAround(center, 0), hex);
-      expect(hex.rotateAround(center, 1), center + (hex - center).rotateRight());
-      expect(hex.rotateAround(center, -1), center + (hex - center).rotateLeft());
+      expect(
+          hex.rotateAround(center, 1), center + (hex - center).rotateRight());
+      expect(
+          hex.rotateAround(center, -1), center + (hex - center).rotateLeft());
       expect(hex.rotateAround(center, 3).distanceTo(center),
           hex.distanceTo(center));
     });
@@ -134,8 +136,10 @@ void main() {
       );
       expect(Hex.fromOffset(0, 1, HexagonType.pointy), const Hex(0, 1));
       expect(Hex.fromOffset(0, 2, HexagonType.pointy), const Hex(-1, 2));
-      expect(Hex.fromOffset(-3, -3, HexagonType.pointy).toOffset(
-          HexagonType.pointy), (column: -3, row: -3));
+      expect(
+          Hex.fromOffset(-3, -3, HexagonType.pointy)
+              .toOffset(HexagonType.pointy),
+          (column: -3, row: -3));
     });
 
     test('doubled coordinates round-trip', () {

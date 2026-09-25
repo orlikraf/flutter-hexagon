@@ -6,8 +6,8 @@ void main() {
     test('hexagon', () {
       expect(HexShape.hexagon(0), [Hex.zero]);
       expect(HexShape.hexagon(3).length, 37);
-      expect(HexShape.hexagon(1, center: const Hex(5, 5)).first,
-          const Hex(5, 5));
+      expect(
+          HexShape.hexagon(1, center: const Hex(5, 5)).first, const Hex(5, 5));
     });
 
     test('rectangle matches offset coordinates', () {

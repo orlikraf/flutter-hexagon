@@ -146,6 +146,7 @@ class HexagonBorder extends OutlinedBorder {
   int get hashCode => Object.hash(type, cornerRadius, eccentricity, side);
 
   @override
-  String toString() => 'HexagonBorder(${type.name}, cornerRadius: $cornerRadius, '
+  String toString() =>
+      'HexagonBorder(${type.name}, cornerRadius: $cornerRadius, '
       'eccentricity: $eccentricity, $side)';
 }

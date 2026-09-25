@@ -162,8 +162,7 @@ void main() {
     expect((material.shape! as HexagonBorder).cornerRadius, 1);
   });
 
-  testWidgets('falls back to wrap without bounded constraints',
-      (tester) async {
+  testWidgets('falls back to wrap without bounded constraints', (tester) async {
     await tester.pumpWidget(
       _app(
         const SingleChildScrollView(

@@ -32,7 +32,9 @@ class Unit {
 /// Builds a deterministic island-ish map from a few overlapping waves.
 HexMap<Terrain> generateMap(int columns, int rows) {
   final random = math.Random(7);
-  final phases = [for (var i = 0; i < 6; i++) random.nextDouble() * math.pi * 2];
+  final phases = [
+    for (var i = 0; i < 6; i++) random.nextDouble() * math.pi * 2
+  ];
   return HexMap.fromCells(HexShape.rectangle(columns, rows), (hex) {
     final offset = hex.toOffset(HexagonType.flat);
     final x = offset.column / columns;

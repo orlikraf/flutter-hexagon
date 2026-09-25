@@ -33,7 +33,8 @@ void main() {
       final center = layout.hexToPixel(Hex.zero);
       final expected = sqrt3 * (layout.radius + layout.spacing / sqrt3);
       for (final n in Hex.zero.neighbors) {
-        expect(layout.hexToPixel(n).distanceTo(center), closeTo(expected, 1e-9));
+        expect(
+            layout.hexToPixel(n).distanceTo(center), closeTo(expected, 1e-9));
       }
     }
   });

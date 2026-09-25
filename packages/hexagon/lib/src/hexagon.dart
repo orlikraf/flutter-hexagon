@@ -588,8 +588,7 @@ class RenderHexagonContent extends RenderShiftedBox {
   @override
   Size computeDryLayout(covariant BoxConstraints constraints) {
     if (_wraps(constraints)) {
-      final childSize =
-          child?.getDryLayout(constraints.loosen()) ?? Size.zero;
+      final childSize = child?.getDryLayout(constraints.loosen()) ?? Size.zero;
       return constraints.constrain(_enclosingSize(childSize));
     }
     return constraints.biggest;

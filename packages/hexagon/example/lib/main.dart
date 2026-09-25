@@ -51,9 +51,11 @@ class _HomePageState extends State<HomePage> {
         selectedIndex: _page,
         onDestinationSelected: (page) => setState(() => _page = page),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.hexagon_outlined), label: 'Widgets'),
+          NavigationDestination(
+              icon: Icon(Icons.hexagon_outlined), label: 'Widgets'),
           NavigationDestination(icon: Icon(Icons.grid_on), label: 'Grids'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), label: 'Game map'),
+          NavigationDestination(
+              icon: Icon(Icons.map_outlined), label: 'Game map'),
         ],
       ),
     );

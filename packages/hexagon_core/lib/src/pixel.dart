@@ -19,10 +19,12 @@ final class PixelPoint {
   final double y;
 
   /// Component-wise sum.
-  PixelPoint operator +(PixelPoint other) => PixelPoint(x + other.x, y + other.y);
+  PixelPoint operator +(PixelPoint other) =>
+      PixelPoint(x + other.x, y + other.y);
 
   /// Component-wise difference.
-  PixelPoint operator -(PixelPoint other) => PixelPoint(x - other.x, y - other.y);
+  PixelPoint operator -(PixelPoint other) =>
+      PixelPoint(x - other.x, y - other.y);
 
   /// Scales both components by [factor].
   PixelPoint operator *(double factor) => PixelPoint(x * factor, y * factor);
@@ -92,7 +94,10 @@ final class PixelRect {
 
   /// Whether [point] lies inside the rectangle (edges included).
   bool contains(PixelPoint point) =>
-      point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
+      point.x >= left &&
+      point.x <= right &&
+      point.y >= top &&
+      point.y <= bottom;
 
   /// Whether this rectangle and [other] overlap.
   bool overlaps(PixelRect other) =>
@@ -110,8 +115,8 @@ final class PixelRect {
       );
 
   /// Grows the rectangle by [delta] on every side.
-  PixelRect inflate(double delta) =>
-      PixelRect.fromLTRB(left - delta, top - delta, right + delta, bottom + delta);
+  PixelRect inflate(double delta) => PixelRect.fromLTRB(
+      left - delta, top - delta, right + delta, bottom + delta);
 
   @override
   bool operator ==(Object other) =>

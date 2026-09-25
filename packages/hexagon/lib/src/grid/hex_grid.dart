@@ -191,8 +191,7 @@ class _HexGridDelegate extends MultiChildLayoutDelegate {
       math.max(0, size.width - padding.horizontal - bounds.width),
       math.max(0, size.height - padding.vertical - bounds.height),
     );
-    final shift =
-        padding.topLeft + alignment.alongSize(free) - bounds.topLeft;
+    final shift = padding.topLeft + alignment.alongSize(free) - bounds.topLeft;
     final cellSize = Size(layout.cellWidth, layout.cellHeight);
     for (final hex in cells) {
       if (hasChild(hex)) {

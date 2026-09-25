@@ -38,8 +38,7 @@ void main() {
 
   testWidgets('starts centered on the map', (tester) async {
     final taps = <Hex>[];
-    final controller =
-        await pumpView(tester, cells: small, onHexTap: taps.add);
+    final controller = await pumpView(tester, cells: small, onHexTap: taps.add);
     expect(controller.hasView, isTrue);
     expect(controller.centerHex, Hex.zero);
     await tester.tapAt(const Offset(400, 300));
@@ -71,8 +70,7 @@ void main() {
 
   testWidgets('jumpTo and animateTo move the camera', (tester) async {
     final taps = <Hex>[];
-    final controller =
-        await pumpView(tester, cells: small, onHexTap: taps.add);
+    final controller = await pumpView(tester, cells: small, onHexTap: taps.add);
 
     controller.jumpTo(const Hex(2, 0));
     await tester.pump();
@@ -96,7 +94,8 @@ void main() {
     final controller = await pumpView(tester, cells: small);
     expect(controller.hexAtViewport(const Offset(400, 300)), Hex.zero);
     expect(
-      controller.hexAtViewport(const Offset(400, 300) + layout.centerOf(
+      controller.hexAtViewport(const Offset(400, 300) +
+          layout.centerOf(
             const Hex(1, 0),
           )),
       const Hex(1, 0),
@@ -135,7 +134,8 @@ void main() {
       tester,
       cells: small,
       layers: [
-        const HexPaintLayer.fill(color: Colors.green, strokeColor: Colors.black),
+        const HexPaintLayer.fill(
+            color: Colors.green, strokeColor: Colors.black),
         HexWidgetLayer(
           cells: const [Hex.zero],
           builder: (context, hex) => GestureDetector(

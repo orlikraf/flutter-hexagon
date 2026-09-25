@@ -14,7 +14,8 @@ void main() {
 
   print('Distance: ${start.distanceTo(goal)}');
   print('Path: ${start.pathTo(goal, passable: passable)}');
-  print('Reachable in 2 moves: ${start.reachable(movement: 2, passable: passable).length} hexes');
+  print(
+      'Reachable in 2 moves: ${start.reachable(movement: 2, passable: passable).length} hexes');
   print('Can see the goal: ${start.canSee(goal, blocksSight: walls.contains)}');
 
   // Pixel positions for drawing or hit testing.

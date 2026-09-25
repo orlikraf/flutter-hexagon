@@ -221,7 +221,8 @@ final class Hex {
   }
 
   @override
-  bool operator ==(Object other) => other is Hex && other.q == q && other.r == r;
+  bool operator ==(Object other) =>
+      other is Hex && other.q == q && other.r == r;
 
   @override
   int get hashCode => Object.hash(q, r);

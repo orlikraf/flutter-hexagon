@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'hexagon_path_builder.dart';
 
 /// This class is responsible for painting HexagonWidget color and shadow in proper shape.
-@Deprecated('Use HexagonBorder, e.g. with ShapeDecoration or Material. Will be removed in 2.0.0.')
+@Deprecated(
+    'Use HexagonBorder, e.g. with ShapeDecoration or Material. Will be removed in 2.0.0.')
 class HexagonPainter extends CustomPainter {
   HexagonPainter(this.pathBuilder, {this.color, this.elevation = 0});
 

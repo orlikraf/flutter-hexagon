@@ -7,6 +7,7 @@ analyzer:
     strict-raw-types: true
   exclude:
     - test_fixes/**
+    - build/**
 
 linter:
   rules:

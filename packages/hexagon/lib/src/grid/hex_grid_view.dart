@@ -218,8 +218,7 @@ class _HexGridViewState extends State<HexGridView>
   @override
   void initState() {
     super.initState();
-    _animation = AnimationController(vsync: this)
-      ..addListener(_onCameraTick);
+    _animation = AnimationController(vsync: this)..addListener(_onCameraTick);
     _controller._view = this;
     _updateGeometry();
     WidgetsBinding.instance.addPostFrameCallback((_) => _initCamera());
@@ -527,9 +526,8 @@ class _HexLayerPainter extends CustomPainter {
           ..color = strokeColor);
     final colorOf = layer.colorOf;
     for (final hex in cells) {
-      final color = colorOf != null
-          ? colorOf(hex)
-          : (layer.color ?? defaultColor);
+      final color =
+          colorOf != null ? colorOf(hex) : (layer.color ?? defaultColor);
       if (color == null) {
         continue;
       }
