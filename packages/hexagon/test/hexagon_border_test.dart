@@ -43,19 +43,20 @@ void main() {
     }
   });
 
-  test('rounded corners stay inside the sharp hexagon', () {
-    final sharp = const HexagonBorder().getOuterPath(square).getBounds();
-    final rounded =
-        const HexagonBorder(cornerRadius: 20).getOuterPath(square).getBounds();
-    expect(rounded.width, lessThan(sharp.width));
-    expect(sharp.inflate(0.01).contains(rounded.topLeft), isTrue);
-    expect(sharp.inflate(0.01).contains(rounded.bottomRight), isTrue);
+  test('rounded corners cut off the sharp corners', () {
+    final sharp = const HexagonBorder().getOuterPath(square);
+    final rounded = const HexagonBorder(cornerRadius: 20).getOuterPath(square);
+    // Just inside the left corner of the sharp hexagon.
+    const nearCorner = Offset(1, 100);
+    expect(sharp.contains(nearCorner), isTrue);
+    expect(rounded.contains(nearCorner), isFalse);
+    // Edges away from the corners are unchanged.
+    expect(rounded.contains(const Offset(100, 15)), isTrue);
+    expect(rounded.contains(const Offset(100, 100)), isTrue);
     // A huge radius is clamped instead of producing a broken path.
-    final huge = const HexagonBorder(cornerRadius: 1000)
-        .getOuterPath(square)
-        .getBounds();
-    expect(huge.width, greaterThan(0));
-    expect(huge.isFinite, isTrue);
+    final huge = const HexagonBorder(cornerRadius: 1000).getOuterPath(square);
+    expect(huge.getBounds().isFinite, isTrue);
+    expect(huge.contains(const Offset(100, 100)), isTrue);
   });
 
   test('inner path is inset by the border width', () {

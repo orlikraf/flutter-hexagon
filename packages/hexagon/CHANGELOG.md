@@ -1,3 +1,42 @@
+## 1.0.0
+
+A rewrite for Flutter 3.27+ and Dart 3.6+, for app UI and games alike. See
+[MIGRATION.md](MIGRATION.md) for upgrading from 0.x.
+
+**New**
+
+* `HexagonBorder`: a hexagon `OutlinedBorder` for `Material`, `Card`,
+  buttons, `ShapeDecoration` and `ClipPath.shape`, with rounded corners,
+  outline, stretching (`eccentricity`) and smooth animation between borders.
+* `Hexagon`: a hexagon surface that sizes itself during layout
+  (`HexagonFit.contain` or `HexagonFit.wrap`), puts its child in the
+  inscribed rectangle or the whole bounding box, uses Material elevation and
+  ink, and only reacts to pointers inside its outline.
+* `HexagonThemeData`: theme extension for default color, elevation, corners
+  and outline.
+* `HexGrid`: a grid with one widget per cell, for any set of cells, sized
+  from a radius or fitted to its constraints.
+* `HexGridView`: a pannable, zoomable map that only paints and builds the
+  visible cells, drawn in `HexPaintLayer`s and `HexWidgetLayer`s, with
+  `HexGridController` for the camera and hover state.
+* Grid math, pathfinding and visibility from the new
+  [`hexagon_core`](https://pub.dev/packages/hexagon_core) package, re-exported
+  here.
+
+**Changed**
+
+* `HexagonType.FLAT` and `HexagonType.POINTY` are now `HexagonType.flat` and
+  `HexagonType.pointy`. The old names still work, are deprecated, and
+  `dart fix --apply` renames them.
+* Requires Dart 3.6 and Flutter 3.27.
+
+**Deprecated** (removed in 2.0.0)
+
+* `HexagonWidget`, `HexagonWidgetBuilder`, `HexagonGrid`,
+  `HexagonOffsetGrid`, `GridType`, `Coordinates`, `HexDirections`,
+  `HexagonPainter`, `HexagonClipper`, `HexagonPathBuilder` and
+  `HexagonTypeExtension`.
+
 ## [0.2.0] - 01.05.2023
 
 * Migrated to null safety.

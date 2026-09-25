@@ -7,7 +7,7 @@ transforms:
     element:
       uris: ['package:hexagon_core/hexagon_core.dart', 'package:hexagon/hexagon.dart']
       field: 'FLAT'
-      inEnum: 'HexagonType'
+      inClass: 'HexagonType'
     changes:
       - kind: 'rename'
         newName: 'flat'
@@ -17,7 +17,7 @@ transforms:
     element:
       uris: ['package:hexagon_core/hexagon_core.dart', 'package:hexagon/hexagon.dart']
       field: 'POINTY'
-      inEnum: 'HexagonType'
+      inClass: 'HexagonType'
     changes:
       - kind: 'rename'
         newName: 'pointy'

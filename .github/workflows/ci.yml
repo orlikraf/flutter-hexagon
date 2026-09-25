@@ -37,10 +37,12 @@ jobs:
         run: dart analyze --fatal-infos
 
       - name: Analyze hexagon
+        if: success() || failure()
         working-directory: packages/hexagon
         run: flutter analyze lib test
 
       - name: Analyze example
+        if: success() || failure()
         working-directory: packages/hexagon/example
         run: flutter analyze
 

@@ -17,7 +17,9 @@ void main() {
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.ltr,
-        child: HexagonGrid.flat(height: 660, width: 633, depth: 1),
+        child: Center(
+          child: HexagonGrid.flat(height: 400, width: 400, depth: 1),
+        ),
       ),
     );
     expect(find.byType(HexagonWidget), findsNWidgets(7));

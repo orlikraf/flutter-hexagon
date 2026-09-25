@@ -17,7 +17,9 @@ void main() {
     });
 
     test('equality and hashing', () {
-      expect({const Hex(1, 2), const Hex(1, 2), const Hex(2, 1)}.length, 2);
+      final hexes = [const Hex(1, 2), Hex(1, 1 + 1), const Hex(2, 1)];
+      expect(hexes.toSet().length, 2);
+      expect(hexes[0].hashCode, hexes[1].hashCode);
       expect(const Hex(1, 2).toString(), 'Hex(1, 2)');
     });
 

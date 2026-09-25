@@ -1,124 +1,181 @@
-# Hexagon
-
-A widget in a shape of hexagon.
-Inspired by fantastic hexagons analysis available on [redblobgames](https://www.redblobgames.com/grids/hexagons/).
-
-<img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_3.png" width="200"> <img src="https://raw.githubusercontent.com/rSquared-software/flutter-hexagon/master/example/hexagon_example_4.png" width="200">
-
-## Installation
-Add this to your package's pubspec.yaml file:
+# hexagon
 
 [![pub package](https://img.shields.io/pub/v/hexagon.svg)](https://pub.dev/packages/hexagon)
 
+Hexagons for Flutter apps and games: a hexagon widget and `ShapeBorder`,
+hex grids, and a pannable, zoomable hex map with painted layers,
+pathfinding and hit testing.
+
+<img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_3.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_4.png" width="200">
+
+| You want… | Use |
+|---|---|
+| A hexagon-shaped button, card, avatar or tile | `Hexagon`, or `HexagonBorder` on any Material widget |
+| A board or menu of up to a few hundred cells | `HexGrid` |
+| A large map with pan, zoom, overlays and units | `HexGridView` |
+| Coordinates, distances, pathfinding, field of view | `Hex`, `HexLayout`, `HexShape`, `HexMap` (from [`hexagon_core`](https://pub.dev/packages/hexagon_core), re-exported) |
+
 ```yaml
 dependencies:
-  hexagon: ^0.2.0
+  hexagon: ^1.0.0
 ```
-
-## Usage
 
 ```dart
 import 'package:hexagon/hexagon.dart';
-
-//...
 ```
 
-### Single widget
-Width or height must be set when defining a HexagonWidget. The other dimension is calculated based on selected HexagonType.
-Use named constructors for flat or pointy for simple shaped hexagon. Elevation changes hexagon shadow size.
+Upgrading from 0.x? See [MIGRATION.md](MIGRATION.md).
+
+## Hexagon
+
+A hexagon-shaped surface. It picks its size during layout, like
+`AspectRatio`, so give it a width, a height, or constraints:
 
 ```dart
-HexagonWidget.flat(
-  width: w,
-  color: Colors.limeAccent,
-  padding: 4.0,
-  child: Text('A flat tile'),
-),
-HexagonWidget.pointy(
-  width: w,
-  color: Colors.red,
-  elevation: 8,
-  child: Text('A pointy tile'),
-),
+Hexagon(
+  width: 120,
+  color: Colors.amber,
+  elevation: 4,
+  cornerRadius: 8,
+  side: const BorderSide(color: Colors.brown, width: 2),
+  onTap: () {},
+  child: const Icon(Icons.hive),
+)
+
+Hexagon.pointy(height: 80, child: Text('Pointy'))
 ```
 
-### Grids
-#### Offset Grid
-[Check Coordinates Offset on redblobgames](https://www.redblobgames.com/grids/hexagons/#coordinates-offset)
+* **`fit`**: `HexagonFit.contain` (default) draws the largest hexagon that
+  fits the constraints. `HexagonFit.wrap` sizes the hexagon around its child.
+* **`childArea`**: `HexagonChildArea.inscribed` (default) lays the child out
+  in the largest rectangle inside the hexagon, so text and icons stay
+  visible. `HexagonChildArea.bounds` gives the child the whole bounding box,
+  clipped to the hexagon, which suits images.
+* Taps, long presses and hover only count **inside the outline**, so
+  hexagons can overlap their bounding boxes.
 
-Simple coordinate system similar to regular table.
-
-As hexagon columns or rows can begin with hex or an empty space this grid has 4 named constructors to represent all combinations with flat and pointy hexagons.
-* oddPointy
-* evenPointy
-* oddFlat
-* evenFlat
-
-Every constructor requires `columns` and `rows` params.
-At least one of grid constrains must be finite. The grid will fit given rows and columns in given space.
+Set defaults for every `Hexagon` with the theme extension:
 
 ```dart
-Column(
-  crossAxisAlignment: CrossAxisAlignment.stretch,
-  children: [
-    HexagonOffsetGrid.oddPointy(
-      columns: 5,
-      rows: 10,
-      buildTile: (col, row) => HexagonWidgetBuilder(
-        color: row.isEven ? Colors.yellow : Colors.orangeAccent,
-        elevation: 2,
-      ),
-      buildChild: (col, row) {
-        return Text('$col, $row');
-      },
-    ),
-  ],
-),
-```
-
-To customize any `HexagonWidget` in grid use buildHexagon function and return a `HexagonWidgetBuilder` for tile of your choosing.
-If you provide a `buildChild` function it will override any child provided in builder.
-
-#### Hexagon Grid
-As it is expected this grid is in a shape of hexagon.
-Since offset coordinates wouldn't be intuitive in this case HexagonGrid uses cube and axial coordinates systems.
-You can read about them here: [Cube coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-cube), [Axial coordinates](https://www.redblobgames.com/grids/hexagons/#coordinates-axial).
-
-`Coordinates` class combines both of them as they are easily convertible between each other.
-
-```dart
-Coordinates tileQR = Coordinates.axial(q, r);
-
-Coordinates tileXYZ = Coordinates.cube(x, y, z);
-```
-
-`HexagonGrid` requires to be constrained by its parent or else you have to provide at lest one size dimension (width or height). Currently this widget will fit itself to fill given space or best match to given size.
-Everything related to customize hexagon tiles is similar as in offset grid above.
-
-Below example of using `HexagonGrid` with `InteractiveViewer`.
-
-```dart
-InteractiveViewer(
-  minScale: 0.2,
-  maxScale: 4.0,
-  constrained: false,
-  child: HexagonGrid.pointy(
-    color: Colors.pink,
-    depth: depth,
-    width: 1920,
-    buildTile: (coordinates) => HexagonWidgetBuilder(
-      padding: 2.0,
-      cornerRadius: 8.0,
-      child: Text('${coordinates.q}, ${coordinates.r}'),
-    ),
+MaterialApp(
+  theme: ThemeData(
+    extensions: const [HexagonThemeData(cornerRadius: 6, elevation: 2)],
   ),
 )
 ```
 
-## Road map
+## HexagonBorder
 
-* ~~Margins between tiles in HexagonOffsetGrid~~ (Added padding since `0.0.5`)
-* ~~Hexagonal shaped grid (using cube/axial coordinates system)~~ (since `0.1.0`)
-* ~~null-safety~~ (since `0.2.0`)
-* Solve content spacing in hexagon widget
-* Check performance - any ideas how?
+A `ShapeBorder`, so it works wherever Flutter takes a shape:
+
+```dart
+ElevatedButton(
+  style: ElevatedButton.styleFrom(shape: const HexagonBorder(cornerRadius: 8)),
+  onPressed: () {},
+  child: const Text('Hex button'),
+)
+
+Card(shape: const HexagonBorder(type: HexagonType.pointy), child: ...)
+
+Container(
+  decoration: const ShapeDecoration(
+    shape: HexagonBorder(side: BorderSide(width: 2)),
+    color: Colors.teal,
+  ),
+)
+
+ClipPath.shape(shape: const HexagonBorder(cornerRadius: 12), child: image)
+```
+
+The hexagon is regular and centered in its box; `eccentricity: 1` stretches
+it to the box instead. Borders of the same type animate between each other,
+for example in `AnimatedContainer` or `ShapeBorderTween`.
+
+## HexGrid
+
+One widget per cell, for any set of cells:
+
+```dart
+HexGrid(
+  cells: HexShape.hexagon(3),          // or rectangle, parallelogram, triangle, any Iterable<Hex>
+  type: HexagonType.pointy,
+  spacing: 4,
+  itemBuilder: (context, hex) => Hexagon(
+    type: HexagonType.pointy,
+    child: Text('${hex.q}, ${hex.r}'),
+  ),
+  onHexTap: (hex) => print('tapped $hex'),
+)
+```
+
+Without a `radius`, the hexagons are sized so the grid fits its constraints.
+Each cell gets exactly its hexagon's bounding box and only receives pointers
+inside its hexagon.
+
+## HexGridView
+
+For maps with thousands of cells. It pans and zooms, paints only the cells
+in the viewport, and stacks layers bottom to top:
+
+```dart
+final controller = HexGridController();
+
+HexGridView(
+  layout: const HexLayout.flat(radius: 24),
+  cells: terrain.cells.toSet(),
+  controller: controller,
+  layers: [
+    // Canvas layers: nothing is built per cell.
+    HexPaintLayer.fill(colorOf: (hex) => terrain[hex]!.color),
+    HexPaintLayer.fill(cells: reachable, color: Colors.white24),
+    HexPaintLayer(
+      cells: path,
+      painter: (canvas, cell) =>
+          canvas.drawCircle(cell.center, 5, Paint()..color = Colors.white),
+    ),
+    // Widgets for the few cells that need them.
+    HexWidgetLayer(cells: units.keys, builder: (context, hex) => UnitToken(units[hex]!)),
+  ],
+  onHexTap: select,
+  onHexHover: preview,
+)
+
+controller.animateTo(const Hex(10, -4), scale: 2);
+controller.hexAtViewport(position);
+```
+
+`HexCell` gives painters the cell's center, bounding box and outline path.
+Pass `repaint:` a `Listenable` (an animation, or a `ChangeNotifier` holding
+game state) to repaint a layer without rebuilding.
+
+## Grid math, pathfinding and field of view
+
+Everything in [`hexagon_core`](https://pub.dev/packages/hexagon_core) is
+re-exported. It has no Flutter dependency, so a game server can use it too.
+
+```dart
+const a = Hex(2, -1);
+a.distanceTo(const Hex(-1, 3));          // 4
+a.neighbors;
+a.lineTo(const Hex(5, -3));
+Hex.fromOffset(3, 4, HexagonType.flat);  // from column/row
+
+const layout = HexLayout.pointy(radius: 24);
+layout.centerOf(a);                      // Offset
+layout.hexAt(details.localPosition);     // Hex under a pointer
+
+final range = unit.reachable(movement: 5, passable: isLand, cost: moveCost);
+final path = unit.pathTo(target, passable: isLand, cost: moveCost);
+final visible = unit.fieldOfView(8, blocksSight: isWall);
+```
+
+## Example
+
+The [example app](example/lib) has three pages: widgets and borders, grids
+with every built-in shape, and a small strategy map with units, movement
+range, path preview and field of view.
+
+## Credits
+
+The grid math follows Red Blob Games'
+[Hexagonal Grids](https://www.redblobgames.com/grids/hexagons/).
