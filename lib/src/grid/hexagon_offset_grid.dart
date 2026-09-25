@@ -1,46 +1,72 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
+import '../geometry/hex_metrics.dart';
 import '../hexagon_type.dart';
 import '../hexagon_widget.dart';
 
-enum GridType { EVEN, ODD }
+/// Which columns (flat tiles) or rows (pointy tiles) of a
+/// [HexagonOffsetGrid] are shifted by half a tile, counting from 0.
+///
+/// These match the "even-q", "odd-q", "even-r" and "odd-r" layouts on
+/// [Red Blob Games](https://www.redblobgames.com/grids/hexagons/#coordinates-offset).
+enum GridType {
+  /// Even columns are shifted down, or even rows shifted right.
+  even,
+
+  /// Odd columns are shifted down, or odd rows shifted right.
+  odd;
+
+  /// Deprecated alias of [even].
+  @Deprecated('Use GridType.even. Will be removed in 1.0.0.')
+  // ignore: constant_identifier_names
+  static const EVEN = even;
+
+  /// Deprecated alias of [odd].
+  @Deprecated('Use GridType.odd. Will be removed in 1.0.0.')
+  // ignore: constant_identifier_names
+  static const ODD = odd;
+}
 
 extension _GridTypeExtension on GridType {
   bool displace(int mainIndex, int crossIndex) {
     if (crossIndex == 0) {
-      return this.displaceFront(mainIndex);
+      return displaceFront(mainIndex);
     }
-    return this.displaceBack(mainIndex);
+    return displaceBack(mainIndex);
   }
 
   bool displaceFront(int index) {
-    return (this == GridType.ODD && index.isOdd) ||
-        (this == GridType.EVEN && index.isEven);
+    return (this == GridType.odd && index.isOdd) ||
+        (this == GridType.even && index.isEven);
   }
 
   bool displaceBack(int index) {
-    return (this == GridType.ODD && index.isEven) ||
-        (this == GridType.EVEN && index.isOdd);
+    return (this == GridType.odd && index.isEven) ||
+        (this == GridType.even && index.isOdd);
   }
 }
 
+/// A rectangular grid of hexagons, addressed by column and row.
+///
+/// Every other column (flat tiles) or row (pointy tiles) is shifted by half
+/// a tile; the constructor name says which ([GridType]). The grid fits
+/// [columns] × [rows] tiles into the available space, which must be
+/// bounded in at least one dimension.
+///
+/// ```dart
+/// HexagonOffsetGrid.oddPointy(
+///   columns: 5,
+///   rows: 10,
+///   buildTile: (col, row) => HexagonWidgetBuilder(
+///     color: row.isEven ? Colors.yellow : Colors.orange,
+///   ),
+///   buildChild: (col, row) => Text('$col, $row'),
+/// )
+/// ```
 class HexagonOffsetGrid extends StatelessWidget {
-  ///Grid of flat hexagons with odd columns starting with tile and even with a space.
-  ///
-  /// [columns] - Required positive integer. Count of columns in grid.
-  ///
-  /// [rows] - Required positive integer. Count of rows in grid.
-  ///
-  /// [color] - Background color of this grid.
-  ///
-  /// [padding] - Grid padding.
-  ///
-  /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
-  ///
-  /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
-  ///
-  /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
-  HexagonOffsetGrid.oddFlat({
+  /// Creates a grid of flat hexagons with odd columns shifted down.
+  const HexagonOffsetGrid.oddFlat({
+    super.key,
     required this.columns,
     required this.rows,
     this.color,
@@ -48,27 +74,14 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : assert(columns > 0),
-        assert(rows > 0),
-        this.hexType = HexagonType.FLAT,
-        this.gridType = GridType.ODD;
+  }) : assert(columns > 0),
+       assert(rows > 0),
+       hexType = HexagonType.flat,
+       gridType = GridType.odd;
 
-  ///Grid of flat hexagons with even columns starting with tile and odd with a space.
-  ///
-  /// [columns] - Required positive integer. Count of columns in grid.
-  ///
-  /// [rows] - Required positive integer. Count of rows in grid.
-  ///
-  /// [color] - Background color of this grid.
-  ///
-  /// [padding] - Grid padding.
-  ///
-  /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
-  ///
-  /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
-  ///
-  /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
-  HexagonOffsetGrid.evenFlat({
+  /// Creates a grid of flat hexagons with even columns shifted down.
+  const HexagonOffsetGrid.evenFlat({
+    super.key,
     required this.columns,
     required this.rows,
     this.color,
@@ -76,25 +89,14 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.FLAT,
-        this.gridType = GridType.EVEN;
+  }) : assert(columns > 0),
+       assert(rows > 0),
+       hexType = HexagonType.flat,
+       gridType = GridType.even;
 
-  ///Grid of pointy hexagons with odd rows starting with tile and even with a space.
-  ///
-  /// [columns] - Required positive integer. Count of columns in grid.
-  ///
-  /// [rows] - Required positive integer. Count of rows in grid.
-  ///
-  /// [color] - Background color of this grid.
-  ///
-  /// [padding] - Grid padding.
-  ///
-  /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
-  ///
-  /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
-  ///
-  /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
-  HexagonOffsetGrid.oddPointy({
+  /// Creates a grid of pointy hexagons with odd rows shifted right.
+  const HexagonOffsetGrid.oddPointy({
+    super.key,
     required this.columns,
     required this.rows,
     this.color,
@@ -102,25 +104,14 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
-        this.gridType = GridType.ODD;
+  }) : assert(columns > 0),
+       assert(rows > 0),
+       hexType = HexagonType.pointy,
+       gridType = GridType.odd;
 
-  ///Grid of pointy hexagons with even rows starting with tile and odd with a space.
-  ///
-  /// [columns] - Required positive integer. Count of columns in grid.
-  ///
-  /// [rows] - Required positive integer. Count of rows in grid.
-  ///
-  /// [color] - Background color of this grid.
-  ///
-  /// [padding] - Grid padding.
-  ///
-  /// [hexagonBuilder] - Used as template for tiles. Will be overridden by [buildTile].
-  ///
-  /// [buildTile] - Provide a HexagonWidgetBuilder that will be used to create given tile (at col,row). Return null to use default [hexagonBuilder].
-  ///
-  /// [buildChild] - Provide a Widget to be used in a HexagonWidget for given tile (col,row). Any returned value will override child provided in [buildTile] or hexagonBuilder.
-  HexagonOffsetGrid.evenPointy({
+  /// Creates a grid of pointy hexagons with even rows shifted right.
+  const HexagonOffsetGrid.evenPointy({
+    super.key,
     required this.columns,
     required this.rows,
     this.color,
@@ -128,17 +119,40 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
-        this.gridType = GridType.EVEN;
+  }) : assert(columns > 0),
+       assert(rows > 0),
+       hexType = HexagonType.pointy,
+       gridType = GridType.even;
 
+  /// The orientation of the tiles.
   final HexagonType hexType;
+
+  /// Which columns or rows are shifted by half a tile.
   final GridType gridType;
+
+  /// The number of columns. Must be positive.
   final int columns;
+
+  /// The number of rows. Must be positive.
   final int rows;
+
+  /// The background color of the grid.
   final Color? color;
+
+  /// Space around the tiles, inside the grid.
   final EdgeInsets? padding;
+
+  /// The template for every tile, unless [buildTile] returns one.
+  ///
+  /// It must not have a key, since every tile shares it.
   final HexagonWidgetBuilder? hexagonBuilder;
+
+  /// Returns the child of the tile at the given column and row. Overrides
+  /// the child of [hexagonBuilder] and [buildTile].
   final Widget Function(int col, int row)? buildChild;
+
+  /// Returns the template for the tile at the given column and row, or null
+  /// to use [hexagonBuilder].
   final HexagonWidgetBuilder? Function(int col, int row)? buildTile;
 
   int get _displaceColumns => hexType.isPointy ? 1 : 0;
@@ -157,73 +171,70 @@ class HexagonOffsetGrid extends StatelessWidget {
         : Column(children: children.call(rows + _displaceRows));
   }
 
-  Size _hexSize(double maxWidth, double maxHeight) {
-    if (maxWidth.isFinite && maxHeight.isFinite) {
-      maxWidth -= (padding?.horizontal ?? 0);
-      maxHeight -= (padding?.vertical ?? 0);
-      //determine aspect ratio of grid, and of container
-      var gridWidth;
-      var gridHeight;
-      if (hexType.isFlat) {
-        gridWidth = 1 + (0.75 * (columns - 1));
-        gridHeight = rows + (_displaceRows / 2);
-      } else {
-        gridWidth = columns + (_displaceColumns / 2);
-        gridHeight = 1 + (0.75 * (rows - 1));
+  /// Rows of a flat grid, in tile heights: displaced columns add half a
+  /// tile when there is more than one column.
+  double get _rowSpan => rows + (columns > 1 ? 0.5 : 0);
+
+  /// Columns of a pointy grid, in tile widths: displaced rows add half a
+  /// tile when there is more than one row.
+  double get _columnSpan => columns + (rows > 1 ? 0.5 : 0);
+
+  /// The size of each tile, chosen so the whole grid fits the available
+  /// space in both dimensions.
+  Size _hexSize(BoxConstraints constraints) {
+    final maxWidth = constraints.maxWidth - (padding?.horizontal ?? 0);
+    final maxHeight = constraints.maxHeight - (padding?.vertical ?? 0);
+
+    if (maxWidth.isFinite) {
+      final sizeFromWidth = _hexSizeWidthConstrained(maxWidth);
+      if (!maxHeight.isFinite ||
+          _gridHeight(sizeFromWidth) <= maxHeight + HexMetrics.epsilon) {
+        return sizeFromWidth;
       }
-      var gridAspectRatio = gridWidth / gridHeight;
-      var constraintAspectRatio = maxWidth / maxHeight;
-      if (constraintAspectRatio <= gridAspectRatio) {
-        //constrained by width
-        return _hexSizeWidthConstrained(maxWidth);
-      } else {
-        return _hexSizeHeightConstrained(maxHeight);
-      }
-    } else if (maxWidth.isFinite) {
-      maxWidth -= (padding?.horizontal ?? 0);
-      return _hexSizeWidthConstrained(maxWidth);
-    } else if (maxHeight.isFinite) {
-      maxHeight -= (padding?.vertical ?? 0);
+    }
+    if (maxHeight.isFinite) {
       return _hexSizeHeightConstrained(maxHeight);
-    } else {
-      throw Exception('Error: Infinite constraints in both dimensions!');
     }
+    throw FlutterError(
+      'HexagonOffsetGrid has unbounded width and height.\n'
+      'Place it in a parent that constrains at least one dimension.',
+    );
   }
 
+  /// Height of the grid, including its edge insets, for tiles of [tile].
+  double _gridHeight(Size tile) => hexType.isFlat
+      ? tile.height * _rowSpan
+      : tile.height * rows + HexMetrics.edgeInsets(hexType, tile).vertical;
+
+  /// Tile size for a grid [maxWidth] wide.
   Size _hexSizeWidthConstrained(double maxWidth) {
-    if (hexType.isFlat) {
-      var quarters = maxWidth / (1 + (0.75 * (columns - 1)));
-      var size = Size(quarters, quarters * hexType.ratio);
-      return size * hexType.flatFactor(false);
-    }
-    var half = maxWidth / (columns * 2 + _displaceColumns);
-    return Size(half * 2, half * 2 * hexType.ratio);
+    final hexagons = hexType.isFlat
+        ? HexMetrics.interlockedSpan(columns)
+        : _columnSpan;
+    return HexMetrics.tileFromWidth(hexType, maxWidth / hexagons);
   }
 
+  /// Tile size for a grid [maxHeight] tall.
   Size _hexSizeHeightConstrained(double maxHeight) {
-    if (hexType.isPointy) {
-      var quarters = maxHeight / (1 + (0.75 * (rows - 1)));
-      var size = Size(quarters / hexType.ratio, quarters);
-      return size * hexType.pointyFactor(false);
-    }
-    var half = maxHeight / (rows * 2 + _displaceRows);
-    return Size(half * 2 / hexType.ratio, half * 2);
+    final hexagons = hexType.isPointy
+        ? HexMetrics.interlockedSpan(rows)
+        : _rowSpan;
+    return HexMetrics.tileFromHeight(hexType, maxHeight / hexagons);
   }
 
   @override
   Widget build(BuildContext context) {
+    assert(
+      hexagonBuilder?.key == null,
+      'HexagonOffsetGrid.hexagonBuilder is a template shared by every tile, '
+      'so its key would be duplicated. Give tiles their own keys with '
+      'buildTile.',
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
-        var size = _hexSize(constraints.maxWidth, constraints.maxHeight);
-        EdgeInsets edgeInsets = EdgeInsets.symmetric(
-          vertical: hexType.isPointy
-              ? (size.height / (8 * hexType.pointyFactor(false)))
-              : 0,
-          horizontal: hexType.isFlat
-              ? (size.width / (8 * hexType.flatFactor(false)))
-              : 0,
-        );
-        edgeInsets += padding ?? EdgeInsets.zero;
+        var size = _hexSize(constraints);
+        final edgeInsets =
+            HexMetrics.edgeInsets(hexType, size) + (padding ?? EdgeInsets.zero);
         return Container(
           color: color,
           padding: edgeInsets,
@@ -235,7 +246,7 @@ class HexagonOffsetGrid extends StatelessWidget {
                   if ((crossIndex == 0 || crossIndex >= crossCount - 1) &&
                       gridType.displace(mainIndex, crossIndex)) {
                     //return container with half the size of the hexagon for displaced row/column
-                    return Container(
+                    return SizedBox(
                       width: (hexType.isPointy && rows > 1)
                           ? size.width / 2
                           : null,
@@ -247,14 +258,15 @@ class HexagonOffsetGrid extends StatelessWidget {
                   //calculate human readable column & row
                   final col = (hexType.isPointy
                       ? (crossIndex -
-                          (gridType.displaceFront(mainIndex) ? 1 : 0))
+                            (gridType.displaceFront(mainIndex) ? 1 : 0))
                       : mainIndex);
                   final row = hexType.isPointy
                       ? mainIndex
                       : (crossIndex -
-                          (gridType.displaceFront(mainIndex) ? 1 : 0));
+                            (gridType.displaceFront(mainIndex) ? 1 : 0));
 
-                  HexagonWidgetBuilder builder = buildTile?.call(col, row) ??
+                  HexagonWidgetBuilder builder =
+                      buildTile?.call(col, row) ??
                       hexagonBuilder ??
                       HexagonWidgetBuilder();
 

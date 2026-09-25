@@ -1,0 +1,293 @@
+# Improvement plan
+
+Goal: take `hexagon` from "works if you hold it right" to a well-tested,
+lint-clean, pub.dev 160/160 package, then build new features on that base.
+
+Rules for every phase:
+
+- Each bug fix lands with a regression test that fails before the fix.
+- Nothing merges unless CI (format, analyze, test) is green.
+- Breaking changes are deprecated first (0.3.0) and removed in 1.0.0.
+
+Findings referenced below come from the audit of 2026-09-24.
+
+---
+
+## Phase 0: Safety net and dependencies (no behaviour change)
+
+Nothing else is trustworthy until tests run automatically.
+
+### 0.1 Lints
+- [x] Add a root `analysis_options.yaml` that includes `flutter_lints` and
+      turns on `strict-casts`, `strict-inference` and `strict-raw-types`.
+- [x] Add `flutter_lints` to `dev_dependencies`.
+- [x] Fix mechanical lint hits that don't change the API: braces on `if`,
+      unnecessary `this.`, `SizedBox` instead of empty `Container`, and the
+      stray `library hexagon;` in `lib/src/hexagon_widget.dart`.
+      Enum renames wait for Phase 2.
+
+### 0.2 CI
+- [x] Add `.github/workflows/ci.yml`, run on every push and on PRs to `main`:
+      `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`.
+- [x] Test on two Flutter versions: the minimum supported version (3.32.0)
+      and current stable.
+- [x] Also build the example app (`flutter build web`) so it can't rot.
+
+### 0.3 Dependencies and toolchain
+- [x] `pubspec.yaml`: `sdk: ^3.8.0`, `flutter: ">=3.32.0"`, the oldest
+      versions CI tests. The floor is set by `flutter_lints` 6 (Dart 3.8).
+      (Was `<3.0.0` / `>=1.17.0`: no Dart 3, and allowed Flutter versions
+      without null safety.)
+- [x] `dev_dependencies`: latest `flutter_lints` (^6.0.0).
+- [x] Example: bump the SDK constraint and `flutter_lints` (^2.0.0 to
+      ^6.0.0). Removed `cupertino_icons`: it was unused, and its latest
+      version needs Dart 3.9. Replaced the deprecated `Switch.activeColor`.
+- [ ] **Blocked until the sandbox can reach `storage.googleapis.com` and
+      `pub.dev`:** regenerate the example's platform folders (android, ios, macos,
+      linux, windows, web) with `flutter create .` on current stable. They
+      date from Flutter 3.7: old Gradle/AGP, Groovy build scripts, old
+      Xcode project format.
+- [x] Regenerate both `pubspec.lock` files with tooling, never by hand
+      (taken from `flutter pub get` output in CI).
+- [x] FVM: pin current stable (3.47.5) and migrate `.fvm/fvm_config.json`
+      to FVM 3's `.fvmrc`.
+- [ ] Update `.metadata` (it still points at a `beta` channel revision).
+      Blocked with the platform folders: `flutter create` rewrites it.
+- [x] Add `.github/dependabot.yml` for the `pub` (root and `/example`) and
+      `github-actions` ecosystems, so dependencies don't go stale again.
+
+### 0.4 Make the test suite honest
+- [x] Fix `test/hexagon_test.dart:41`. `flat != flat2` has been wrong since
+      `inBounds` defaulted to `true`; assert equality instead.
+- [x] Wrap grid tests in `Directionality`. A multi-child `Row` asserts
+      without it.
+- [x] Replace the Flutter counter template in `example/test/widget_test.dart`
+      with a smoke test that pumps each tab.
+- [x] Fix the "HexagonGird" typo.
+
+### 0.5 Harden publishing (`publish.yml`)
+- [x] Switch to pub.dev automated publishing with GitHub OIDC
+      (`dart-lang/setup-dart/.github/workflows/publish.yml`). Then delete
+      the `CREDENTIAL_JSON` secret: it's a long-lived Google refresh token.
+- [x] Remove `fjogeleit/yaml-update-action@main`: a third-party action on
+      a moving branch, in a job that holds secrets. Instead, fail the job
+      if the tag doesn't match `pubspec.yaml`'s version and the top
+      CHANGELOG entry. The repo becomes the source of truth.
+- [x] Add a minimal `permissions:` block, pin actions to commit SHAs, and
+      run tests before publishing (drop `skipTests: true`).
+
+### 0.6 Package metadata
+- [x] Add `repository`, `issue_tracker` and `topics` (hexagon, grid, shape,
+      game). Fix `homepage` to point at the maintained repo.
+- [x] Add `.pubignore` to leave `docs/`, `.github/` and `.fvm/` out of the
+      published archive.
+
+**Done when:** CI is green on a PR, the dependencies are current, and a
+dry-run publish passes.
+
+---
+
+## Phase 1: Correctness fixes
+
+Every fix has a regression test. The tests were pushed first (`c60ede7`)
+and CI showed them failing on the old code: 20 failed, 139 passed. The
+passing ones were sweep cases that already fit, and the hit-test guard.
+
+| # | Bug | Fix | Test | Status |
+|---|-----|-----|------|--------|
+| 1 | `Coordinates.hashCode` was `x ^ y ^ z`: 331 tiles shared 16 hashes | `Object.hash` (also on the path builder and painter) | `coordinates_test.dart`: over 95% distinct hashes on a depth-10 grid | [x] |
+| 2 | Offset grid compared aspect ratios in mixed units and overflowed (5×10 flat in 400×1000 rendered 440px wide; 1×1 pointy overflowed 16px) | Fit by width, check the resulting height, else fit by height. Single-row and single-column grids no longer reserve a phantom half tile | `hexagon_offset_grid_test.dart`: 4 constructors × 5 shapes × 4 boxes | [x] |
+| 3 | `HexagonGrid` dropped `padding` with explicit `width`/`height`, and ignored the parent's constraints | Subtract padding; clamp to the parent's constraints | `hexagon_grid_test.dart`: explicit width with padding, width larger than the parent | [x] |
+| 4 | Exact float `==` picked the wrong dimension (depth 3 in 800×115 rendered 882px tall) | Same fit check as #2, with a tolerance | `hexagon_grid_test.dart`: depth 3 in 800×115, plus a sweep of 2 types × 5 depths × 5 boxes | [x] |
+| 5 | A key on the shared `hexagonBuilder` template was copied onto every tile ("Duplicate keys found") | Assert with a message pointing to `buildTile`. Per-tile keys stay supported, so the field isn't deprecated | Both grid test files | [x] |
+| 6 | `HexagonGrid.buildTile` couldn't return `null`, though the docs said it could | Nullable return type (non-breaking for callers) | `hexagon_grid_build_tile_test.dart` | [x] |
+| 7 | Negative `cornerRadius` threw; oversized radii self-intersected | Clamp to `[0, apothem]` | `hexagon_path_builder_test.dart`, `hexagon_widget_test.dart` | [x] |
+| 8 | Rounded corners weren't circular (off by about 3% of the radius) | `arcToPoint` | At maximum radius the outline is a circle within 1px | [x] |
+| 9 | With both `width` and `height`, the hexagon was painted outside its box | Largest hexagon that fits, centered | Path bounds for a wide flat box and a tall pointy box | [x] |
+| 10 | Only `oddFlat` asserted `columns > 0 && rows > 0` | All four constructors assert | `hexagon_offset_grid_test.dart` | [x] |
+| 11 | ~~`HexagonPainter.hitTest` depends on state saved during `paint`~~ | Not a bug: `RenderCustomPaint` keeps the old painter when the new one is `==`, so hit tests use the painted path. The painter is replaced in Phase 3 | Guard test: taps hit the hexagon (not its corners), also after a rebuild | n/a |
+
+Supporting tests:
+- [x] **Geometry unit tests** for the path builder: bounds for both
+      orientations, with and without `inBounds`.
+- [x] **Layout sweeps** for both grids: no overflow, and every tile inside
+      the box.
+- [ ] **Golden tests.** Deferred: the reference images have to be
+      generated and reviewed locally, which needs `storage.googleapis.com`
+      and `pub.dev`.
+
+**Done when:** every row above has a passing test, and the example app
+renders every tab without overflow (the example smoke test in CI).
+
+---
+
+## Phase 2: API modernisation (0.3.0 deprecates, 1.0.0 removes)
+
+0.3.0 renames only through deprecated aliases, so nothing existing stops
+compiling. `doc/migration.md` lists every change.
+
+- [x] **Enums:** `HexagonType.flat` / `.pointy`, `GridType.even` / `.odd`.
+      The old names stay as `@Deprecated static const` aliases in enhanced
+      enums.
+- [x] **Public surface:** `HexagonPathBuilder` is exported, so nothing
+      needs `package:hexagon/src/...`. `flatFactor` / `pointyFactor` are
+      deprecated; the widgets use an internal `HexagonLayout` extension.
+- [x] **Coordinates:** `const Coordinates.axial`, an assert that cube
+      components sum to 0, no redundant `.toInt()`, `Object.hash`.
+- [x] **HexDirections:** `abstract final class` with `static const`
+      fields, consistent names (`flatTopRight`, `pointyBottomLeft`, …)
+      with the old names deprecated, and `HexDirections.of(type)`
+      (clockwise). A test checks each name against a rendered grid.
+- [x] **Widgets:** keys, `const` constructors, typed `inBounds` (Phase 0).
+- [ ] **Layout side effect:** removing the root `Align` from
+      `HexagonWidget` is breaking and can't be deprecated, so it moves to
+      **1.0.0** (Phase 4). It's announced in `doc/migration.md`.
+- [x] **Errors:** `FlutterError` with guidance, `_pointBetween` split
+      (Phase 1).
+- [x] **Imports:** `package:flutter/widgets.dart` everywhere in `lib/`,
+      relative imports.
+- [x] **Docs:** class, field and constructor docs on every public member,
+      enforced by the `public_member_api_docs` lint, with code examples
+      on the main classes. Stale README text (`buildHexagon`) is fixed.
+      Migration guide in `doc/migration.md`.
+
+**Done when:** `flutter analyze` is clean with the lints on. The pana
+score (160/160) and `dart doc` warnings are checked when the sandbox can
+reach pub.dev; CI doesn't run pana yet.
+
+---
+
+## Phase 3: Internals, rendering and performance
+
+- [x] **One geometry module** (`lib/src/geometry/hex_metrics.dart`,
+      internal): tile sizes, interlocked spans, edge insets and the fitting
+      circumradius, with named constants in place of the magic `0.75`, `8`
+      and `1.5`. Both grids and the path builder use it. The math is
+      algebraically unchanged, and the Phase 1 layout sweeps guard it.
+- [x] **`HexagonBorder extends OutlinedBorder`** (new, exported):
+  - works with `Material`, `Card`, `InkWell`, `ShapeDecoration` and
+    `ShapeBorderClipper`; a test checks taps are limited to the hexagon
+  - border `side`, inside, centered or outside, with correctly offset
+    rounded corners
+  - `scale`, `copyWith`, and `lerp` between borders of the same type
+    (corner radius and side)
+  - it doesn't replace `HexagonPainter`/`HexagonClipper`: they're public
+    API, and the painter draws `elevation` shadows the way it always has
+- [x] **Clipping:** tiles without a child no longer build an
+      `OverflowBox`, `Align` and `ClipPath`. New `clipBehavior` on
+      `HexagonWidget` and `HexagonWidgetBuilder`.
+- [x] **Benchmark:** `benchmark/grid_benchmark_test.dart`, run by the
+      `Benchmark` CI job, which writes a table to the job summary. It's a
+      debug-mode widget test, not `integration_test` on a device: it runs
+      on every push without an emulator. Timings are for comparing runs;
+      the element and render object counts are exact.
+- [ ] ~~**Paths:** build once per size and share between paint and clip~~
+      **Dropped.** Tiles without a child now build their path once (the
+      clipper is gone), so only tiles with children build it twice. The
+      saving is below the benchmark's noise, and caching would add mutable
+      state to `HexagonPathBuilder`, a public value class.
+- [ ] **Grid rendering as a single `RenderObject`:** deferred. Tiles now
+      cost 6 elements and 4 render objects (from 9 and 7). Going further
+      means rewriting grid layout and hit testing, and tiles with children
+      still need their own subtrees. Revisit if large boards show up as a
+      bottleneck in real apps.
+
+### Benchmark results
+
+Median over 15 runs in milliseconds, CI runner, debug mode. Two identical
+runs of the baseline differed by up to 15%.
+
+| Grid | | First build | Rebuild | Relayout | Elements / tile | Render objects / tile |
+|---|---|---|---|---|---|---|
+| `HexagonGrid` depth 20, 1,261 tiles | before | 101.5 | 20.7 | 65.8 | 9.0 | 7.0 |
+| | after (2 runs) | 70.2 / 61.5 | 14.0 / 10.5 | 40.8 / 37.2 | **6.0** | **4.0** |
+| … with a `Text` in every tile | before | 198.4 | 47.9 | 129.5 | 11.0 | 8.0 |
+| | after (2 runs) | 246.3 / 191.8 | 51.2 / 44.9 | 148.9 / 142.6 | 11.0 | 8.0 |
+| `HexagonOffsetGrid` 30×30, 900 tiles | before | 60.9 | 14.8 | 39.2 | 9.1 | 7.1 |
+| | after (2 runs) | 47.9 / 38.7 | 10.4 / 8.2 | 26.0 / 22.6 | **6.1** | **4.1** |
+
+Tiles without a child: a third fewer elements, 43% fewer render objects,
+and 20–50% faster in every measure. Tiles with a child have the same
+structure as before, and their timings are within noise (the second run
+matches the baseline).
+
+---
+
+## Phase 4: Polish, then 1.0.0
+
+- [x] **README rewrite:**
+  - correct API (`buildTile`, `null` fallback)
+  - feature table and a "which grid do I need?" table
+  - `Coordinates` helpers and `HexagonBorder` sections
+  - CI badge and links to the migration guide and example
+  - [ ] fresh screenshots. The current ones still show the 0.2 visuals;
+    new ones need the app running locally, so they're blocked until
+    `storage.googleapis.com` and `pub.dev` are reachable.
+- [x] **Example app** rebuilt as five pages (Grid, Offset, Widgets,
+      Border, Coordinates). It uses `DefaultTabController` only, which
+      removes the second `TabController` that was never disposed. The
+      Border page covers `HexagonBorder` with `Material` + `InkWell` and an
+      animated `ShapeDecoration`. The Coordinates page is interactive: tap a
+      tile to see its neighbours, a ring, a spiral or the line from the
+      center. Smoke tests visit every page and tap a tile.
+- [x] **`Coordinates` helpers:** `neighbors`, `ring`, `spiral`, `rotate`,
+      `lineTo`, `Coordinates.nearest`, `operator *`, all tested (counts,
+      distances, connectivity, clockwise order, rotation round trips).
+- [x] **CHANGELOG** in Keep-a-Changelog format with ISO dates, and an
+      `[Unreleased]` section with Added / Changed / Deprecated / Fixed.
+- [ ] **Release 0.3.0**, following issue #29 (pub.dev automated
+      publishing setup, version, CHANGELOG date, tag).
+
+### 1.0.0 (after 0.3.0 has been published)
+
+The removals wait until 0.3.0 has been on pub.dev for a while, so users
+get the deprecation warnings before anything breaks:
+
+- [ ] Remove the deprecated names (the enum aliases, the old
+      `HexDirections` names, `flatFactor` / `pointyFactor`).
+- [ ] Remove the root `Align` from `HexagonWidget` (announced in
+      `doc/migration.md`).
+- [ ] Update `doc/migration.md` for 0.3 → 1.0, then tag `1.0.0` through
+      the hardened publish workflow.
+
+---
+
+## Future work: layout inside the hexagon (parked, start after Phase 4)
+
+> Deliberately **not started**. Start it only after Phases 0 to 4 have
+> shipped. It builds on `HexagonBorder`, the geometry module and the
+> `Coordinates` helpers.
+
+**Problem.** Content inside a hexagon is laid out in a rectangle
+(`OverflowBox`) and then clipped, so text and images get cut off at the
+corners. The README roadmap lists this as "Solve content spacing".
+
+Planned, in increasing order of difficulty:
+
+1. **Content fit modes:** `contentFit: inscribedRect | inscribedCircle |
+   boundingBox`. Compute the largest axis-aligned rectangle (or circle)
+   inside the hexagon and lay the child out in it. This is the quick win
+   that fixes most clipping complaints.
+2. **`HexagonLayoutBuilder`:** like `LayoutBuilder`, but hands the child a
+   `HexagonConstraints` (orientation, corners, apothem, circumradius,
+   inscribed rect and circle, `widthAt(y)` and `heightAt(x)`) so children
+   can lay themselves out around the shape.
+3. **Hexagon-aware slots:** a `Stack`-like widget with `HexAlignment`:
+   - `center`, `corner(i)`, `edge(i)` positions
+   - optional rotation to follow the edge
+   - useful for game UIs (stats on edges, badges on corners)
+4. **Shape-aware text flow (the hard part):** a custom `RenderObject`
+   that lays text out line by line, where each line's maximum width is
+   `widthAt(y)` for that band. It needs:
+   - greedy line breaking with `TextPainter` or `Paragraph` per line
+   - vertical centring by iterating until the block height converges
+   - ellipsis on the last line, and RTL, `TextScaler` and semantics
+   - intrinsic sizes and baselines
+5. **Subdivision layouts:** split a hexagon into 6 triangles or 7 sub-hexes
+   ("flower") for nested menus or radial pickers, reusing the grid code.
+
+Open questions to research first:
+- how to report intrinsic dimensions for non-rectangular content
+- hit-testing children near clipped corners
+- how text flow performs for hundreds of tiles in a grid (caching per size
+  and string)

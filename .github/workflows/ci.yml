@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Analyze and test (Flutter ${{ matrix.flutter }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Oldest supported version (see pubspec.yaml) and latest stable.
+        flutter: ['3.32.0', stable]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ matrix.flutter != 'stable' && matrix.flutter || '' }}
+          cache: true
+
+      - run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install example dependencies
+        working-directory: example
+        run: flutter pub get
+
+      - name: Check formatting
+        if: matrix.flutter == 'stable'
+        # Formats in place and prints the diff, so a failure shows exactly
+        # what to change.
+        run: |
+          dart format lib test example/lib example/test
+          git diff --exit-code -- lib test example/lib example/test
+
+      - name: Analyze
+        if: ${{ !cancelled() }}
+        run: flutter analyze
+
+      - name: Analyze example
+        if: ${{ !cancelled() }}
+        working-directory: example
+        run: flutter analyze
+
+      - name: Test
+        if: ${{ !cancelled() }}
+        run: flutter test
+
+      - name: Test example
+        if: ${{ !cancelled() }}
+        working-directory: example
+        run: flutter test
+
+      - name: Build example (web)
+        if: ${{ !cancelled() }}
+        working-directory: example
+        run: flutter build web
+
+      - name: Report lockfile drift
+        if: ${{ !cancelled() && matrix.flutter == 'stable' }}
+        continue-on-error: true
+        run: git diff --exit-code -- pubspec.lock example/pubspec.lock
+
+      - name: Report outdated dependencies
+        if: ${{ !cancelled() && matrix.flutter == 'stable' }}
+        run: |
+          flutter pub outdated
+          cd example && flutter pub outdated
+
+  benchmark:
+    name: Benchmark (Flutter stable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Run benchmark
+        run: |
+          set -o pipefail
+          flutter test benchmark --reporter expanded | tee benchmark.txt
+          {
+            echo '### Grid benchmark'
+            echo
+            echo 'Debug-mode widget test: compare runs with each other, not with release builds.'
+            echo
+            echo '| Grid | Tiles | First build (ms) | Rebuild (ms) | Relayout (ms) | Elements per tile | Render objects per tile |'
+            echo '|---|---|---|---|---|---|---|'
+            grep -o 'BENCHMARK .*' benchmark.txt | sed 's/^BENCHMARK //'
+          } >> "$GITHUB_STEP_SUMMARY"

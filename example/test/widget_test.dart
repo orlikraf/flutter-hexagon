@@ -1,29 +1,49 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:example/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hexagon/hexagon.dart';
+
+Future<void> _openTab(WidgetTester tester, String label) async {
+  await tester.tap(
+    find.descendant(of: find.byType(TabBar), matching: find.text(label)),
+  );
+  await tester.pumpAndSettle();
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  testWidgets('every page of the example renders', (tester) async {
+    await tester.pumpWidget(const MyApp());
+    expect(find.byType(HexagonGrid), findsOneWidget);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await _openTab(tester, 'Offset');
+    expect(find.byType(HexagonOffsetGrid), findsOneWidget);
+    await tester.tap(find.text('Pointy, horizontal'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HexagonOffsetGrid), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    await _openTab(tester, 'Widgets');
+    expect(find.byType(HexagonWidget), findsNWidgets(6));
+
+    await _openTab(tester, 'Border');
+    expect(find.text('Material + InkWell'), findsOneWidget);
+
+    await _openTab(tester, 'Coordinates');
+    expect(find.text('Tapped: 1, 1'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('tapping a tile on the coordinates page selects it', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+    await _openTab(tester, 'Coordinates');
+
+    await tester.tap(find.text('-2,3'));
     await tester.pump();
+    expect(find.text('Tapped: -2, 3'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.text('spiral(2)'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }

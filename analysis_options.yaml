@@ -1,0 +1,16 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    # The example has its own analysis_options.yaml.
+    - example/**
+
+linter:
+  rules:
+    # Every public member of the package is documented (also checked by
+    # pub.dev's score).
+    - public_member_api_docs

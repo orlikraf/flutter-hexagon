@@ -1,44 +1,56 @@
 name: Publish to pub.dev
 
+# Publishing uses pub.dev automated publishing (GitHub OIDC), so no
+# long-lived credentials are stored in this repository.
+#
+# One-time setup on pub.dev (package admin page, "Automated publishing"):
+#   - Enable publishing from GitHub Actions
+#   - Repository: orlikraf/flutter-hexagon
+#   - Tag pattern: {{version}}
+#
+# To release: bump `version` in pubspec.yaml, add a matching CHANGELOG entry,
+# merge to main, then push a tag equal to the version (e.g. `0.2.1`).
+
 on:
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+*'
 
+permissions:
+  contents: read
+
 jobs:
-  publish:
+  verify:
+    name: Verify release
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3.1.0
-      
-      - name: Update version in pubspec.yaml
-        uses: fjogeleit/yaml-update-action@main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Tag matches pubspec version and CHANGELOG
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="$(awk '/^version:/ {print $2}' pubspec.yaml | tr -d "\"'")"
+          if [ "$version" != "$TAG" ]; then
+            echo "::error::Tag '$TAG' does not match pubspec.yaml version '$version'."
+            exit 1
+          fi
+          if ! grep -Eq "^## \[?${version//./\\.}\]?([[:space:]]|$)" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## $version' entry."
+            exit 1
+          fi
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
-          valueFile: 'pubspec.yaml'
-          propertyPath: 'version'
-          value: ${{github.ref_name}}
-          commitChange: false
-          updateFile: true
-          
-      - name: Flutter FVM config action
-        uses: kuhnroyal/flutter-fvm-config-action@v1
-        # with:
-          # path: # optional, default is .fvm/fvm_config.json
-      - name: Setup Flutter SDK
-        uses: subosito/flutter-action@v2.8.0
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: ${{ env.FLUTTER_CHANNEL }}
+          channel: stable
           cache: true
-          cache-key: flutter_${{ env.FLUTTER_CHANNEL }}_${{ env.FLUTTER_VERSION }}
-      
-      - name: Pub get
-        run: flutter pub get
-        
-      - name: Dart and Flutter Package Publisher
-        uses: k-paxian/dart-package-publisher@v1.5.1
-        with:
-          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
-          flutter: true
-          skipTests: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  publish:
+    needs: verify
+    permissions:
+      id-token: write # Required to request the OIDC token for pub.dev.
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1

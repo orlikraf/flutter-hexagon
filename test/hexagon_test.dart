@@ -1,44 +1,47 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hexagon/hexagon.dart';
-import 'package:hexagon/src/hexagon_path_builder.dart';
 
 void main() {
   testWidgets('HexagonWidget exists.', (WidgetTester tester) async {
-    // Test code goes here.
-    await tester.pumpWidget(Center(
-      child: HexagonWidget(
-        type: HexagonType.FLAT,
-        height: 100,
-      ),
-    ));
+    await tester.pumpWidget(
+      const Center(child: HexagonWidget(type: HexagonType.flat, height: 100)),
+    );
 
     expect(find.byType(HexagonWidget), findsOneWidget);
   });
 
-  testWidgets('HexagonGird', (WidgetTester tester) async {
-    await tester.pumpWidget(HexagonGrid.flat(
-      height: 660,
-      width: 633,
-      depth: 1,
-    ));
+  testWidgets('HexagonGrid', (WidgetTester tester) async {
+    // Rows and Columns with several children need a text direction.
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: HexagonGrid.flat(width: 400, height: 500, depth: 1),
+        ),
+      ),
+    );
 
     expect(find.byType(HexagonGrid), findsOneWidget);
+    expect(find.byType(HexagonWidget), findsNWidgets(7));
   });
 
   test("HexagonPainter test", () {
-    var hexagonPainter = HexagonPainter(HexagonPathBuilder(HexagonType.FLAT));
+    var hexagonPainter = HexagonPainter(HexagonPathBuilder(HexagonType.flat));
 
     expect(hexagonPainter.hitTest(Offset.zero), false);
   });
   test("HexagonPathBuilder test", () {
-    var flat = HexagonPathBuilder(HexagonType.FLAT);
-    var flat2 = HexagonPathBuilder(HexagonType.FLAT, inBounds: true);
-    var pointy = HexagonPathBuilder(HexagonType.POINTY, borderRadius: 2.0);
-    var pointy2 = HexagonPathBuilder(HexagonType.POINTY, borderRadius: 2);
+    var flat = HexagonPathBuilder(HexagonType.flat);
+    var flat2 = HexagonPathBuilder(HexagonType.flat, inBounds: true);
+    var flat3 = HexagonPathBuilder(HexagonType.flat, inBounds: false);
+    var pointy = HexagonPathBuilder(HexagonType.pointy, borderRadius: 2.0);
+    var pointy2 = HexagonPathBuilder(HexagonType.pointy, borderRadius: 2);
 
     expect(flat == flat, true);
-    expect(flat != flat2, true);
+    // inBounds defaults to true.
+    expect(flat == flat2, true);
+    expect(flat != flat3, true);
     expect(flat != pointy, true);
     expect(pointy == pointy2, true);
   });

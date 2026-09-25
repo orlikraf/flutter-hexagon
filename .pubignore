@@ -1,3 +1,4 @@
+# pub ignores .gitignore when .pubignore exists, so repeat its rules here.
 # Miscellaneous
 *.class
 *.log
@@ -73,3 +74,10 @@ build/
 !**/ios/**/default.mode2v3
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
+
+# Not part of the published package.
+.fvm/
+.fvmrc
+.github/
+docs/
+benchmark/
