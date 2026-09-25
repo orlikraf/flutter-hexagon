@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int depth = 1;
   List<int> depths = [0, 1, 2, 3, 4];
-  HexagonType type = HexagonType.FLAT;
+  HexagonType type = HexagonType.flat;
   bool hasControls = true;
   bool showControls = true;
 
@@ -124,16 +124,15 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 value: type,
                                 items: const [
                                   DropdownMenuItem<HexagonType>(
-                                    value: HexagonType.FLAT,
+                                    value: HexagonType.flat,
                                     child: Text('Flat'),
                                   ),
                                   DropdownMenuItem<HexagonType>(
-                                    value: HexagonType.POINTY,
+                                    value: HexagonType.pointy,
                                     child: Text('Pointy'),
                                   )
                                 ],
-                                selectedItemBuilder: (context) =>
-                                [
+                                selectedItemBuilder: (context) => [
                                   const Center(child: Text('Flat')),
                                   const Center(child: Text('Pointy')),
                                 ],
@@ -184,14 +183,35 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         hexType: type,
         color: Colors.pink,
         depth: depth,
-        buildTile: (coordinates) => HexagonWidgetBuilder(
-          padding: 2.0,
-          cornerRadius: 8.0,
-          child: Text('${coordinates.q}, ${coordinates.r}'),
-          // Text('${coordinates.x}, ${coordinates.y}, ${coordinates.z}\n  ${coordinates.q}, ${coordinates.r}'),
-        ),
+        buildTile: (coordinates) => coordinates.r.abs() == 3
+            ? HexagonWidgetBuilder(
+                color: Colors.transparent,
+              )
+            : HexagonWidgetBuilder(
+                padding: 2.0,
+                cornerRadius: 8.0,
+                child: Text('${coordinates.q}, ${coordinates.r}'),
+                // Text('${coordinates.x}, ${coordinates.y}, ${coordinates.z}\n  ${coordinates.q}, ${coordinates.r}'),
+              ),
       ),
     );
+  }
+
+  bool isEmpty(int col, int row) {
+    if (col == 0) {
+      return false;
+    }
+    return true;
+    if (col == 0 && row >= 1 && row <= 3) {
+      return false;
+    }
+    if (col >= 1 && col <= 5 && row >= 0 && row <= 5) {
+      return false;
+    }
+    if (col == 6 && row == 2) {
+      return false;
+    }
+    return true;
   }
 
   Widget _buildHorizontalGrid() {
@@ -200,15 +220,15 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       child: HexagonOffsetGrid.oddPointy(
         color: Colors.black54,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-        columns: 9,
-        rows: 4,
-        buildTile: (col, row) => row.isOdd && col.isOdd
-            ? null
+        columns: 8,
+        rows: 5,
+        buildTile: (col, row) => isEmpty(col, row)
+            ? HexagonWidgetBuilder(
+                color: Colors.transparent,
+              )
             : HexagonWidgetBuilder(
                 elevation: col.toDouble(),
                 padding: 4.0,
-                cornerRadius: row.isOdd ? 24.0 : null,
-                color: col == 1 || row == 1 ? Colors.lightBlue.shade200 : null,
                 child: Text('$col, $row'),
               ),
       ),
@@ -217,22 +237,17 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   Widget _buildVerticalGrid() {
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          HexagonOffsetGrid.evenFlat(
-            color: Colors.yellow.shade100,
-            padding: const EdgeInsets.all(8.0),
-            columns: 5,
-            rows: 10,
-            buildTile: (col, row) => HexagonWidgetBuilder(
-              color: row.isEven ? Colors.yellow : Colors.orangeAccent,
-              elevation: 2.0,
-              padding: 2.0,
-            ),
-            buildChild: (col, row) => Text('$col, $row'),
-          ),
-        ],
+      child: HexagonOffsetGrid.evenFlat(
+        color: Colors.yellow.shade100,
+        padding: const EdgeInsets.all(8.0),
+        columns: 5,
+        rows: 10,
+        buildTile: (col, row) => HexagonWidgetBuilder(
+          color: row.isEven ? Colors.yellow : Colors.orangeAccent,
+          elevation: 2.0,
+          padding: 2.0,
+        ),
+        buildChild: (col, row) => Text('$col, $row'),
       ),
     );
   }
@@ -253,13 +268,13 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 padding: EdgeInsets.all(padding),
                 child: HexagonWidget.flat(
                   width: w,
-                  child: AspectRatio(
-                    aspectRatio: HexagonType.FLAT.ratio,
-                    child: Image.asset(
-                      'assets/bee.jpg',
-                      fit: BoxFit.fitHeight,
+                  child: Container(
+                      decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/bee_square.jpg'),
+                      fit: BoxFit.fitWidth,
                     ),
-                  ),
+                  )),
                 ),
               ),
               Padding(
@@ -267,9 +282,9 @@ class MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 child: HexagonWidget.pointy(
                   width: w,
                   child: AspectRatio(
-                    aspectRatio: HexagonType.POINTY.ratio,
+                    aspectRatio: HexagonType.pointy.ratio,
                     child: Image.asset(
-                      'assets/tram.jpg',
+                      'assets/bee.jpg',
                       fit: BoxFit.fitWidth,
                     ),
                   ),

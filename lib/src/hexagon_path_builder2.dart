@@ -3,17 +3,20 @@ import 'dart:ui';
 
 import 'hexagon_type.dart';
 
-class HexagonPathBuilder {
+class HexagonPathBuilder2 {
   final HexagonType type;
-  final bool inBounds;
   final double borderRadius;
 
   ///
-  HexagonPathBuilder(this.type, {this.inBounds = true, this.borderRadius = 0})
-      : assert(borderRadius >= 0);
+  HexagonPathBuilder2(
+    this.type, {
+    this.borderRadius = 0,
+  }) : assert(borderRadius >= 0);
 
   /// Builds hexagon shaped path in given size.
-  Path build(Size size) => _hexagonPath(size);
+  Path build(Size size) {
+    return _hexagonPath(size);
+  }
 
   Point<double> _flatHexagonCorner(Offset center, double size, int i) {
     var angleDeg = 60 * i;
@@ -81,17 +84,15 @@ class HexagonPathBuilder {
 
     List<Point<double>> cornerList;
     if (type == HexagonType.flat) {
-      cornerList = _flatHexagonCornerList(
-          center, size.width / type.flatFactor(inBounds) / 2);
+      cornerList = _flatHexagonCornerList(center, size.width / 2);
     } else {
-      cornerList = _pointyHexagonCornerList(
-          center, size.height / type.pointyFactor(inBounds) / 2);
+      cornerList = _pointyHexagonCornerList(center, size.height / 2);
     }
 
     final path = Path();
     if (borderRadius > 0) {
-      var rStart;
-      var rEnd;
+      Point<double> rStart;
+      Point<double> rEnd;
       cornerList.asMap().forEach((index, point) {
         rStart = _radiusStart(point, index, cornerList, borderRadius);
         rEnd = _radiusEnd(point, index, cornerList, borderRadius);
@@ -101,8 +102,8 @@ class HexagonPathBuilder {
           path.lineTo(rStart.x, rStart.y);
         }
         // rough approximation of an circular arc for 120 deg angle.
-        var control1 = _pointBetween(rStart, point, fraction: 0.7698);
-        var control2 = _pointBetween(rEnd, point, fraction: 0.7698);
+        Point<double> control1 = _pointBetween(rStart, point, fraction: 0.7698);
+        Point<double> control2 = _pointBetween(rEnd, point, fraction: 0.7698);
         path.cubicTo(
           control1.x,
           control1.y,
@@ -128,12 +129,11 @@ class HexagonPathBuilder {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HexagonPathBuilder &&
+      other is HexagonPathBuilder2 &&
           runtimeType == other.runtimeType &&
           type == other.type &&
-          inBounds == other.inBounds &&
           borderRadius == other.borderRadius;
 
   @override
-  int get hashCode => type.hashCode ^ inBounds.hashCode ^ borderRadius.hashCode;
+  int get hashCode => type.hashCode ^ borderRadius.hashCode;
 }

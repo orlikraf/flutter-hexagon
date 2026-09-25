@@ -8,7 +8,7 @@ void main() {
     // Test code goes here.
     await tester.pumpWidget(Center(
       child: HexagonWidget(
-        type: HexagonType.FLAT,
+        type: HexagonType.flat,
         height: 100,
       ),
     ));
@@ -27,15 +27,15 @@ void main() {
   });
 
   test("HexagonPainter test", () {
-    var hexagonPainter = HexagonPainter(HexagonPathBuilder(HexagonType.FLAT));
+    var hexagonPainter = HexagonPainter(HexagonPathBuilder(HexagonType.flat));
 
     expect(hexagonPainter.hitTest(Offset.zero), false);
   });
   test("HexagonPathBuilder test", () {
-    var flat = HexagonPathBuilder(HexagonType.FLAT);
-    var flat2 = HexagonPathBuilder(HexagonType.FLAT, inBounds: true);
-    var pointy = HexagonPathBuilder(HexagonType.POINTY, borderRadius: 2.0);
-    var pointy2 = HexagonPathBuilder(HexagonType.POINTY, borderRadius: 2);
+    var flat = HexagonPathBuilder(HexagonType.flat);
+    var flat2 = HexagonPathBuilder(HexagonType.flat, inBounds: true);
+    var pointy = HexagonPathBuilder(HexagonType.pointy, borderRadius: 2.0);
+    var pointy2 = HexagonPathBuilder(HexagonType.pointy, borderRadius: 2);
 
     expect(flat == flat, true);
     expect(flat != flat2, true);

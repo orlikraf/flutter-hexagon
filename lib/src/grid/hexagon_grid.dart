@@ -63,7 +63,7 @@ class HexagonGrid extends StatelessWidget {
     this.buildChild,
     this.hexagonBuilder,
   })  : assert(depth >= 0),
-        this.hexType = HexagonType.POINTY;
+        this.hexType = HexagonType.pointy;
 
   ///Hexagon shaped grid of flat hexagons.
   ///
@@ -92,7 +92,7 @@ class HexagonGrid extends StatelessWidget {
     this.buildChild,
     this.hexagonBuilder,
   })  : assert(depth >= 0),
-        this.hexType = HexagonType.FLAT;
+        this.hexType = HexagonType.flat;
 
   final HexagonType hexType;
   final double? width;

@@ -50,7 +50,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.hexagonBuilder,
   })  : assert(columns > 0),
         assert(rows > 0),
-        this.hexType = HexagonType.FLAT,
+        this.hexType = HexagonType.flat,
         this.gridType = GridType.ODD;
 
   ///Grid of flat hexagons with even columns starting with tile and odd with a space.
@@ -76,7 +76,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.FLAT,
+  })  : this.hexType = HexagonType.flat,
         this.gridType = GridType.EVEN;
 
   ///Grid of pointy hexagons with odd rows starting with tile and even with a space.
@@ -102,7 +102,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
+  })  : this.hexType = HexagonType.pointy,
         this.gridType = GridType.ODD;
 
   ///Grid of pointy hexagons with even rows starting with tile and odd with a space.
@@ -128,7 +128,7 @@ class HexagonOffsetGrid extends StatelessWidget {
     this.buildTile,
     this.buildChild,
     this.hexagonBuilder,
-  })  : this.hexType = HexagonType.POINTY,
+  })  : this.hexType = HexagonType.pointy,
         this.gridType = GridType.EVEN;
 
   final HexagonType hexType;

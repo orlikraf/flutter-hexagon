@@ -22,7 +22,7 @@ class HexagonWidget extends StatelessWidget {
   ///
   /// [child] - You content. Keep in mind that it will be clipped.
   ///
-  /// [type] - A type of hexagon has to be either [HexagonType.FLAT] or [HexagonType.POINTY]
+  /// [type] - A type of hexagon has to be either [HexagonType.flat] or [HexagonType.pointy]
   const HexagonWidget({
     Key? key,
     this.width,
@@ -63,7 +63,7 @@ class HexagonWidget extends StatelessWidget {
     this.inBounds = true,
   })  : assert(width != null || height != null),
         assert(elevation >= 0),
-        this.type = HexagonType.FLAT,
+        this.type = HexagonType.flat,
         super(key: key);
 
   /// Preferably provide one dimension ([width] or [height]) and the other will be calculated accordingly to hexagon aspect ratio
@@ -91,7 +91,7 @@ class HexagonWidget extends StatelessWidget {
     this.inBounds = true,
   })  : assert(width != null || height != null),
         assert(elevation >= 0),
-        this.type = HexagonType.POINTY,
+        this.type = HexagonType.pointy,
         super(key: key);
 
   final HexagonType type;
