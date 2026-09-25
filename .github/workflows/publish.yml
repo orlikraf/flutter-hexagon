@@ -9,12 +9,23 @@ name: Publish to pub.dev
 # are needed. Enable it once per package on pub.dev: Admin > Automated
 # publishing > GitHub Actions, repository orlikraf/flutter-hexagon, tag
 # pattern `hexagon_core-v{{version}}` or `hexagon-v{{version}}`.
+#
+# To rehearse a release, run this workflow manually (Actions > Publish to
+# pub.dev > Run workflow) with the tag you intend to push. It runs the same
+# checks and tests, then `flutter pub publish --dry-run`. Manual runs never
+# publish.
 
 on:
   push:
     tags:
       - 'hexagon-v[0-9]+.[0-9]+.[0-9]+*'
       - 'hexagon_core-v[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to rehearse, e.g. hexagon_core-v1.0.0 (dry run only)'
+        required: true
+        default: 'hexagon_core-v1.0.0'
 
 jobs:
   publish:
@@ -27,8 +38,14 @@ jobs:
 
       - name: Pick the package from the tag
         id: package
+        env:
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
-          tag="${GITHUB_REF_NAME}"
+          tag="${TAG}"
+          if [[ ! "${tag}" =~ ^(hexagon|hexagon_core)-v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "Tag ${tag} does not look like hexagon-vX.Y.Z or hexagon_core-vX.Y.Z" >&2
+            exit 1
+          fi
           name="${tag%-v*}"
           version="${tag##*-v}"
           dir="packages/${name}"
@@ -58,6 +75,12 @@ jobs:
         working-directory: ${{ steps.package.outputs.dir }}
         run: flutter test
 
+      - name: Publish (dry run)
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: ${{ steps.package.outputs.dir }}
+        run: flutter pub publish --dry-run
+
       - name: Publish
+        if: github.event_name == 'push'
         working-directory: ${{ steps.package.outputs.dir }}
         run: flutter pub publish --force
