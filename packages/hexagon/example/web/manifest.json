@@ -1,11 +1,11 @@
 {
-  "name": "example",
-  "short_name": "example",
+  "name": "Hexagon",
+  "short_name": "Hexagon",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0175C2",
   "theme_color": "#0175C2",
-  "description": "A example project.",
+  "description": "Gallery of the hexagon Flutter package.",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

@@ -5,7 +5,7 @@ description: >-
   pathfinding and hit testing.
 version: 1.0.0
 homepage: https://github.com/orlikraf/flutter-hexagon
-repository: https://github.com/orlikraf/flutter-hexagon/tree/master/packages/hexagon
+repository: https://github.com/orlikraf/flutter-hexagon/tree/main/packages/hexagon
 issue_tracker: https://github.com/orlikraf/flutter-hexagon/issues
 topics:
   - hexagon

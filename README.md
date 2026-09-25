@@ -12,7 +12,8 @@ Most apps only depend on `hexagon`. Use `hexagon_core` directly where
 Flutter isn't available, such as a game server.
 
 The [example app](packages/hexagon/example) shows both packages: widgets and
-borders, grids, and a small strategy map.
+borders, grids, and a small strategy map. It is deployed to
+[GitHub Pages](https://orlikraf.github.io/flutter-hexagon/) from `main`.
 
 ## Development
 

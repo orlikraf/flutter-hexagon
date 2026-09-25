@@ -6,7 +6,7 @@ Hexagons for Flutter apps and games: a hexagon widget and `ShapeBorder`,
 hex grids, and a pannable, zoomable hex map with painted layers,
 pathfinding and hit testing.
 
-<img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_3.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/master/packages/hexagon/example/hexagon_example_4.png" width="200">
+<img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/packages/hexagon/example/hexagon_example_1.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/packages/hexagon/example/hexagon_example_2.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/packages/hexagon/example/hexagon_example_3.png" width="200"> <img src="https://raw.githubusercontent.com/orlikraf/flutter-hexagon/main/packages/hexagon/example/hexagon_example_4.png" width="200">
 
 | You want… | Use |
 |---|---|
@@ -171,7 +171,9 @@ final visible = unit.fieldOfView(8, blocksSight: isWall);
 
 ## Example
 
-The [example app](example/lib) has three pages: widgets and borders, grids
+The [example app](example/lib), also
+[running in the browser](https://orlikraf.github.io/flutter-hexagon/), has
+three pages: widgets and borders, grids
 with every built-in shape, and a small strategy map with units, movement
 range, path preview and field of view.
 
