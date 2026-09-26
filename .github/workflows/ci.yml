@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Flutter ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Oldest Flutter allowed by the pubspecs.
+          - name: minimum
+            flutter-version: '3.27.4'
+          - name: latest
+            flutter-version: ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ matrix.flutter-version }}
+          cache: true
+
+      - run: flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze hexagon_core
+        working-directory: packages/hexagon_core
+        run: dart analyze --fatal-infos
+
+      - name: Analyze hexagon
+        if: success() || failure()
+        working-directory: packages/hexagon
+        run: flutter analyze lib test
+
+      - name: Analyze example
+        if: success() || failure()
+        working-directory: packages/hexagon/example
+        run: flutter analyze
+
+      - name: Test hexagon_core
+        if: success() || failure()
+        working-directory: packages/hexagon_core
+        run: dart test
+
+      - name: Test hexagon
+        if: success() || failure()
+        working-directory: packages/hexagon
+        run: flutter test
+
+      - name: Test example
+        if: success() || failure()
+        working-directory: packages/hexagon/example
+        run: flutter test
+
+      - name: Check dart fix data
+        if: success() || failure()
+        working-directory: packages/hexagon
+        run: dart fix --compare-to-golden test_fixes
+
+      - name: Benchmark hexagon_core
+        if: matrix.name == 'latest' && (success() || failure())
+        working-directory: packages/hexagon_core
+        run: dart run benchmark/hexagon_core_benchmark.dart
+
+      - name: Build example for the web
+        if: matrix.name == 'latest' && (success() || failure())
+        working-directory: packages/hexagon/example
+        run: flutter build web --release --base-href /flutter-hexagon/
+
+      - name: Publish dry run
+        if: matrix.name == 'latest' && (success() || failure())
+        run: |
+          (cd packages/hexagon_core && dart pub publish --dry-run)
+          (cd packages/hexagon && flutter pub publish --dry-run)
+
+      - name: Check formatting
+        if: matrix.name == 'latest' && (success() || failure())
+        run: dart format --output=none --set-exit-if-changed packages
