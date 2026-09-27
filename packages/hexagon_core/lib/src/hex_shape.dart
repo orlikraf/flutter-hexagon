@@ -138,8 +138,8 @@ abstract final class HexShape {
         for (var r = (-height / sqrt3 - q / 2).floor();
             r <= (-q / 2).ceil();
             r++)
-          if (_insideUpTriangle(1.5 * q, sqrt3 * (r + q / 2), left, right,
-              epsilon))
+          if (_insideUpTriangle(
+              1.5 * q, sqrt3 * (r + q / 2), left, right, epsilon))
             Hex(q, r),
     ];
   }

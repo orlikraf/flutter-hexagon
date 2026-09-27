@@ -118,8 +118,7 @@ void main() {
                       points.map(along).reduce(math.max)) /
                   2;
               final positions = {
-                for (final p in points)
-                  (along(p).round(), toward(p).round()),
+                for (final p in points) (along(p).round(), toward(p).round()),
               };
               final mirrored = {
                 for (final p in points)
@@ -145,8 +144,7 @@ void main() {
       test('origin is the first cell of the base', () {
         const layout = HexLayout.pointy(radius: 10);
         final up = HexShape.triangle(4, type: HexagonType.pointy);
-        final bottom =
-            up.map((h) => layout.hexToPixel(h).y).reduce(math.max);
+        final bottom = up.map((h) => layout.hexToPixel(h).y).reduce(math.max);
         final baseRow =
             up.where((h) => layout.hexToPixel(h).y == bottom).toList();
         expect(baseRow.length, 4);
