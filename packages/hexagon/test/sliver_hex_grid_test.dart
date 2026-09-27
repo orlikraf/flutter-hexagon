@@ -26,8 +26,7 @@ void main() {
     for (final axis in Axis.values)
       for (final type in HexagonType.values)
         for (final parity in OffsetParity.values)
-          for (final count in [1, 2, 5])
-            (axis, type, parity, count),
+          for (final count in [1, 2, 5]) (axis, type, parity, count),
   ];
 
   test('cells fill the cross axis without overlapping', () {
@@ -44,7 +43,8 @@ void main() {
         var maxCross = double.negativeInfinity;
         for (var index = 0; index < 4 * count; index++) {
           final g = layout.getGeometryForChildIndex(index);
-          minCross = minCross < g.crossAxisOffset ? minCross : g.crossAxisOffset;
+          minCross =
+              minCross < g.crossAxisOffset ? minCross : g.crossAxisOffset;
           final end = g.crossAxisOffset + g.crossAxisExtent;
           maxCross = maxCross > end ? maxCross : end;
           expect(g.scrollOffset, greaterThanOrEqualTo(-1e-9), reason: reason);
@@ -100,7 +100,8 @@ void main() {
           final visible =
               g.trailingScrollOffset > start && g.scrollOffset < stop;
           if (visible) {
-            expect(index, greaterThanOrEqualTo(first), reason: '$reason $start');
+            expect(index, greaterThanOrEqualTo(first),
+                reason: '$reason $start');
             expect(index, lessThanOrEqualTo(last), reason: '$reason $start');
           }
         }

@@ -42,7 +42,8 @@ class _ScrollingPageState extends State<ScrollingPage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text('A strip: one line of hexagons', style: text.titleMedium),
+            child:
+                Text('A strip: one line of hexagons', style: text.titleMedium),
           ),
         ),
         SliverToBoxAdapter(
@@ -108,8 +109,8 @@ class _ScrollingPageState extends State<ScrollingPage> {
             ),
             itemBuilder: (context, index) => Hexagon(
               type: _type,
-              color: HSLColor.fromAHSL(1, (index * 17) % 360, 0.55, 0.6)
-                  .toColor(),
+              color:
+                  HSLColor.fromAHSL(1, (index * 17) % 360, 0.55, 0.6).toColor(),
               cornerRadius: 4,
               onTap: () => ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
