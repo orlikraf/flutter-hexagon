@@ -84,4 +84,7 @@ jobs:
 
       - name: Check formatting
         if: matrix.name == 'latest' && (success() || failure())
-        run: dart format --output=none --set-exit-if-changed packages
+        # Formats, then fails with the diff so it can be applied locally.
+        run: |
+          dart format packages
+          git diff --exit-code
