@@ -1,0 +1,26 @@
+name: hexagon_example
+description: Gallery of the hexagon package - widgets, grids and a game map.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hexagon:
+    path: ../
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/bee.jpg
+    - assets/tram.jpg

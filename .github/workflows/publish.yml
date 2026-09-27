@@ -1,44 +1,86 @@
 name: Publish to pub.dev
 
+# Push a tag to publish one package:
+#   hexagon_core-v1.0.0  publishes packages/hexagon_core
+#   hexagon-v1.0.0       publishes packages/hexagon
+# The version in the tag must match the package's pubspec.yaml.
+#
+# Publishing uses pub.dev automated publishing (GitHub OIDC), so no secrets
+# are needed. Enable it once per package on pub.dev: Admin > Automated
+# publishing > GitHub Actions, repository orlikraf/flutter-hexagon, tag
+# pattern `hexagon_core-v{{version}}` or `hexagon-v{{version}}`.
+#
+# To rehearse a release, run this workflow manually (Actions > Publish to
+# pub.dev > Run workflow) with the tag you intend to push. It runs the same
+# checks and tests, then `flutter pub publish --dry-run`. Manual runs never
+# publish.
+
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+*'
+      - 'hexagon-v[0-9]+.[0-9]+.[0-9]+*'
+      - 'hexagon_core-v[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to rehearse, e.g. hexagon_core-v1.0.0 (dry run only)'
+        required: true
+        default: 'hexagon_core-v1.0.0'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment: pub.dev
+    permissions:
+      id-token: write
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3.1.0
-      
-      - name: Update version in pubspec.yaml
-        uses: fjogeleit/yaml-update-action@main
+      - uses: actions/checkout@v4
+
+      - name: Pick the package from the tag
+        id: package
+        env:
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          tag="${TAG}"
+          if [[ ! "${tag}" =~ ^(hexagon|hexagon_core)-v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "Tag ${tag} does not look like hexagon-vX.Y.Z or hexagon_core-vX.Y.Z" >&2
+            exit 1
+          fi
+          name="${tag%-v*}"
+          version="${tag##*-v}"
+          dir="packages/${name}"
+          if [ ! -f "${dir}/pubspec.yaml" ]; then
+            echo "Unknown package in tag ${tag}" >&2
+            exit 1
+          fi
+          actual="$(grep -E '^version:' "${dir}/pubspec.yaml" | awk '{print $2}')"
+          if [ "${actual}" != "${version}" ]; then
+            echo "Tag version ${version} does not match ${dir}/pubspec.yaml (${actual})" >&2
+            exit 1
+          fi
+          echo "dir=${dir}" >> "${GITHUB_OUTPUT}"
+
+      # Sets up the OIDC token that pub.dev accepts.
+      - uses: dart-lang/setup-dart@v1
+
+      - uses: subosito/flutter-action@v2
         with:
-          valueFile: 'pubspec.yaml'
-          propertyPath: 'version'
-          value: ${{github.ref_name}}
-          commitChange: false
-          updateFile: true
-          
-      - name: Flutter FVM config action
-        uses: kuhnroyal/flutter-fvm-config-action@v1
-        # with:
-          # path: # optional, default is .fvm/fvm_config.json
-      - name: Setup Flutter SDK
-        uses: subosito/flutter-action@v2.8.0
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: ${{ env.FLUTTER_CHANNEL }}
+          channel: stable
           cache: true
-          cache-key: flutter_${{ env.FLUTTER_CHANNEL }}_${{ env.FLUTTER_VERSION }}
-      
-      - name: Pub get
+
+      - name: Get dependencies
         run: flutter pub get
-        
-      - name: Dart and Flutter Package Publisher
-        uses: k-paxian/dart-package-publisher@v1.5.1
-        with:
-          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
-          flutter: true
-          skipTests: true
+
+      - name: Test
+        working-directory: ${{ steps.package.outputs.dir }}
+        run: flutter test
+
+      - name: Publish (dry run)
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: ${{ steps.package.outputs.dir }}
+        run: flutter pub publish --dry-run
+
+      - name: Publish
+        if: github.event_name == 'push'
+        working-directory: ${{ steps.package.outputs.dir }}
+        run: flutter pub publish --force
