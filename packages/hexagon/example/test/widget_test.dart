@@ -13,6 +13,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(HexGrid), findsOneWidget);
 
+    await tester.tap(find.text('Scrolling').last);
+    await tester.pumpAndSettle();
+    expect(find.byType(SliverHexGrid), findsNWidgets(2));
+    await tester.drag(find.text('SliverHexGrid'), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Game map').last);
     await tester.pumpAndSettle();
     expect(find.byType(HexGridView), findsOneWidget);

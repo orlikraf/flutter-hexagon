@@ -6,6 +6,8 @@
 /// * [HexGrid] – a grid with a widget per cell.
 /// * [HexGridView] – a pannable, zoomable map painted in layers, for large
 ///   boards.
+/// * [SliverHexGrid] – a lazily built, scrollable honeycomb for
+///   `CustomScrollView`s.
 ///
 /// The grid math ([Hex], [HexLayout], [HexShape], [HexMap] and the
 /// pathfinding in [HexSearch]) comes from `package:hexagon_core`, which is
@@ -16,6 +18,7 @@ import 'package:flutter/painting.dart';
 
 import 'src/grid/hex_grid.dart';
 import 'src/grid/hex_grid_view.dart';
+import 'src/grid/sliver_hex_grid.dart';
 import 'src/hexagon.dart';
 import 'src/hexagon_border.dart';
 
@@ -32,6 +35,7 @@ export 'src/grid/hex_cell_clip.dart';
 export 'src/grid/hex_grid.dart';
 export 'src/grid/hex_grid_view.dart';
 export 'src/grid/hex_layers.dart';
+export 'src/grid/sliver_hex_grid.dart';
 export 'src/hexagon.dart';
 export 'src/hexagon_border.dart';
 export 'src/hexagon_theme.dart';

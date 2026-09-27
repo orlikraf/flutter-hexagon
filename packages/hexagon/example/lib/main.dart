@@ -3,6 +3,7 @@ import 'package:hexagon/hexagon.dart';
 
 import 'grids_page.dart';
 import 'map_page.dart';
+import 'scrolling_page.dart';
 import 'widgets_page.dart';
 
 void main() => runApp(const HexagonExampleApp());
@@ -37,7 +38,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _page = 0;
 
-  static const _titles = ['Widgets', 'Grids', 'Game map'];
+  static const _titles = ['Widgets', 'Grids', 'Scrolling', 'Game map'];
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,12 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: Text('Hexagon · ${_titles[_page]}')),
       body: IndexedStack(
         index: _page,
-        children: const [WidgetsPage(), GridsPage(), MapPage()],
+        children: const [
+          WidgetsPage(),
+          GridsPage(),
+          ScrollingPage(),
+          MapPage(),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _page,
@@ -54,6 +60,10 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
               icon: Icon(Icons.hexagon_outlined), label: 'Widgets'),
           NavigationDestination(icon: Icon(Icons.grid_on), label: 'Grids'),
+          NavigationDestination(
+            icon: Icon(Icons.view_stream),
+            label: 'Scrolling',
+          ),
           NavigationDestination(
               icon: Icon(Icons.map_outlined), label: 'Game map'),
         ],

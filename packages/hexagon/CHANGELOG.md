@@ -19,6 +19,10 @@ A rewrite for Flutter 3.27+ and Dart 3.6+, for app UI and games alike. See
 * `HexGridView`: a pannable, zoomable map that only paints and builds the
   visible cells, drawn in `HexPaintLayer`s and `HexWidgetLayer`s, with
   `HexGridController` for the camera and hover state.
+* `SliverHexGrid` and `SliverHexGridDelegate`: a lazily built, scrollable
+  honeycomb for `CustomScrollView`, in either scroll direction, with a fixed
+  count or maximum size per hexagon, spacing, and endless or fixed item
+  counts.
 * Grid math, pathfinding and visibility from the new
   [`hexagon_core`](https://pub.dev/packages/hexagon_core) package, re-exported
   here.

@@ -13,6 +13,7 @@ pathfinding and hit testing.
 | A hexagon-shaped button, card, avatar or tile | `Hexagon`, or `HexagonBorder` on any Material widget |
 | A board or menu of up to a few hundred cells | `HexGrid` |
 | A large map with pan, zoom, overlays and units | `HexGridView` |
+| A scrolling honeycomb in a `CustomScrollView`, built lazily | `SliverHexGrid` |
 | Coordinates, distances, pathfinding, field of view | `Hex`, `HexLayout`, `HexShape`, `HexMap` (from [`hexagon_core`](https://pub.dev/packages/hexagon_core), re-exported) |
 
 ```yaml
@@ -148,6 +149,39 @@ controller.hexAtViewport(position);
 Pass `repaint:` a `Listenable` (an animation, or a `ChangeNotifier` holding
 game state) to repaint a layer without rebuilding.
 
+## SliverHexGrid
+
+A honeycomb that scrolls with the rest of a `CustomScrollView` and only
+builds the hexagons on screen, with a fixed item count or endlessly:
+
+```dart
+CustomScrollView(
+  slivers: [
+    const SliverAppBar(title: Text('Hive')),
+    SliverHexGrid.builder(
+      gridDelegate: const SliverHexGridDelegate.count(
+        crossAxisCount: 5,            // or .extent(maxCellExtent: 90)
+        type: HexagonType.pointy,
+        spacing: 4,
+      ),
+      itemCount: 500,                 // null for an endless grid
+      itemBuilder: (context, index) => Hexagon(
+        type: HexagonType.pointy,
+        onTap: () {},
+        child: Text('$index'),
+      ),
+    ),
+  ],
+)
+```
+
+Items fill each line across the grid, then continue on the next line, and
+neighboring lines interlock. It works in both scroll directions;
+`crossAxisCount: 1` or `2` gives a zigzag strip, handy in a horizontal list.
+Each item only receives pointers inside its hexagon. `SliverHexGridDelegate`
+is a regular `SliverGridDelegate`, so it also works with `SliverGrid` and
+`GridView`.
+
 ## Grid math, pathfinding and field of view
 
 Everything in [`hexagon_core`](https://pub.dev/packages/hexagon_core) is
@@ -173,9 +207,9 @@ final visible = unit.fieldOfView(8, blocksSight: isWall);
 
 The [example app](example/lib), also
 [running in the browser](https://orlikraf.github.io/flutter-hexagon/), has
-three pages: widgets and borders, grids
-with every built-in shape, and a small strategy map with units, movement
-range, path preview and field of view.
+four pages: widgets and borders, grids
+with every built-in shape, a scrolling `SliverHexGrid`, and a small strategy
+map with units, movement range, path preview and field of view.
 
 ## Credits
 
