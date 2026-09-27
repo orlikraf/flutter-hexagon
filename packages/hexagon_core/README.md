@@ -64,6 +64,29 @@ final terrain = HexMap<Terrain>.fromCells(field, generateTerrain);
 terrain.neighborsOf(const Hex(3, 3));              // neighbors in the map
 ```
 
+Triangles point up (resting on their base), down, left or right, for both
+hexagon types. Where the base runs along the hexagons' flat sides the
+triangle is exact; otherwise its sides are stepped.
+
+```dart
+// Pointy hexagons, pointing up, sitting on a flat bottom row.
+HexShape.triangle(5, type: HexagonType.pointy);
+
+// Flat hexagons pointing right, centered on a hex, only the edges.
+HexShape.triangle(
+  5,
+  type: HexagonType.flat,
+  pointing: HexTrianglePointing.right,
+  origin: const Hex(10, 4),
+  centered: true,
+  hollow: true,
+);
+
+// Works with any shape.
+HexShape.outline(HexShape.rectangle(8, 6));       // just the border cells
+HexShape.centerOn(HexShape.parallelogram(4, 3), const Hex(5, 5));
+```
+
 ## Pathfinding and visibility
 
 ```dart

@@ -10,6 +10,10 @@ Flutter.
 * `HexLayout`: hex ↔ pixel conversion with spacing and origin, corners,
   bounds and visible-hex queries (`hexesInRect`).
 * `HexShape`: hexagon, rectangle, parallelogram and triangle maps.
+  Triangles point up, down, left or right for both hexagon types (exact when
+  the base follows the hexagons' flat sides, stepped otherwise), can be
+  centered on a hex or hollow. `HexShape.outline` and `HexShape.centerOn`
+  work with any shape.
 * `HexMap<T>`: per-cell storage.
 * `HexSearch`: `reachable` (Dijkstra), `pathTo` (A*), `canSee` and
   `fieldOfView`.
