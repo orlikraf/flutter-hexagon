@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -95,7 +96,8 @@ void main() {
 
     // A jump during an animation wins and ends the animation.
     var firstDone = false;
-    controller.animateTo(const Hex(3, 0)).then((_) => firstDone = true);
+    final firstMove = controller.animateTo(const Hex(3, 0));
+    unawaited(firstMove.then((_) => firstDone = true));
     await tester.pump(const Duration(milliseconds: 100));
     controller.jumpTo(const Hex(-2, 1));
     await tester.pumpAndSettle();
@@ -104,7 +106,8 @@ void main() {
 
     // A second animation replaces the first one.
     var secondDone = false;
-    controller.animateTo(const Hex(3, 0)).then((_) => secondDone = true);
+    final secondMove = controller.animateTo(const Hex(3, 0));
+    unawaited(secondMove.then((_) => secondDone = true));
     await tester.pump(const Duration(milliseconds: 100));
     final third = controller.animateTo(const Hex(0, -2));
     await tester.pumpAndSettle();
@@ -114,7 +117,8 @@ void main() {
 
     // The user dragging the map stops the animation.
     var dragDone = false;
-    controller.animateTo(const Hex(3, 0)).then((_) => dragDone = true);
+    final dragMove = controller.animateTo(const Hex(3, 0));
+    unawaited(dragMove.then((_) => dragDone = true));
     await tester.pump(const Duration(milliseconds: 50));
     await tester.dragFrom(const Offset(400, 300), const Offset(30, 0));
     await tester.pumpAndSettle();
@@ -123,7 +127,8 @@ void main() {
 
     // Removing the view ends a running animation too.
     var removedDone = false;
-    controller.animateTo(const Hex(-3, 0)).then((_) => removedDone = true);
+    final removedMove = controller.animateTo(const Hex(-3, 0));
+    unawaited(removedMove.then((_) => removedDone = true));
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();

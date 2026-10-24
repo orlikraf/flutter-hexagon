@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hexagon/hexagon.dart';
 import 'package:hexagon_example/main.dart';
@@ -22,7 +23,10 @@ Future<void> _loadFonts() async {
   final icons = FontLoader('MaterialIcons');
   for (final file in dir.listSync().whereType<File>()) {
     final name = file.uri.pathSegments.last;
-    final data = Future.value(ByteData.sublistView(file.readAsBytesSync()));
+    final bytes = file.readAsBytesSync();
+    final data = Future.value(
+      bytes.buffer.asByteData(bytes.offsetInBytes, bytes.lengthInBytes),
+    );
     if (name.startsWith('Roboto')) {
       roboto.addFont(data);
     } else if (name.startsWith('MaterialIcons')) {

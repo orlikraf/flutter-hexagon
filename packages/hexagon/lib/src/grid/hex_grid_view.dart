@@ -252,8 +252,7 @@ class _HexGridViewState extends State<HexGridView>
   /// unless the controller already has a camera position. The view stays
   /// invisible until then, so the default position never shows.
   void _scheduleInitialCamera() {
-    _cameraInitialized =
-        _controller.transformation.value != Matrix4.identity();
+    _cameraInitialized = _controller.transformation.value != Matrix4.identity();
     if (!_cameraInitialized) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _initCamera());
     }
