@@ -56,7 +56,7 @@ class _ScrollingPageState extends State<ScrollingPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverHexGrid.builder(
                     gridDelegate: const SliverHexGridDelegate.count(
-                      crossAxisCount: 2,
+                      crossAxisCount: 1,
                       type: HexagonType.flat,
                       spacing: 3,
                     ),

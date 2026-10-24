@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: Text('Hexagon · ${_titles[_page]}')),
       body: IndexedStack(
         index: _page,
+        sizing: StackFit.expand,
         children: const [
           WidgetsPage(),
           GridsPage(),
