@@ -1,0 +1,35 @@
+# TEMPORARY: renders the example's pages and pushes the PNGs to the
+# ci-screenshots branch so they can be reviewed. Remove before merging.
+name: Screenshots (temporary)
+
+on:
+  push:
+    branches: [new_implementatiton]
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Render the example
+        working-directory: packages/hexagon/example
+        run: flutter test tool/screenshots_test.dart
+      - name: Push to the ci-screenshots branch
+        run: |
+          cp -r packages/hexagon/example/build/screenshots "$RUNNER_TEMP/shots"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan ci-screenshots
+          git rm -rfq .
+          cp "$RUNNER_TEMP"/shots/*.png .
+          git add *.png
+          git commit -qm "Screenshots of ${GITHUB_SHA}"
+          git push -f origin ci-screenshots
