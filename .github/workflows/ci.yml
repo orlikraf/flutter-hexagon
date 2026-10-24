@@ -1,7 +1,10 @@
 name: CI
 
 on:
+  # Branches are checked through their pull request; pushes only run here on
+  # main, so a push to a branch with an open PR doesn't run CI twice.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
