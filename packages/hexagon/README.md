@@ -18,7 +18,7 @@ pathfinding and hit testing.
 
 ```yaml
 dependencies:
-  hexagon: ^1.0.0
+  hexagon: ^1.0.0-beta.1
 ```
 
 ```dart

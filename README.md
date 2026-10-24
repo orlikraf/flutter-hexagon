@@ -36,6 +36,6 @@ Publishing is tag-driven (see `.github/workflows/publish.yml`). Publish
 `hexagon_core` first, since `hexagon` depends on it:
 
 ```sh
-git tag hexagon_core-v1.0.0 && git push origin hexagon_core-v1.0.0
-git tag hexagon-v1.0.0 && git push origin hexagon-v1.0.0
+git tag hexagon_core-v1.0.0-beta.1 && git push origin hexagon_core-v1.0.0-beta.1
+git tag hexagon-v1.0.0-beta.1 && git push origin hexagon-v1.0.0-beta.1
 ```

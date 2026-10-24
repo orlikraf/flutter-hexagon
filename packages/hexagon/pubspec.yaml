@@ -3,7 +3,7 @@ description: >-
   Hexagons for Flutter apps and games: a hexagon widget and ShapeBorder,
   hex grids, and a pannable, zoomable hex map with painted layers,
   pathfinding and hit testing.
-version: 1.0.0
+version: 1.0.0-beta.1
 homepage: https://github.com/orlikraf/flutter-hexagon
 repository: https://github.com/orlikraf/flutter-hexagon/tree/main/packages/hexagon
 issue_tracker: https://github.com/orlikraf/flutter-hexagon/issues
@@ -26,7 +26,7 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-  hexagon_core: ^1.0.0
+  hexagon_core: ^1.0.0-beta.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0

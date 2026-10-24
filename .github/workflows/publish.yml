@@ -1,8 +1,8 @@
 name: Publish to pub.dev
 
 # Push a tag to publish one package:
-#   hexagon_core-v1.0.0  publishes packages/hexagon_core
-#   hexagon-v1.0.0       publishes packages/hexagon
+#   hexagon_core-v1.0.0-beta.1  publishes packages/hexagon_core
+#   hexagon-v1.0.0-beta.1       publishes packages/hexagon
 # The version in the tag must match the package's pubspec.yaml.
 #
 # Publishing uses pub.dev automated publishing (GitHub OIDC), so no secrets
@@ -23,9 +23,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to rehearse, e.g. hexagon_core-v1.0.0 (dry run only)'
+        description: 'Tag to rehearse, e.g. hexagon_core-v1.0.0-beta.1 (dry run only)'
         required: true
-        default: 'hexagon_core-v1.0.0'
+        default: 'hexagon_core-v1.0.0-beta.1'
 
 jobs:
   publish:

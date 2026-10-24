@@ -1,4 +1,6 @@
-## 1.0.0
+## 1.0.0-beta.1
+
+Beta of 1.0.0. The API may still change before the stable release.
 
 A rewrite for Flutter 3.27+ and Dart 3.6+, for app UI and games alike. See
 [MIGRATION.md](MIGRATION.md) for upgrading from 0.x.

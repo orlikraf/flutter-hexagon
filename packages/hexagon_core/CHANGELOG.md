@@ -1,4 +1,6 @@
-## 1.0.0
+## 1.0.0-beta.1
+
+Beta of 1.0.0. The API may still change before the stable release.
 
 First release, split out of `hexagon` so the grid math can be used without
 Flutter.
