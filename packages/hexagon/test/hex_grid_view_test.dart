@@ -90,6 +90,93 @@ void main() {
     expect(controller.scale, closeTo(1, 1e-9));
   });
 
+  testWidgets('interrupted camera moves still complete', (tester) async {
+    final controller = await pumpView(tester, cells: small);
+
+    // A jump during an animation wins and ends the animation.
+    var firstDone = false;
+    controller.animateTo(const Hex(3, 0)).then((_) => firstDone = true);
+    await tester.pump(const Duration(milliseconds: 100));
+    controller.jumpTo(const Hex(-2, 1));
+    await tester.pumpAndSettle();
+    expect(firstDone, isTrue);
+    expect(controller.centerHex, const Hex(-2, 1));
+
+    // A second animation replaces the first one.
+    var secondDone = false;
+    controller.animateTo(const Hex(3, 0)).then((_) => secondDone = true);
+    await tester.pump(const Duration(milliseconds: 100));
+    final third = controller.animateTo(const Hex(0, -2));
+    await tester.pumpAndSettle();
+    await third;
+    expect(secondDone, isTrue);
+    expect(controller.centerHex, const Hex(0, -2));
+
+    // The user dragging the map stops the animation.
+    var dragDone = false;
+    controller.animateTo(const Hex(3, 0)).then((_) => dragDone = true);
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.dragFrom(const Offset(400, 300), const Offset(30, 0));
+    await tester.pumpAndSettle();
+    expect(dragDone, isTrue);
+    expect(controller.centerHex, isNot(const Hex(3, 0)));
+
+    // Removing the view ends a running animation too.
+    var removedDone = false;
+    controller.animateTo(const Hex(-3, 0)).then((_) => removedDone = true);
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+    expect(removedDone, isTrue);
+  });
+
+  testWidgets('hides the default camera until the initial one is placed',
+      (tester) async {
+    final controller = HexGridController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HexGridView(
+          layout: layout,
+          cells: small,
+          controller: controller,
+          initialCenter: const Hex(2, -1),
+        ),
+      ),
+    );
+    Opacity opacity() => tester.widget<Opacity>(
+          find.descendant(
+            of: find.byType(HexGridView),
+            matching: find.byType(Opacity),
+          ),
+        );
+    expect(opacity().opacity, 0);
+    await tester.pump();
+    expect(opacity().opacity, 1);
+    expect(controller.centerHex, const Hex(2, -1));
+  });
+
+  testWidgets('a new controller gets the initial camera', (tester) async {
+    final first = HexGridController();
+    final second = HexGridController();
+    addTearDown(first.dispose);
+    addTearDown(second.dispose);
+    Widget view(HexGridController controller) => MaterialApp(
+          home: HexGridView(
+            layout: layout,
+            cells: small,
+            controller: controller,
+            initialCenter: const Hex(1, 1),
+          ),
+        );
+    await tester.pumpWidget(view(first));
+    await tester.pump();
+    first.jumpTo(const Hex(-3, 0));
+    await tester.pumpWidget(view(second));
+    await tester.pump();
+    expect(second.centerHex, const Hex(1, 1));
+  });
+
   testWidgets('hexAtViewport converts viewport positions', (tester) async {
     final controller = await pumpView(tester, cells: small);
     expect(controller.hexAtViewport(const Offset(400, 300)), Hex.zero);

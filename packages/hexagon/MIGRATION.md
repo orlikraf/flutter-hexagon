@@ -20,6 +20,18 @@ dart fix --apply
 `ratio`, `isFlat` and `isPointy` are members of the enum now, so you no
 longer need to import `HexagonTypeExtension` for them.
 
+The old names still compile, but they are aliases: the values themselves
+are now named `flat` and `pointy`. Anything that stores or compares the
+*name* sees the new one:
+
+* `HexagonType.flat.name` is `'flat'` (was `'FLAT'`), and `toString()` is
+  `'HexagonType.flat'`.
+* `HexagonType.values.byName('FLAT')` throws.
+
+If you saved the name (in preferences, JSON or a database), read old values
+case-insensitively, for example
+`HexagonType.values.byName(saved.toLowerCase())`.
+
 ## 3. Replacements
 
 | 0.x | 1.0 |

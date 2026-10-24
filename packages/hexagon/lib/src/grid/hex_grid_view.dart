@@ -59,8 +59,10 @@ class HexGridView extends StatefulWidget {
 
   /// The cells of the map.
   ///
-  /// Prefer a [Set], or keep passing the same object between builds, so the
-  /// view doesn't have to convert it again.
+  /// The view compares this collection by identity, like most Flutter
+  /// widgets do with their inputs: when the cells change, pass a new
+  /// collection rather than changing this one in place. A [Set] is used
+  /// as is; other collections are converted to a set once per object.
   final Iterable<Hex> cells;
 
   /// What to draw, bottom to top.
@@ -146,6 +148,9 @@ class HexGridController extends ChangeNotifier {
   }
 
   /// Centers the camera on [hex], optionally at a new zoom level.
+  ///
+  /// Stops a camera animation in progress, as does any other change to
+  /// [transformation] from outside the view.
   void jumpTo(Hex hex, {double? scale}) {
     final view = _attachedView;
     transformation.value =
@@ -154,7 +159,9 @@ class HexGridController extends ChangeNotifier {
 
   /// Animates the camera to [hex], optionally to a new zoom level.
   ///
-  /// The returned future completes when the animation ends.
+  /// The returned future completes when the animation ends or is
+  /// interrupted: by the user panning or zooming, by another camera move, or
+  /// by the view going away.
   Future<void> animateTo(
     Hex hex, {
     double? scale,
@@ -201,7 +208,12 @@ class _HexGridViewState extends State<HexGridView>
     with SingleTickerProviderStateMixin {
   HexGridController? _ownController;
   late final AnimationController _animation;
+  CurvedAnimation? _curve;
   Animation<Matrix4>? _cameraAnimation;
+
+  /// Whether the view itself is moving the camera, as opposed to the user or
+  /// the app.
+  bool _movingCamera = false;
 
   final Expando<Set<Hex>> _cellSets = Expando<Set<Hex>>();
   final Map<double, Path> _templates = {};
@@ -219,18 +231,48 @@ class _HexGridViewState extends State<HexGridView>
   void initState() {
     super.initState();
     _animation = AnimationController(vsync: this)..addListener(_onCameraTick);
-    _controller._view = this;
+    _attach(_controller);
     _updateGeometry();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initCamera());
+    _scheduleInitialCamera();
+  }
+
+  void _attach(HexGridController controller) {
+    controller._view = this;
+    controller.transformation.addListener(_onTransformationChanged);
+  }
+
+  void _detach(HexGridController controller) {
+    controller.transformation.removeListener(_onTransformationChanged);
+    if (controller._view == this) {
+      controller._view = null;
+    }
+  }
+
+  /// Places the camera at [HexGridView.initialCenter] after the first layout,
+  /// unless the controller already has a camera position. The view stays
+  /// invisible until then, so the default position never shows.
+  void _scheduleInitialCamera() {
+    _cameraInitialized =
+        _controller.transformation.value != Matrix4.identity();
+    if (!_cameraInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _initCamera());
+    }
+  }
+
+  void _onTransformationChanged() {
+    if (!_movingCamera) {
+      _stopCamera();
+    }
   }
 
   @override
   void didUpdateWidget(HexGridView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
+      _stopCamera();
       final oldController = oldWidget.controller ?? _ownController;
-      if (oldController?._view == this) {
-        oldController!._view = null;
+      if (oldController != null) {
+        _detach(oldController);
       }
       if (widget.controller != null && _ownController != null) {
         // The InteractiveViewer still listens to the old controller until it
@@ -240,7 +282,8 @@ class _HexGridViewState extends State<HexGridView>
         WidgetsBinding.instance
             .addPostFrameCallback((_) => ownController.dispose());
       }
-      _controller._view = this;
+      _attach(_controller);
+      _scheduleInitialCamera();
     }
     if (!identical(oldWidget.cells, widget.cells) ||
         oldWidget.layout != widget.layout ||
@@ -254,10 +297,9 @@ class _HexGridViewState extends State<HexGridView>
 
   @override
   void dispose() {
-    if (_controller._view == this) {
-      _controller._view = null;
-    }
+    _detach(_controller);
     _ownController?.dispose();
+    _curve?.dispose();
     _animation.dispose();
     super.dispose();
   }
@@ -306,31 +348,46 @@ class _HexGridViewState extends State<HexGridView>
     if (!mounted || _cameraInitialized) {
       return;
     }
-    _cameraInitialized = true;
-    if (_controller.transformation.value != Matrix4.identity()) {
-      return;
+    if (_controller.transformation.value == Matrix4.identity()) {
+      final center = widget.initialCenter;
+      final point = center != null
+          ? _contentPointOf(center)
+          : _contentSize.center(Offset.zero);
+      _moveCamera(_matrixCentering(point, widget.initialScale));
     }
-    final center = widget.initialCenter;
-    final point = center != null
-        ? _contentPointOf(center)
-        : _contentSize.center(Offset.zero);
-    _controller.transformation.value =
-        _matrixCentering(point, widget.initialScale);
+    setState(() => _cameraInitialized = true);
+  }
+
+  void _moveCamera(Matrix4 transform) {
+    _movingCamera = true;
+    try {
+      _controller.transformation.value = transform;
+    } finally {
+      _movingCamera = false;
+    }
   }
 
   Future<void> _animateTo(Matrix4 target, Duration duration, Curve curve) {
+    _stopCamera();
+    _curve?.dispose();
+    final curved = _curve = CurvedAnimation(parent: _animation, curve: curve);
     _animation.duration = duration;
     _cameraAnimation = Matrix4Tween(
       begin: _controller.transformation.value,
       end: target,
-    ).animate(CurvedAnimation(parent: _animation, curve: curve));
-    return _animation.forward(from: 0);
+    ).animate(curved);
+    // orCancel turns an interruption into an error instead of a future that
+    // never completes; either way the move is over.
+    return _animation
+        .forward(from: 0)
+        .orCancel
+        .then<void>((_) {}, onError: (Object _) {});
   }
 
   void _onCameraTick() {
     final animation = _cameraAnimation;
     if (animation != null) {
-      _controller.transformation.value = animation.value;
+      _moveCamera(animation.value);
     }
   }
 
@@ -443,7 +500,7 @@ class _HexGridViewState extends State<HexGridView>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
+    final view = LayoutBuilder(
       builder: (context, constraints) {
         _viewportSize = constraints.biggest;
         return InteractiveViewer.builder(
@@ -479,6 +536,8 @@ class _HexGridViewState extends State<HexGridView>
         );
       },
     );
+    // Hidden for the single frame before the initial camera is placed.
+    return Opacity(opacity: _cameraInitialized ? 1 : 0, child: view);
   }
 }
 

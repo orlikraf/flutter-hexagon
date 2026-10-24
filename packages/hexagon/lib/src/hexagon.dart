@@ -173,6 +173,9 @@ class Hexagon extends StatelessWidget {
   final HexagonChildArea childArea;
 
   /// Position of the child inside its area.
+  ///
+  /// Ignored when the hexagon wraps its child ([HexagonFit.wrap]): the child
+  /// is then always centered, since the hexagon is sized around it.
   final AlignmentGeometry alignment;
 
   /// Fill color. Defaults to [HexagonThemeData.color], then
@@ -539,6 +542,9 @@ class RenderHexagonContent extends RenderShiftedBox {
   }
 
   /// Position of the child inside its area.
+  ///
+  /// Ignored when the hexagon wraps its child ([HexagonFit.wrap]): the child
+  /// is then always centered, since the hexagon is sized around it.
   AlignmentGeometry get alignment => _alignment;
   AlignmentGeometry _alignment;
   set alignment(AlignmentGeometry value) {
@@ -604,8 +610,10 @@ class RenderHexagonContent extends RenderShiftedBox {
       }
       child.layout(constraints.loosen(), parentUsesSize: true);
       size = constraints.constrain(_enclosingSize(child.size));
+      // The hexagon is the smallest one around a centered child, so any
+      // other position would push the child past the outline.
       (child.parentData! as BoxParentData).offset =
-          resolvedAlignment.alongOffset(size - child.size as Offset);
+          Alignment.center.alongOffset(size - child.size as Offset);
       return;
     }
     size = constraints.biggest;

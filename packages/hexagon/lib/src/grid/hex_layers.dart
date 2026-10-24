@@ -46,8 +46,10 @@ sealed class HexLayer {
 
   /// The cells this layer covers. Null means every cell of the grid.
   ///
-  /// Prefer a [Set], or keep passing the same object between builds, so the
-  /// view doesn't have to convert it again.
+  /// Compared by identity: when the cells change, pass a new collection
+  /// (for example `units.keys.toSet()` after moving a unit) rather than
+  /// changing this one in place. A [Set] is used as is; other collections
+  /// are converted to a set once per object.
   final Iterable<Hex>? cells;
 }
 

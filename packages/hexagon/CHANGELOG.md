@@ -31,7 +31,8 @@ A rewrite for Flutter 3.27+ and Dart 3.6+, for app UI and games alike. See
 
 * `HexagonType.FLAT` and `HexagonType.POINTY` are now `HexagonType.flat` and
   `HexagonType.pointy`. The old names still work, are deprecated, and
-  `dart fix --apply` renames them.
+  `dart fix --apply` renames them. The values' `name` and `toString()`
+  change too, so stored names need converting (see MIGRATION.md).
 * Requires Dart 3.6 and Flutter 3.27.
 
 **Deprecated** (removed in 2.0.0)

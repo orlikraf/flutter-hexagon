@@ -64,10 +64,8 @@ class SliverHexGrid extends StatelessWidget {
     bool addRepaintBoundaries = true,
     bool addSemanticIndexes = true,
   }) : delegate = SliverChildBuilderDelegate(
-          (context, index) => HexCellClip(
-            type: gridDelegate.type,
-            child: itemBuilder(context, index),
-          ),
+          (context, index) =>
+              _clip(gridDelegate.type, itemBuilder(context, index)),
           childCount: itemCount,
           addAutomaticKeepAlives: addAutomaticKeepAlives,
           addRepaintBoundaries: addRepaintBoundaries,
@@ -80,9 +78,20 @@ class SliverHexGrid extends StatelessWidget {
     required this.gridDelegate,
     required List<Widget> children,
   }) : delegate = SliverChildListDelegate([
-          for (final child in children)
-            HexCellClip(type: gridDelegate.type, child: child),
+          for (final child in children) _clip(gridDelegate.type, child),
         ]);
+
+  /// Wraps [child] in a [HexCellClip] that carries the child's key, so keyed
+  /// items keep their state when they move.
+  static Widget _clip(HexagonType type, Widget child) {
+    final key = child.key;
+    return HexCellClip(
+      // A GlobalKey must stay unique, so only local keys are copied.
+      key: key is LocalKey ? key : null,
+      type: type,
+      child: child,
+    );
+  }
 
   /// Decides the size of the hexagons and how they are placed.
   final SliverHexGridDelegate gridDelegate;
@@ -163,33 +172,38 @@ class SliverHexGridDelegate extends SliverGridDelegate {
     );
   }
 
+  /// The smallest count at which hexagons are at most [maxCellExtent] wide.
   int _countFor(double width, Axis axis) {
     final maxExtent = maxCellExtent!;
-    for (var count = 1; count < 10000; count++) {
-      final radius = _radiusFor(width, axis, count);
-      final extent = axis == Axis.vertical
-          ? type.widthForRadius(radius)
-          : type.heightForRadius(radius);
-      if (extent <= maxExtent) {
-        return count;
-      }
-    }
-    return 10000;
+    // At radius 1 the centers of two lines span a·count + b steps across.
+    final one = _unitLayout(axis, 1);
+    final two = _unitLayout(axis, 2);
+    final a = two._crossSpanOfCenters - one._crossSpanOfCenters;
+    final b = one._crossSpanOfCenters - a;
+    final cell = one._cellCross;
+    final gap = spacing / sqrt3;
+    // cell · radius <= maxExtent, with radius from _radiusFor, holds when
+    // span >= cell · (width - maxExtent) / (maxExtent + cell · gap).
+    final span = cell * (width - maxExtent) / (maxExtent + cell * gap);
+    final count = ((span - b) / a - 1e-9).ceil();
+    return count.clamp(1, 1 << 20);
   }
+
+  SliverHexGridLayout _unitLayout(Axis axis, int count) => SliverHexGridLayout(
+        type: type,
+        axis: axis,
+        crossAxisCount: count,
+        radius: 1,
+        spacing: 0,
+        parity: parity,
+        crossAxisExtent: 0,
+        reverseCrossAxis: false,
+      );
 
   /// The radius at which [count] hexagons per line (and the half-hexagon
   /// shift of every other line) exactly fill [width].
   double _radiusFor(double width, Axis axis, int count) {
-    final unit = SliverHexGridLayout(
-      type: type,
-      axis: axis,
-      crossAxisCount: count,
-      radius: 1,
-      spacing: 0,
-      parity: parity,
-      crossAxisExtent: 0,
-      reverseCrossAxis: false,
-    );
+    final unit = _unitLayout(axis, count);
     // With spacing s the extent is span · (radius + s / √3) + cell · radius.
     final span = unit._crossSpanOfCenters;
     final cell = unit._cellCross;

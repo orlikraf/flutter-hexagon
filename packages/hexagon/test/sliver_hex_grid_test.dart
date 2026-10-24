@@ -122,6 +122,44 @@ void main() {
     expect(fewer.layout.cellWidth, greaterThan(60));
   });
 
+  test('extent picks the smallest count that fits, in every setup', () {
+    for (final axis in Axis.values) {
+      for (final type in HexagonType.values) {
+        for (final spacing in [0.0, 5.0]) {
+          for (final width in [100.0, 333.0, 800.0, 2560.0]) {
+            for (final maxExtent in [8.0, 40.0, 90.0, 99.9, 500.0]) {
+              final reason = '$axis $type $spacing $width $maxExtent';
+              final constraints = _constraints(axis, width);
+              final count = SliverHexGridDelegate.extent(
+                maxCellExtent: maxExtent,
+                type: type,
+                spacing: spacing,
+              ).getLayout(constraints).crossAxisCount;
+              double extentAt(int n) {
+                final layout = SliverHexGridDelegate.count(
+                  crossAxisCount: n,
+                  type: type,
+                  spacing: spacing,
+                ).getLayout(constraints);
+                return axis == Axis.vertical
+                    ? layout.layout.cellWidth
+                    : layout.layout.cellHeight;
+              }
+
+              expect(count, greaterThanOrEqualTo(1), reason: reason);
+              expect(extentAt(count), lessThanOrEqualTo(maxExtent + 1e-6),
+                  reason: reason);
+              if (count > 1) {
+                expect(extentAt(count - 1), greaterThan(maxExtent),
+                    reason: reason);
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
   test('reversed cross axis mirrors the cells', () {
     const delegate = SliverHexGridDelegate.count(crossAxisCount: 4);
     final ltr = delegate.getLayout(_constraints(Axis.vertical, 400));
@@ -213,6 +251,34 @@ void main() {
     expect(taps, [0, 4, 0]);
   });
 
+  testWidgets('keyed items keep their state when reordered', (tester) async {
+    Widget grid(List<int> order) => MaterialApp(
+          home: CustomScrollView(
+            slivers: [
+              SliverHexGrid.list(
+                gridDelegate:
+                    const SliverHexGridDelegate.count(crossAxisCount: 3),
+                children: [
+                  for (final id in order) _Remembers(key: ValueKey(id), id: id),
+                ],
+              ),
+            ],
+          ),
+        );
+    await tester.pumpWidget(grid([1, 2, 3]));
+    final before = {
+      for (final id in [1, 2, 3])
+        id: tester.state<_RemembersState>(_remembers(id)),
+    };
+    await tester.pumpWidget(grid([3, 1, 2]));
+    for (final id in [1, 2, 3]) {
+      expect(
+        tester.state<_RemembersState>(_remembers(id)),
+        same(before[id]),
+      );
+    }
+  });
+
   testWidgets('scrolls horizontally', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -238,12 +304,32 @@ void main() {
         ),
       ),
     );
-    final a = tester.getRect(find.byKey(const ValueKey(0)));
-    final b = tester.getRect(find.byKey(const ValueKey(1)));
-    final c = tester.getRect(find.byKey(const ValueKey(2)));
+    Rect rectOf(int i) => tester.getRect(
+          find.byWidgetPredicate((w) => w is Hexagon && w.key == ValueKey(i)),
+        );
+    final a = rectOf(0);
+    final b = rectOf(1);
+    final c = rectOf(2);
     // Items fill a column top to bottom, then move right.
     expect(b.top, greaterThan(a.top));
     expect(c.left, greaterThan(a.left));
     expect(tester.takeException(), isNull);
   });
+}
+
+Finder _remembers(int id) =>
+    find.byWidgetPredicate((w) => w is _Remembers && w.id == id);
+
+class _Remembers extends StatefulWidget {
+  const _Remembers({super.key, required this.id});
+
+  final int id;
+
+  @override
+  State<_Remembers> createState() => _RemembersState();
+}
+
+class _RemembersState extends State<_Remembers> {
+  @override
+  Widget build(BuildContext context) => Text('${widget.id}');
 }

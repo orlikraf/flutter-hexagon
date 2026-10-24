@@ -55,6 +55,23 @@ void main() {
     );
   });
 
+  testWidgets('wrap always centers the child', (tester) async {
+    const childKey = Key('child');
+    await tester.pumpWidget(
+      _app(
+        const Hexagon(
+          fit: HexagonFit.wrap,
+          alignment: Alignment.topLeft,
+          child: SizedBox(key: childKey, width: 80, height: 40),
+        ),
+      ),
+    );
+    final center = tester.getCenter(find.byKey(childKey));
+    final hexCenter = tester.getCenter(find.byType(Hexagon));
+    expect(center.dx, closeTo(hexCenter.dx, 0.01));
+    expect(center.dy, closeTo(hexCenter.dy, 0.01));
+  });
+
   testWidgets('inscribed child area is the largest inner rectangle',
       (tester) async {
     const childKey = Key('child');
