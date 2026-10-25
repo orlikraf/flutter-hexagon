@@ -91,6 +91,7 @@ class HexGrid extends StatelessWidget {
       children: [
         for (final hex in list)
           LayoutId(
+            key: _CellKey(hex),
             id: hex,
             child: HexCellClip(
               type: type,
@@ -221,4 +222,11 @@ class _HexGridDelegate extends MultiChildLayoutDelegate {
     }
     return true;
   }
+}
+
+/// Keeps each cell's element, and so its state, attached to its hex when
+/// [HexGrid.cells] is reordered. A separate key type, so that it never equals
+/// a `ValueKey<Hex>` the item builder puts on the cell itself.
+class _CellKey extends ValueKey<Hex> {
+  const _CellKey(super.value);
 }

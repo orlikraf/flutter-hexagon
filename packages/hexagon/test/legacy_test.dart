@@ -62,6 +62,17 @@ void main() {
     expect(HexagonType.flat.flatFactor(true), 1);
     expect(HexagonType.pointy.pointyFactor(false), 0.75);
     expect(HexagonType.flat.ratio, closeTo(1.1547, 1e-4));
+    expect(
+      HexagonTypeExtension(HexagonType.flat).ratio,
+      HexagonType.flat.ratio,
+    );
+    expect(
+      HexagonTypeExtension(HexagonType.pointy).ratio,
+      HexagonType.pointy.ratio,
+    );
+    expect(HexagonTypeExtension(HexagonType.flat).isFlat, true);
+    expect(HexagonTypeExtension(HexagonType.flat).isPointy, false);
+    expect(HexagonTypeExtension(HexagonType.pointy).isPointy, true);
   });
 
   test('Coordinates distance', () {

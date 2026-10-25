@@ -97,9 +97,21 @@ void main() {
             itemBuilder: (context, hex) => _Counter(key: ValueKey(hex)),
           ),
         );
-    await tester.pumpWidget(grid(HexShape.hexagon(1)));
-    await tester.pumpWidget(grid(HexShape.hexagon(1).reversed.toList()));
+    final cells = HexShape.hexagon(1);
+    await tester.pumpWidget(grid(cells));
+    final states = {
+      for (final hex in cells)
+        hex: tester.state<_CounterState>(find.byKey(ValueKey(hex))),
+    };
+    await tester.pumpWidget(grid(cells.reversed.toList()));
     expect(find.byType(_Counter), findsNWidgets(7));
+    for (final hex in cells) {
+      expect(
+        tester.state<_CounterState>(find.byKey(ValueKey(hex))),
+        same(states[hex]),
+        reason: '$hex',
+      );
+    }
     expect(tester.takeException(), isNull);
   });
 }
