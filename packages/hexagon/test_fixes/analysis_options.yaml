@@ -1,0 +1,7 @@
+# Separate options so `dart fix --compare-to-golden test_fixes` can analyze
+# these files, which the package's own options exclude.
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    avoid_print: false

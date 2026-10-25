@@ -1,0 +1,7 @@
+import 'package:hexagon/hexagon.dart';
+
+void main() {
+  final flat = HexagonType.flat;
+  final pointy = HexagonType.pointy;
+  print('$flat $pointy');
+}
